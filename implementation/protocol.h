@@ -22,11 +22,11 @@ private:
 	void CGenMove(Gtp::Io& inout);
 	void CSetMaxTreeDepth(Gtp::Io& inout);
 	void CShowBoard(Gtp::Io& inout);
-	void CSetPlayoutsPerMove(Gtp::Io& inout);
 	void CShowTree(Gtp::Io& inout);
 	void CGenMoveNoPlay(Gtp::Io& inout);
 	void CDefendingBridges(Gtp::Io& inout);
 	void CAvoidingBridges(Gtp::Io& inout);
+	void CTimeManagement(Gtp::Io& inout);
 };
 
 } // namespace Hex

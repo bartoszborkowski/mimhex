@@ -4,14 +4,12 @@
 namespace Hex {
 
 const uint MCTSTree::default_max_depth = -1;
-const uint MCTSTree::default_playouts_per_move = 100000;
 const uint MCTSTree::ultimate_depth = kBoardSize * kBoardSize;
 const uint MCTSTree::visits_to_expand = 10;
 
 inline MCTSTree::MCTSTree() : current_player(Player::First()) {
 	Reset();
 	max_depth = default_max_depth;
-	playouts_per_move = default_playouts_per_move;
 }
 
 inline void MCTSTree::ClearTree() {
@@ -43,8 +41,8 @@ Move MCTSTree::BestMove(Player player, Board& board) {
 		root_children_number = board.MovesLeft();
 	}
 
-	for (uint i = 0; i < playouts_per_move; ++i) {
-
+	time_manager.NewMove();
+	while (time_manager.NewPlayout(board.MovesLeft())) {
 		current_level = 0;
 		current_node = root.GetPointer();
 		brd.Load(board);
@@ -98,6 +96,7 @@ Move MCTSTree::BestMove(Player player, Board& board) {
 			}
 		}
 	}
+	time_manager.EndMove();
 
 	MCTSNode* best = root->FindBestChild(board.MovesLeft());
 	current_player = current_player.Opponent();
@@ -124,14 +123,14 @@ void MCTSTree::SetMaxDepth(uint depth) {
 	else max_depth = depth;
 }
 
-void MCTSTree::SetPlayoutsPerMove(uint playouts) {
-	playouts_per_move = playouts;
-}
-
 std::string MCTSTree::ToAsciiArt(uint children) {
 	std::stringstream stream;
 	root->RecursivePrint(stream, children, 0, root_children_number, current_player);
 	return stream.str();
+}
+
+TimeManager & MCTSTree::GetTimeManager() {
+    return time_manager;
 }
 
 } // namespace Hex

@@ -2,6 +2,7 @@
 #define MCTS_TREE_H_
 
 #include "mcts_node.h"
+#include "time_manager.h"
 
 namespace Hex {
 
@@ -16,15 +17,15 @@ public:
 	void SetMaxDepth(uint depth);
 	void SetPlayoutsPerMove(uint playouts);
 	std::string ToAsciiArt(uint children);
+    TimeManager & GetTimeManager();
 
 private:
 	AutoPointer<MCTSNode> root;
 	Player current_player;
 	uint max_depth;
-	uint playouts_per_move;
 	uint root_children_number;
+	TimeManager time_manager;
 	static const uint default_max_depth;
-	static const uint default_playouts_per_move;
 	static const uint ultimate_depth;
 	static const uint visits_to_expand;
 };

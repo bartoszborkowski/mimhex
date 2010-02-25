@@ -33,10 +33,6 @@ void Game::PrintBoard(std::string& board) {
 	board = current_board.ToAsciiArt(last_move);
 }
 
-void Game::SetPlayoutsPerMove(uint playouts) {
-	tree.SetPlayoutsPerMove(playouts);
-}
-
 void Game::PrintTree(std::string& ascii_tree, uint children) {
 	ascii_tree = tree.ToAsciiArt(children);
 }
@@ -56,5 +52,10 @@ void Game::setDefendingBridges(bool v){
 void Game::setAvoidingBridges(bool v){
 	current_board.switches.avoidingBridgesOn = v;
 }
+
+TimeManager & Game::GetTimeManager() {
+    return tree.GetTimeManager();
+}
+
 
 } // namespace Hex

@@ -9,6 +9,7 @@
 #include "protocol.h"
 #include "protocol.cpp"
 #include "params.h"
+#include "time_manager.cpp"
 
 #include <iostream>
 #include <cstdlib>
