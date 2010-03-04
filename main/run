@@ -1,0 +1,3 @@
+echo "11" > kupa
+./judge-static -v -P 0 -T 150m -i kupa -llog ./my_hex ./hex
+rm kupa
