@@ -114,10 +114,12 @@ class Board {
   static const uint table_size;
   static const uint guarded_board_size;
   short _board[kBoardSizeAligned * kBoardSizeAligned];
+  short timesOfBeingOnShortestPath[kBoardSizeAligned * kBoardSizeAligned];
   ushort _fast_field_map[kBoardSizeAligned * kBoardSizeAligned];
   ushort _reverse_fast_field_map[kBoardSizeAligned * kBoardSizeAligned];
   SmallSet<pair<ushort,bool> > _field_bridge_connections[kBoardSizeAligned * kBoardSizeAligned]; 
 									/*bool mówi, czy most należy do pierwszego gracza*/
+
   uint _moves_left;
   int _field_map_bound;
   Player _current;
