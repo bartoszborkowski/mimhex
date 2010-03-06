@@ -20,7 +20,7 @@ void Game::Play(const Move& move) {
 	last_move = move.GetLocation();
 
 	//FIXME remove this later
-	cerr << current_board.ToAsciiArt(last_move);
+	//cerr << current_board.ToAsciiArt(last_move);
 }
 
 Move Game::GenMove(Player player) {

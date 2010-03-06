@@ -183,7 +183,7 @@ void Board::UpdatePathsStats(Board& aBoard, Player& winner){
 	parent = Find(startingPoint);
 
 	for(uint i=0; i<table_size; i++){
-		aBoard.timesOfBeingOnShortestPath += (short)(Find(_board[i]) == parent));
+		aBoard.timesOfBeingOnShortestPath[i] += (short)(Find(_board[i]) == parent);
 	}
 }
 
