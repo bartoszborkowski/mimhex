@@ -163,7 +163,28 @@ void Board::clearShortestPathsStats(){
 
 	for(uint i=0; i<table_size; i++)
 		timesOfBeingOnShortestPath[i]=0;
+}
 
+void Board::UpdatePathsStats(Board& aBoard, Player& winner){
+	/* first uses positive numbers, second -1s */
+	/* _board[(guarded_board_size - 2) * kBoardSizeAligned + 2] is always a guard of a first type */
+	/* _board[2 * kBoardSizeAligned + 1] is always a guard of a second type */
+
+	int startingPoint;
+	uint parent;
+ 
+	if (Player::First() == winner){ 
+		startingPoint = (guarded_board_size - 2) * kBoardSizeAligned + 2;
+	}
+	else{
+		startingPoint = 2 * kBoardSizeAligned + 1;
+	}
+
+	parent = Find(startingPoint);
+
+	for(uint i=0; i<table_size; i++){
+		aBoard.timesOfBeingOnShortestPath += (short)(Find(_board[i]) == parent));
+	}
 }
 
 inline Player Board::CurrentPlayer() const {

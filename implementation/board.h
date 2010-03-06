@@ -114,6 +114,7 @@ class Board {
   void UpdateBridgeBound(uint pos);
 
   void clearShortestPathsStats();
+  void UpdatePathsStats(Board& board, Player& winner);
 
  private:
   static const uint table_size;
@@ -123,13 +124,13 @@ class Board {
 /*this is used in feature which is variation of AMAF*/
   short timesOfBeingOnShortestPath[kBoardSizeAligned * kBoardSizeAligned];
 
-/*this two ones are used in find and union. _fast_field_map is kind of sorted - 
-  fields that are'nt bridges are before those, which are.*/
+/*these two ones are used in find and union. _fast_field_map is kind of sorted - 
+  fields that aren't bridges are before those, which are.*/
   ushort _fast_field_map[kBoardSizeAligned * kBoardSizeAligned];
   ushort _reverse_fast_field_map[kBoardSizeAligned * kBoardSizeAligned];
 
-/*This ones are used in bridges. 
-  First from pair is an index of second free field in bridge. Second guy from pair
+/*These ones are used in bridges. 
+  First in the pair is an index of second free field in bridge. Second guy from pair
   says if bridge is built by first player.*/
   SmallSet<pair<ushort,bool> > _field_bridge_connections[kBoardSizeAligned * kBoardSizeAligned]; 
   SmallSet<ushort, 50> attacked_bridges;
@@ -139,7 +140,7 @@ class Board {
   Player _current;
 
 public:
-  Switches switches;		//set of info about what knowledge do we use.
+  Switches switches;		//set of info about what knowledge we use.
 							// Assuming that it doesn't change during single "random" playout
 
 };
