@@ -165,7 +165,9 @@ void Board::clearShortestPathsStats(){
 		timesOfBeingOnShortestPath[i]=0;
 }
 
-void Board::UpdatePathsStats(Board& aBoard, Player& winner){
+/* this method assumes symetric FU! */
+//FIXME test it after implementing symetric FU!
+void Board::UpdatePathsStatsFloodFillFU(Board& aBoard, Player& winner){
 	/* first uses positive numbers, second -1s */
 	/* _board[(guarded_board_size - 2) * kBoardSizeAligned + 2] is always a guard of a first type */
 	/* _board[2 * kBoardSizeAligned + 1] is always a guard of a second type */
@@ -184,6 +186,68 @@ void Board::UpdatePathsStats(Board& aBoard, Player& winner){
 
 	for(uint i=0; i<table_size; i++){
 		aBoard.timesOfBeingOnShortestPath[i] += (short)(Find(_board[i]) == parent);
+	}
+}
+
+void Board::UpdatePathsStatsFloodFillDFS(Board& aBoard, Player& winner){
+ 
+	if (Player::First() == winner){ 
+		int startingPoint;
+		uint parent;
+
+		startingPoint = (guarded_board_size - 2) * kBoardSizeAligned + 2;
+
+		parent = Find(startingPoint);
+
+		for(uint i=0; i<table_size; i++){
+			aBoard.timesOfBeingOnShortestPath[i] += (short)(Find(_board[i]) == parent);
+		}
+	}
+	/* FU is not performed for this player, BFS necessary */
+	else{
+		/* this part of code is supposed to be substituted */
+		/*
+		uint visited[table_size];
+		uint toBeVisited[table_size/2];
+		int first = -1;
+		int firstEmpty = 0;
+		uint startingPoint;
+
+		for(int i=0; i<table_size; i++)
+			visited[i] = 0;
+
+		startingPoint = 2 * kBoardSizeAligned + 1;
+
+		toBeVisited[inTheQueue] = startingPoint;
+		first++;
+		firstEmpty++;
+		visited[startingPoint] = 1;
+
+		while(inTheQueue != 0){
+			uint vertex;
+			uint neighbours[6];
+
+			vertex = toBeVisited[inTheQueue - 1];
+			inTheQueue--;
+			visited[vertex] = 1;
+
+			neighbours[0] = pos + 1;
+			neighbours[1] = pos - 1;
+			neighbours[2] = pos - kBoardSizeAligned;
+			neighbours[3] = pos - kBoardSizeAligned + 1;
+			neighbours[4] = pos + kBoardSizeAligned;
+			neighbours[5] = pos + kBoardSizeAligned - 1;
+
+			for(int i=0; i<6; i++){
+				if((neighbours[i].first >= 0) && (neighbours[i].first < kBoardSize) && (neighbours[i].second >= 0) && (neighbours[i].second < kBoardSize) &&
+				   (visited[neighbours[i].first][neighbours[i].second] == false) && (board[neighbours[i].first][neighbours[i].second] == 'f')){
+					toBeVisited[inTheQueue] = neighbours[i];
+					inTheQueue++;
+					visited[neighbours[i].first][neighbours[i].second] = true;
+				}
+			}
+		}
+		*/
 	}
 }
 

@@ -114,7 +114,8 @@ class Board {
   void UpdateBridgeBound(uint pos);
 
   void clearShortestPathsStats();
-  void UpdatePathsStats(Board& board, Player& winner);
+  void UpdatePathsStatsFloodFillFU(Board& board, Player& winner);
+  void UpdatePathsStatsFloodFillDFS(Board& board, Player& winner);
 
  private:
   static const uint table_size;
