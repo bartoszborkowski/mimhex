@@ -5,6 +5,7 @@
 #include "conditional_assert.h"
 #include <cstring>
 #include <sstream>
+#include <iostream>
 
 #define SHORT_BIT_SIZE (sizeof(short) * 8)
 
@@ -119,12 +120,14 @@ inline Player Move::GetPlayer() const { return _player; }
 
 // -----------------------------------------------------------------------------
 
-const uint Board::guarded_board_size = kBoardSize + 4;
+const uint Board::guarded_board_size = kBoardSize + 4;                    //two guards on each side
 const uint Board::table_size = kBoardSizeAligned * kBoardSizeAligned;
 
 const Board Board::Empty() {
 
 	Board board;
+
+	/*building F&U structures*/
 
 	uint counter = 0;
 	for (uint i = 0; i < table_size; ++i)
@@ -137,9 +140,9 @@ const Board Board::Empty() {
 		}
 	}
 
-	for (uint i = 0; i < table_size; ++i)
+	for (uint i = 0; i < table_size; ++i)			/*cleaning board*/
 		board._board[i] = 0;
-	for (uint i = 2; i <= kBoardSize + 1; ++i)
+	for (uint i = 2; i <= kBoardSize + 1; ++i)		/*initializing guards. Assuming two layers of guards!*/
 		board._board[i + kBoardSizeAligned] = 2 + kBoardSizeAligned;
 	for (uint i = (guarded_board_size - 2) * kBoardSizeAligned + 2;
 			i < (guarded_board_size - 2) * (kBoardSizeAligned + 1); ++i) {
@@ -151,8 +154,16 @@ const Board Board::Empty() {
 		board._board[i + kBoardSize + 1] = -1;
 	}
 
+	board.clearShortestPathsStats();
 
 	return board;
+}
+
+void Board::clearShortestPathsStats(){
+
+	for(uint i=0; i<table_size; i++)
+		timesOfBeingOnShortestPath[i]=0;
+
 }
 
 inline Player Board::CurrentPlayer() const {
@@ -161,67 +172,61 @@ inline Player Board::CurrentPlayer() const {
 
 Move Board::RandomLegalMove (const Player& player) const {
 
-#define STRANGE_NUMBER 128
+	return Move(player, _fast_field_map[Rand::next_rand(_moves_left)]);
+
+}
+
+Move Board::RandomLegalAvoidBridges (const Player& player) const {
 
 	// _field_map_bound - last not-bridge
 	// (_field_map_bound + 1) - first field after not-bridge fields == count of not-bridges
 	// (_moves_left - _field_map_bound - 1) - bridges count
 
-	uint rnd = Rand::next_rand((_field_map_bound + 1) * STRANGE_NUMBER + _moves_left - _field_map_bound - 1);
+	uint rnd = Rand::next_rand((_field_map_bound + 1) * Params::bridgeWeight + _moves_left - _field_map_bound - 1);
 	uint result;
 
-	if (rnd >= static_cast<unsigned>(_field_map_bound + 1) * STRANGE_NUMBER)
-		result = rnd - (_field_map_bound + 1) * (STRANGE_NUMBER - 1);
+	if (rnd >= static_cast<unsigned>(_field_map_bound + 1) * Params::bridgeWeight)
+		result = rnd - (_field_map_bound + 1) * (Params::bridgeWeight - 1);
 	else 
-		result = rnd / STRANGE_NUMBER;
-
-#undef STRANGE_NUMBER
+		result = rnd / Params::bridgeWeight;
 
 	return Move(player, _fast_field_map[result]);
+
 }
 
-/*Move Board::RandomLegalMoveIgnoreBridges (const Player& player) const {
-	return Move(player, _fast_field_map[Rand::next_rand(_moves_left)]);
-}*/
-
 inline void Board::PlayLegal (const Move& move) {
+
 	ASSERT(IsValidMove(move));
 	uint pos = move.GetLocation().GetPos();
+
 	if (move.GetPlayer() == Player::First()) {
 		_board[pos] = pos;
 		MakeUnion(pos);
 	} else {
 		_board[pos] = -1;
 	}
+
 	uint fast_map_pos = _reverse_fast_field_map[pos];
 	uint replace_pos = _fast_field_map[--_moves_left];
 	_fast_field_map[fast_map_pos] = replace_pos;
 	_reverse_fast_field_map[replace_pos] = fast_map_pos;
 	_current = _current.Opponent();
 
+	ASSERT(switches.avoidingBridgesOn || switches.defendingBridgesOn);
+	if(switches.avoidingBridgesOn || switches.defendingBridgesOn)
+		UpdateBridgeData(pos,replace_pos);
+
+}
+
+inline void Board::UpdateBridgeData (uint pos, uint replace_pos) {
+
 	_reverse_fast_field_map[pos] = _moves_left;			/*WTF?*/
 	if (_field_map_bound >= static_cast<int>(_moves_left))
-		_field_map_bound--;					/*serio - WTF?*/
+		_field_map_bound--;								/*serio - WTF?*/
 
 	UpdateBridgeBound(replace_pos);
 	UpdateBridges(pos);
 }
-
-/*inline void Board::PlayLegalIgnoreBridges (const Move& move) {
-	ASSERT(IsValidMove(move));
-	uint pos = move.GetLocation().GetPos();
-	if (move.GetPlayer() == Player::First()) {
-		_board[pos] = pos;
-		MakeUnion(pos);
-	} else {
-		_board[pos] = -1;
-	}
-	uint fast_map_pos = _reverse_fast_field_map[pos];
-	uint replace_pos = _fast_field_map[--_moves_left];
-	_fast_field_map[fast_map_pos] = replace_pos;
-	_reverse_fast_field_map[replace_pos] = fast_map_pos;
-	_current = _current.Opponent();
-}*/
 
 inline void Board::MakeUnion(uint pos) {
 	uint rep = MakeUnion(pos, pos + 1);
@@ -288,21 +293,22 @@ void Board::UpdateBridges(uint pos) {
 */
 
 /*instead of those seven lines above developed by krzysiocrash
-'while' by theolol is used. WHY CANNOT I CLEAR THE _field_bridge_connections[pos]??*/
+'while' by theolol is used.*/
 
 	SmallSetIterator<pair<ushort,bool>, 3> it = _field_bridge_connections[pos].GetIterator();
 	while (!it.IsEnd()){
 		uint elem = (*it).first;
 
-		if((*it).second ^ (_current!=Player::First())) 
-							   
-			attacked_bridges.Insert(elem);
+		if((*it).second ^ (_current!=Player::First())) /*I check owner of the bridge and if it fits*/
+			attacked_bridges.Insert(elem);             /*I insert this bridge to attacked ones*/
 
 		_field_bridge_connections[elem].Remove(pair<ushort,bool>(pos,(*it).second));
-		it++;										/*to tylko Bóg wie czemu*/
+		it++;
 	}
 
 	short val = _board[pos];
+
+/*updating bridge structures - six cases*/
 
 	short second = _board[pos - 2 * kBoardSizeAligned + 1];
 	if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
@@ -361,7 +367,7 @@ void Board::UpdateBridges(uint pos) {
 
 }
 
-void Board::UpdateBridgeBound(uint pos) {  /*Jezu*/
+void Board::UpdateBridgeBound(uint pos) { /*I assume It's OK*/
 	if (_field_bridge_connections[pos].Size() > 0) {
 		if (_reverse_fast_field_map[pos] <= _field_map_bound) {
 			ushort map_pos = _reverse_fast_field_map[pos];
@@ -430,15 +436,15 @@ bool Board::IsValidMove(const Move& move) {
 	return _board[move.GetLocation().GetPos()] == 0;
 }
 
-//If bride exists -> defendig move, else -> random move
-Move Board::DefendBridgeMove(const Player& player) const {
-	if (!attacked_bridges.Empty()){
-		//fprintf(stderr,"niepusty\n");
-		Move m = Move(player, Location(attacked_bridges.RandomElem()));
-		//fprintf(stderr,"%s",ToAsciiArt(m.GetLocation()).c_str());
-		//sleep(10);
-		return m;
-	}
+
+Move Board::GenerateMoveUsingKnowledge(const Player& player) const {
+	if(switches.defendingBridgesOn)
+		if (!attacked_bridges.Empty()){
+			Move m = Move(player, Location(attacked_bridges.RandomElem()));
+			return m;
+		}
+	if(switches.avoidingBridgesOn)
+		return RandomLegalAvoidBridges(player);
 	return RandomLegalMove(player);
 }
 

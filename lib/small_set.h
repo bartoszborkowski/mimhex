@@ -1,4 +1,3 @@
-
 #ifndef SMALL_SET_H_
 #define SMALL_SET_H_
 

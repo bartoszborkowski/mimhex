@@ -24,7 +24,6 @@ MCTSNode* MCTSNode::FindChildToSelect(uint children_number) {
 
 float MCTSNode::Eval() {
 	float ucb_weight = GetUCBWeight();
-	//cerr<<"\n"<<"MCTSNODE. getucb: "<<GetUCB()<<"ucb weight: "<<ucb_weight<<"getrave: "<<GetRAVE()<<"\n";
 	return GetUCB() * ucb_weight + GetRAVE() * (1.0 - ucb_weight);
 }
 
@@ -81,12 +80,9 @@ float MCTSNode::GetUCBWeight() {
 }
 
 inline void MCTSNode::ComputeUCBStats() {
-	//cerr<<"validucb: "<<valid_ucb<<" ";
 	if (valid_ucb) return;
-	//cerr<<"licznik: "<<static_cast<float>(uct_stats.played)<<"mianownik: "<<(Params::beta + static_cast<float>(uct_stats.played))<<"\n";
 	ucb_weight = static_cast<float>(uct_stats.played) /
 				(Params::beta + static_cast<float>(uct_stats.played));
-	//cerr<<"getmu: "<<GetMu()<<"inversesqrt: "<<InverseSqrt(uct_stats.played)<<"alphA: "<<Params::alpha<<"\n";
 	ucb = GetMu() + (Params::alpha * InverseSqrt(uct_stats.played));
 }
 

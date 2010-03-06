@@ -50,4 +50,11 @@ bool Game::IsFinished() {
 	return current_board.IsFull();
 }
 
+void Game::setDefendingBridges(bool v){
+	current_board.switches.defendingBridgesOn = v;
+}
+void Game::setAvoidingBridges(bool v){
+	current_board.switches.avoidingBridgesOn = v;
+}
+
 } // namespace Hex

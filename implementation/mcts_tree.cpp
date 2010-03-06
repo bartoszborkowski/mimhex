@@ -45,9 +45,6 @@ Move MCTSTree::BestMove(Player player, Board& board) {
 
 	for (uint i = 0; i < playouts_per_move; ++i) {
 
-// 		fprintf(stderr,"%s\n", ToAsciiArt(100000).c_str());
-// 		sleep(1);
-
 		current_level = 0;
 		current_node = root.GetPointer();
 		brd.Load(board);
@@ -102,9 +99,6 @@ Move MCTSTree::BestMove(Player player, Board& board) {
 		}
 	}
 
-// 		fprintf(stderr,"%s\n", ToAsciiArt(6).c_str());
-// 		sleep(10);
-
 	MCTSNode* best = root->FindBestChild(board.MovesLeft());
 	current_player = current_player.Opponent();
 
@@ -116,7 +110,7 @@ Player MCTSTree::RandomFinish(Board& board, uint* path,
 
 	while (!board.IsFull()) {
 	  Player pl = board.CurrentPlayer();
-	  Move move = board.DefendBridgeMove(pl);  /*!*/ // from theolol
+	  Move move = board.GenerateMoveUsingKnowledge(pl);
 	  path[++current_level] = move.GetLocation().GetPos();
 	  board.PlayLegal(move);
 	}
