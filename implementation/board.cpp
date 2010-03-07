@@ -499,8 +499,8 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, Player& winner){
 					visited[queue[end]] = visited[beg];
 				}
 			}
-			for(uint i=2*kBoardSizeAligned+2+kBoardSize;
-						i<(kBoardSize+2)*kBoardSizeAligned+2+kBoardSize; i=i+kBoardSizeAligned)
+			for(uint i=2*kBoardSizeAligned+1;
+						i<(kBoardSize+2)*kBoardSizeAligned+1; i=i+kBoardSizeAligned)
 				visited[i]=0;
 			beg=0;
 			end=-1;
