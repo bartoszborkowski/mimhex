@@ -474,27 +474,27 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, Player& winner){
 			for(; beg<=end; beg++){
 				if((visited[queue[beg]+1] == 0) && _board[queue[beg]+1]<0){
 					queue[++end]=queue[beg]+1;
-					visited[queue[end]] = visited[beg];
+					visited[queue[end]] = visited[beg]+1;
 				}
 				if((visited[queue[beg]-1] == 0) && _board[queue[beg]-1]<0){
 					queue[++end]=queue[beg]-1;
-					visited[queue[end]] = visited[beg];
+					visited[queue[end]] = visited[beg]-1;
 				}
 				if((visited[queue[beg]-kBoardSizeAligned+1] == 0) && _board[queue[beg]-kBoardSizeAligned+1]<0){
 					queue[++end]=queue[beg]-kBoardSizeAligned+1;
-					visited[queue[end]] = visited[beg]-1;
+					visited[queue[end]] = visited[beg]+1;
 				}
 				if((visited[queue[beg]+kBoardSizeAligned-1] == 0) && _board[queue[beg]+kBoardSizeAligned-1]<0){
 					queue[++end]=queue[beg]+kBoardSizeAligned-1;
-					visited[queue[end]] = visited[beg]+1;
+					visited[queue[end]] = visited[beg]-1;
 				}
 				if((visited[queue[beg]+kBoardSizeAligned] == 0) && _board[queue[beg]+kBoardSizeAligned]<0){
 					queue[++end]=queue[beg]+kBoardSizeAligned;
-					visited[queue[end]] = visited[beg]+1;
+					visited[queue[end]] = visited[beg];
 				}
 				if((visited[queue[beg]-kBoardSizeAligned] == 0) && _board[queue[beg]-kBoardSizeAligned]<0){
 					queue[++end]=queue[beg]-kBoardSizeAligned;
-					visited[queue[end]] = visited[beg]-1;
+					visited[queue[end]] = visited[beg];
 				}
 			}
 			beg=0;
