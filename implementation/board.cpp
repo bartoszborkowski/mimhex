@@ -393,7 +393,7 @@ void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, Player& winner)
 			}
 		}
 		aBoard.timesOfBeingOnShortestPath[current]++;
-			}
+
 		for(;;){
 			if(visited[current+1] == visited[current]-1){
 				current = current + 1;
