@@ -165,6 +165,182 @@ void Board::clearShortestPathsStats(){
 		timesOfBeingOnShortestPath[i]=0;
 }
 
+
+void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, Player& winner)
+{
+
+	short queue[table_size/2+1];	//bfs queue
+	unsigned short visited[table_size];	//marks in which step node was visited
+	short beg=0, end=-1;		//queue markings
+
+	memset(visited,0,table_size*sizeof(visited[0]));
+
+	if (Player::First() == winner){
+		for(uint i=2*kBoardSizeAligned+2; i<2*kBoardSizeAligned+kBoardSize+2; i++)
+			if(_board[i]>0){
+				queue[++end]=i;		//I put to queue every node by the edge
+				visited[i]=1;		//and mark it as visited in first step
+			}
+		for(; beg<=end; beg++){			//bfs
+			if((visited[queue[beg]+1] == 0) && _board[queue[beg]+1]>0){
+				queue[++end]=queue[beg]+1;
+				visited[queue[end]] = visited[beg]+1;
+			}
+			if((visited[queue[beg]-1] == 0) && _board[queue[beg]-1]>0){
+				queue[++end]=queue[beg]-1;
+				visited[queue[end]] = visited[beg]+1;
+			}
+			if((visited[queue[beg]-kBoardSizeAligned+1] == 0) && _board[queue[beg]-kBoardSizeAligned+1]>0){
+				queue[++end]=queue[beg]-kBoardSizeAligned+1;
+				visited[queue[end]] = visited[beg]+1;
+			}
+			if((visited[queue[beg]+kBoardSizeAligned-1] == 0) && _board[queue[beg]+kBoardSizeAligned-1]>0){
+				queue[++end]=queue[beg]+kBoardSizeAligned-1;
+				visited[queue[end]] = visited[beg]+1;
+			}
+			if((visited[queue[beg]+kBoardSizeAligned] == 0) && _board[queue[beg]+kBoardSizeAligned]>0){
+				queue[++end]=queue[beg]+kBoardSizeAligned;
+				visited[queue[end]] = visited[beg]+1;
+			}
+			if((visited[queue[beg]-kBoardSizeAligned] == 0) && _board[queue[beg]-kBoardSizeAligned]>0){
+				queue[++end]=queue[beg]-kBoardSizeAligned;
+				visited[queue[end]] = visited[beg]+1;
+			}
+		}
+		/*Now I have to find the shortest paths.
+		  I find out which nodes by the other edge were visited as first ones*/
+		uint min = (uint) -1;
+		for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
+				i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i) {
+			if(visited[i] > 0 && visited[i] < min)
+				min = visited[i];
+		}
+		beg=0;	//cleaning queue
+		end=-1;
+		for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
+				i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i)
+			if(visited[i]==min){
+				queue[++end]=i;
+				aBoard.timesOfBeingOnShortestPath[i]++;
+				visited[i]=0;
+			}
+		for(; beg<=end; beg++){		//second bfs done backwards
+			if(visited[queue[beg]+1] == visited[queue[beg]]-1){
+				queue[++end]=queue[beg]+1;
+				visited[queue[end]] = 0;
+				aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+			}
+			if(visited[queue[beg]-1] == visited[queue[beg]]-1){
+				queue[++end]=queue[beg]-1;
+				visited[queue[end]] = 0;
+				aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+			}
+			if(visited[queue[beg]-kBoardSizeAligned+1] == visited[queue[beg]]-1){
+				queue[++end]=queue[beg]-kBoardSizeAligned+1;
+				visited[queue[end]] = 0;
+				aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+			}
+			if(visited[queue[beg]+kBoardSizeAligned-1] == visited[queue[beg]]-1){
+				queue[++end]=queue[beg]+kBoardSizeAligned-1;
+				visited[queue[end]] = 0;
+				aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+			}
+			if(visited[queue[beg]+kBoardSizeAligned] == visited[queue[beg]]-1){
+				queue[++end]=queue[beg]+kBoardSizeAligned;
+				visited[queue[end]] = 0;
+				aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+			}
+			if(visited[queue[beg]-kBoardSizeAligned] == visited[queue[beg]]-1){
+				queue[++end]=queue[beg]-kBoardSizeAligned;
+				visited[queue[end]] = 0;
+				aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+			}
+		}
+	}else{	//analogically for the other player marked with values < 0
+		//there are changes in 'for' statements (vertically, not horizontally)
+		//and in comparisions to 0 (lesser, not greater)
+		for(uint i=2*kBoardSizeAligned+2; i<(kBoardSize+2)*kBoardSizeAligned+2; i=i+kBoardSizeAligned)
+			if(_board[i]<0){
+				queue[++end]=i;
+				visited[i]=1;
+			}
+		for(; beg<=end; beg++){
+			if((visited[queue[beg]+1] == 0) && _board[queue[beg]+1]<0){
+				queue[++end]=queue[beg]+1;
+				visited[queue[end]] = visited[beg]+1;
+			}
+			if((visited[queue[beg]-1] == 0) && _board[queue[beg]-1]<0){
+				queue[++end]=queue[beg]-1;
+				visited[queue[end]] = visited[beg]+1;
+			}
+			if((visited[queue[beg]-kBoardSizeAligned+1] == 0) && _board[queue[beg]-kBoardSizeAligned+1]<0){
+				queue[++end]=queue[beg]-kBoardSizeAligned+1;
+				visited[queue[end]] = visited[beg]+1;
+			}
+			if((visited[queue[beg]+kBoardSizeAligned-1] == 0) && _board[queue[beg]+kBoardSizeAligned-1]<0){
+				queue[++end]=queue[beg]+kBoardSizeAligned-1;
+				visited[queue[end]] = visited[beg]+1;
+			}
+			if((visited[queue[beg]+kBoardSizeAligned] == 0) && _board[queue[beg]+kBoardSizeAligned]<0){
+				queue[++end]=queue[beg]+kBoardSizeAligned;
+				visited[queue[end]] = visited[beg]+1;
+			}
+			if((visited[queue[beg]-kBoardSizeAligned] == 0) && _board[queue[beg]-kBoardSizeAligned]<0){
+				queue[++end]=queue[beg]-kBoardSizeAligned;
+				visited[queue[end]] = visited[beg]+1;
+			}
+		}
+		uint min = (uint) -1;
+		for (uint i = 2 * kBoardSizeAligned + 1 + kBoardSize;
+				i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; i=i+kBoardSizeAligned) {
+			if(visited[i]>0 && visited[i]<min)
+				min = visited[i];
+		}
+		beg=0;
+		end=-1;
+		for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
+				i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i)
+			if(visited[i]==min){
+				queue[++end]=i;
+				aBoard.timesOfBeingOnShortestPath[i]++;
+				visited[i]=0;
+			}
+		for(; beg<=end; beg++){
+			if(visited[queue[beg]+1] == visited[queue[beg]]-1){
+				queue[++end]=queue[beg]+1;
+				visited[queue[end]] = 0;
+				aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+			}
+			if(visited[queue[beg]-1] == visited[queue[beg]]-1){
+				queue[++end]=queue[beg]-1;
+				visited[queue[end]] = 0;
+				aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+			}
+			if(visited[queue[beg]-kBoardSizeAligned+1] == visited[queue[beg]]-1){
+				queue[++end]=queue[beg]-kBoardSizeAligned+1;
+				visited[queue[end]] = 0;
+				aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+			}
+			if(visited[queue[beg]+kBoardSizeAligned-1] == visited[queue[beg]]-1){
+				queue[++end]=queue[beg]+kBoardSizeAligned-1;
+				visited[queue[end]] = 0;
+				aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+			}
+			if(visited[queue[beg]+kBoardSizeAligned] == visited[queue[beg]]-1){
+				queue[++end]=queue[beg]+kBoardSizeAligned;
+				visited[queue[end]] = 0;
+				aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+			}
+			if(visited[queue[beg]-kBoardSizeAligned] == visited[queue[beg]]-1){
+				queue[++end]=queue[beg]-kBoardSizeAligned;
+				visited[queue[end]] = 0;
+				aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+			}
+		}
+	}
+
+}
+
 /* this method assumes symetric FU! */
 //FIXME test it after implementing symetric FU!
 void Board::UpdatePathsStatsFloodFillFU(Board& aBoard, Player& winner){
@@ -189,7 +365,7 @@ void Board::UpdatePathsStatsFloodFillFU(Board& aBoard, Player& winner){
 	}
 }
 
-void Board::UpdatePathsStatsFloodFillDFS(Board& aBoard, Player& winner){
+void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, Player& winner){
  
 	if (Player::First() == winner){ 
 		int startingPoint;
@@ -205,49 +381,161 @@ void Board::UpdatePathsStatsFloodFillDFS(Board& aBoard, Player& winner){
 	}
 	/* FU is not performed for this player, BFS necessary */
 	else{
-		/* this part of code is supposed to be substituted */
-		/*
-		uint visited[table_size];
-		uint toBeVisited[table_size/2];
-		int first = -1;
-		int firstEmpty = 0;
-		uint startingPoint;
-
-		for(int i=0; i<table_size; i++)
-			visited[i] = 0;
-
-		startingPoint = 2 * kBoardSizeAligned + 1;
-
-		toBeVisited[inTheQueue] = startingPoint;
-		first++;
-		firstEmpty++;
-		visited[startingPoint] = 1;
-
-		while(inTheQueue != 0){
-			uint vertex;
-			uint neighbours[6];
-
-			vertex = toBeVisited[inTheQueue - 1];
-			inTheQueue--;
-			visited[vertex] = 1;
-
-			neighbours[0] = pos + 1;
-			neighbours[1] = pos - 1;
-			neighbours[2] = pos - kBoardSizeAligned;
-			neighbours[3] = pos - kBoardSizeAligned + 1;
-			neighbours[4] = pos + kBoardSizeAligned;
-			neighbours[5] = pos + kBoardSizeAligned - 1;
-
-			for(int i=0; i<6; i++){
-				if((neighbours[i].first >= 0) && (neighbours[i].first < kBoardSize) && (neighbours[i].second >= 0) && (neighbours[i].second < kBoardSize) &&
-				   (visited[neighbours[i].first][neighbours[i].second] == false) && (board[neighbours[i].first][neighbours[i].second] == 'f')){
-					toBeVisited[inTheQueue] = neighbours[i];
-					inTheQueue++;
-					visited[neighbours[i].first][neighbours[i].second] = true;
+	
+		short queue[table_size/2+1];
+		unsigned short visited[table_size];
+		short beg=0, end=-1;
+	
+		memset(visited,0,table_size*sizeof(visited[0]));
+	
+		if (Player::First() == winner){
+			for(uint i=2*kBoardSizeAligned+2; i<2*kBoardSizeAligned+kBoardSize+2; i++)
+				if(_board[i]>0){
+					queue[++end]=i;
+					visited[i]=1;
+				}
+			for(; beg<=end; beg++){
+				if((visited[queue[beg]+1] == 0) && _board[queue[beg]+1]>0){
+					queue[++end]=queue[beg]+1;
+					visited[queue[end]] = 1;
+				}
+				if((visited[queue[beg]-1] == 0) && _board[queue[beg]-1]>0){
+					queue[++end]=queue[beg]-1;
+					visited[queue[end]] = 1;
+				}
+				if((visited[queue[beg]-kBoardSizeAligned+1] == 0) && _board[queue[beg]-kBoardSizeAligned+1]>0){
+					queue[++end]=queue[beg]-kBoardSizeAligned+1;
+					visited[queue[end]] = 1;
+				}
+				if((visited[queue[beg]+kBoardSizeAligned-1] == 0) && _board[queue[beg]+kBoardSizeAligned-1]>0){
+					queue[++end]=queue[beg]+kBoardSizeAligned-1;
+					visited[queue[end]] = 1;
+				}
+				if((visited[queue[beg]+kBoardSizeAligned] == 0) && _board[queue[beg]+kBoardSizeAligned]>0){
+					queue[++end]=queue[beg]+kBoardSizeAligned;
+					visited[queue[end]] = 1;
+				}
+				if((visited[queue[beg]-kBoardSizeAligned] == 0) && _board[queue[beg]-kBoardSizeAligned]>0){
+					queue[++end]=queue[beg]-kBoardSizeAligned;
+					visited[queue[end]] = 1;
+				}
+			}
+			beg=0;
+			end=-1;
+			for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
+					i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i)
+				if(visited[i]>0){
+					queue[++end]=i;
+					aBoard.timesOfBeingOnShortestPath[i]++;
+					visited[i]=0;
+				}
+			for(; beg<=end; beg++){
+				if(visited[queue[beg]+1] == 1){
+					queue[++end]=queue[beg]+1;
+					visited[queue[end]] = 0;
+					aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+				}
+				if(visited[queue[beg]-1] == 1){
+					queue[++end]=queue[beg]-1;
+					visited[queue[end]] = 0;
+					aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+				}
+				if(visited[queue[beg]-kBoardSizeAligned+1] == 1){
+					queue[++end]=queue[beg]-kBoardSizeAligned+1;
+					visited[queue[end]] = 0;
+					aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+				}
+				if(visited[queue[beg]+kBoardSizeAligned-1] == 1){
+					queue[++end]=queue[beg]+kBoardSizeAligned-1;
+					visited[queue[end]] = 0;
+					aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+				}
+				if(visited[queue[beg]+kBoardSizeAligned] == 1){
+					queue[++end]=queue[beg]+kBoardSizeAligned;
+					visited[queue[end]] = 0;
+					aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+				}
+				if(visited[queue[beg]-kBoardSizeAligned] == 1){
+					queue[++end]=queue[beg]-kBoardSizeAligned;
+					visited[queue[end]] = 0;
+					aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+				}
+			}
+		}else{	
+			for(uint i=2*kBoardSizeAligned+2; i<(kBoardSize+2)*kBoardSizeAligned+2; i=i+kBoardSizeAligned)
+				if(_board[i]<0){
+					queue[++end]=i;
+					visited[i]=1;
+				}
+			for(; beg<=end; beg++){
+				if((visited[queue[beg]+1] == 0) && _board[queue[beg]+1]<0){
+					queue[++end]=queue[beg]+1;
+					visited[queue[end]] = 1;
+				}
+				if((visited[queue[beg]-1] == 0) && _board[queue[beg]-1]<0){
+					queue[++end]=queue[beg]-1;
+					visited[queue[end]] = 1;
+				}
+				if((visited[queue[beg]-kBoardSizeAligned+1] == 0) && _board[queue[beg]-kBoardSizeAligned+1]<0){
+					queue[++end]=queue[beg]-kBoardSizeAligned+1;
+					visited[queue[end]] = 1;
+				}
+				if((visited[queue[beg]+kBoardSizeAligned-1] == 0) && _board[queue[beg]+kBoardSizeAligned-1]<0){
+					queue[++end]=queue[beg]+kBoardSizeAligned-1;
+					visited[queue[end]] = 1;
+				}
+				if((visited[queue[beg]+kBoardSizeAligned] == 0) && _board[queue[beg]+kBoardSizeAligned]<0){
+					queue[++end]=queue[beg]+kBoardSizeAligned;
+					visited[queue[end]] = 1;
+				}
+				if((visited[queue[beg]-kBoardSizeAligned] == 0) && _board[queue[beg]-kBoardSizeAligned]<0){
+					queue[++end]=queue[beg]-kBoardSizeAligned;
+					visited[queue[end]] = 1;
+				}
+			}
+			beg=0;
+			end=-1;
+			for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
+					i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i)
+				if(visited[i]>0){
+					queue[++end]=i;
+					aBoard.timesOfBeingOnShortestPath[i]++;
+					visited[i]=0;
+				}
+			for(; beg<=end; beg++){
+				if(visited[queue[beg]+1] == 1){
+					queue[++end]=queue[beg]+1;
+					visited[queue[end]] = 0;
+					aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+				}
+				if(visited[queue[beg]-1] == 1){
+					queue[++end]=queue[beg]-1;
+					visited[queue[end]] = 0;
+					aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+				}
+				if(visited[queue[beg]-kBoardSizeAligned+1] == 1){
+					queue[++end]=queue[beg]-kBoardSizeAligned+1;
+					visited[queue[end]] = 0;
+					aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+				}
+				if(visited[queue[beg]+kBoardSizeAligned-1] == 1){
+					queue[++end]=queue[beg]+kBoardSizeAligned-1;
+					visited[queue[end]] = 0;
+					aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+				}
+				if(visited[queue[beg]+kBoardSizeAligned] == 1){
+					queue[++end]=queue[beg]+kBoardSizeAligned;
+					visited[queue[end]] = 0;
+					aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+				}
+				if(visited[queue[beg]-kBoardSizeAligned] == 1){
+					queue[++end]=queue[beg]-kBoardSizeAligned;
+					visited[queue[end]] = 0;
+					aBoard.timesOfBeingOnShortestPath[queue[end]]++;
 				}
 			}
 		}
-		*/
+
 	}
 }
 
