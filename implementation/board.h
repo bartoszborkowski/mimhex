@@ -117,6 +117,7 @@ class Board {
   void UpdatePathsStatsFloodFillFU(Board& board, Player& winner);
   void UpdatePathsStatsFloodFillBFS(Board& board, Player& winner);
   void UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, Player& winner);
+  void UpdatePathsStatsOneShortestPathBFS(Board& aBoard, Player& winner);
 
  private:
   static const uint table_size;
