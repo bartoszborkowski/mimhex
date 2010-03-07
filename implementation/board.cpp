@@ -383,19 +383,16 @@ void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, Player& winner)
 				visited[queue[end]] = visited[beg]+1;
 			}
 		}
+		uint current=0; //avoiding warnings
 		uint min = (uint) -1;
 		for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
 				i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i) {
-			if(visited[i] > 0 && visited[i] < min)
+			if(visited[i] > 0 && visited[i] < min){
 				min = visited[i];
-		}
-		uint current=0; //avoiding warnings
-		for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
-				i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i)
-			if(visited[i]==min){
-				aBoard.timesOfBeingOnShortestPath[i]++;
 				current = i;
-				break;
+			}
+		}
+		aBoard.timesOfBeingOnShortestPath[current]++;
 			}
 		for(;;){
 			if(visited[current+1] == visited[current]-1){
@@ -462,20 +459,16 @@ void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, Player& winner)
 				visited[queue[end]] = visited[beg]+1;
 			}
 		}
+		uint current=0; //avoiding warnings
 		uint min = (uint) -1;
 		for (uint i = 2 * kBoardSizeAligned + 1 + kBoardSize;
 				i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; i=i+kBoardSizeAligned) {
-			if(visited[i]>0 && visited[i]<min)
+			if(visited[i]>0 && visited[i]<min){
 				min = visited[i];
-		}
-		uint current=0; //avoiding warnings
-		for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
-				i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i)
-			if(visited[i]==min){
-				current=i;
-				aBoard.timesOfBeingOnShortestPath[i]++;
-				break;
+				current = i;
 			}
+		}
+		aBoard.timesOfBeingOnShortestPath[current]++;
 		for(;;){
 			if(visited[current+1] == visited[current]-1){
 				current = current + 1;
