@@ -530,6 +530,7 @@ void Board::UpdatePathsStatsFloodFillFU(Board& aBoard, Player& winner){
 	}
 }
 
+/* this method assumes asymetric FU! */
 void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, Player& winner){
  
 	if (Player::First() == winner){ 
@@ -541,7 +542,9 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, Player& winner){
 		parent = Find(startingPoint);
 
 		for(uint i=0; i<table_size; i++){
-			aBoard.timesOfBeingOnShortestPath[i] += (short)(Find(_board[i]) == parent);
+			/* this check is necessary due to asymetric FU */
+			if(_board[i] > 0)
+				aBoard.timesOfBeingOnShortestPath[i] += (short)(Find(_board[i]) == parent);
 		}
 	}
 	/* FU is not performed for this player, BFS necessary */
