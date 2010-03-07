@@ -420,6 +420,8 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, Player& winner){
 					visited[queue[end]] = visited[beg]-1;
 				}
 			}
+			for(uint i=kBoardSizeAligned+2; i<kBoardSizeAligned+kBoardSize+2; i++)
+				visited[i]=0;
 			beg=0;
 			end=-1;
 			for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
@@ -497,10 +499,13 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, Player& winner){
 					visited[queue[end]] = visited[beg];
 				}
 			}
+			for(uint i=2*kBoardSizeAligned+2+kBoardSize;
+						i<(kBoardSize+2)*kBoardSizeAligned+2+kBoardSize; i=i+kBoardSizeAligned)
+				visited[i]=0;
 			beg=0;
 			end=-1;
-			for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
-					i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i)
+			for(uint i=2*kBoardSizeAligned+1+kBoardSize;
+						i<(kBoardSize+2)*kBoardSizeAligned+1+kBoardSize; i=i+kBoardSizeAligned)
 				if(visited[i]>0){
 					queue[++end]=i;
 					aBoard.timesOfBeingOnShortestPath[i]++;
