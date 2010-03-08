@@ -1,3 +1,4 @@
-INCLUDE_DIRECTORIES(../lib ../implementation ../patterns)
-ADD_EXECUTABLE(hex_benchmark main_benchmark.cpp)
-ADD_EXECUTABLE(hex main.cpp)
+INCLUDE_DIRECTORIES (../lib ../patterns ../implementation)
+
+ADD_EXECUTABLE (hex_benchmark main_benchmark.cpp)
+ADD_EXECUTABLE (hex main.cpp)

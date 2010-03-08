@@ -134,6 +134,32 @@ hex_benchmark/fast:
 	$(MAKE) -f main/CMakeFiles/hex_benchmark.dir/build.make main/CMakeFiles/hex_benchmark.dir/build
 .PHONY : hex_benchmark/fast
 
+#=============================================================================
+# Target rules for targets named simple_hash_test
+
+# Build rule for target.
+simple_hash_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 simple_hash_test
+.PHONY : simple_hash_test
+
+# fast build rule for target.
+simple_hash_test/fast:
+	$(MAKE) -f tests/CMakeFiles/simple_hash_test.dir/build.make tests/CMakeFiles/simple_hash_test.dir/build
+.PHONY : simple_hash_test/fast
+
+#=============================================================================
+# Target rules for targets named simple_pattern_test
+
+# Build rule for target.
+simple_pattern_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 simple_pattern_test
+.PHONY : simple_pattern_test
+
+# fast build rule for target.
+simple_pattern_test/fast:
+	$(MAKE) -f tests/CMakeFiles/simple_pattern_test.dir/build.make tests/CMakeFiles/simple_pattern_test.dir/build
+.PHONY : simple_pattern_test/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -145,6 +171,8 @@ help:
 	@echo "... test"
 	@echo "... hex"
 	@echo "... hex_benchmark"
+	@echo "... simple_hash_test"
+	@echo "... simple_pattern_test"
 .PHONY : help
 
 

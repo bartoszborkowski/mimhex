@@ -17,7 +17,7 @@ namespace HexPatterns
             Pattern & operator =(const Pattern &pattern);
 
             uint GetPosition() const;
-            uint HashChange(uint position, uint player) const;
+            Hash HashChange(uint position, uint player) const;
 
             std::string ToAsciiArt() const;
 

@@ -12,25 +12,12 @@ SET(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/CMakeSystem.cmake"
   "CMakeLists.txt"
   "main/CMakeLists.txt"
-  "/usr/share/cmake/Modules/CMakeCCompiler.cmake.in"
-  "/usr/share/cmake/Modules/CMakeCCompilerABI.c"
+  "tests/CMakeLists.txt"
   "/usr/share/cmake/Modules/CMakeCInformation.cmake"
-  "/usr/share/cmake/Modules/CMakeCXXCompiler.cmake.in"
-  "/usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp"
   "/usr/share/cmake/Modules/CMakeCXXInformation.cmake"
   "/usr/share/cmake/Modules/CMakeCommonLanguageInclude.cmake"
-  "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake"
-  "/usr/share/cmake/Modules/CMakeDetermineCXXCompiler.cmake"
-  "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake"
-  "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake"
-  "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake"
-  "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake"
   "/usr/share/cmake/Modules/CMakeGenericSystem.cmake"
-  "/usr/share/cmake/Modules/CMakeSystem.cmake.in"
   "/usr/share/cmake/Modules/CMakeSystemSpecificInformation.cmake"
-  "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake"
-  "/usr/share/cmake/Modules/CMakeTestCXXCompiler.cmake"
-  "/usr/share/cmake/Modules/CMakeUnixFindMake.cmake"
   "/usr/share/cmake/Modules/Platform/Linux.cmake"
   "/usr/share/cmake/Modules/Platform/UnixPaths.cmake"
   "/usr/share/cmake/Modules/Platform/gcc.cmake"
@@ -42,6 +29,7 @@ SET(CMAKE_MAKEFILE_OUTPUTS
   "CMakeFiles/cmake.check_cache"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "main/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "tests/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Byproducts of CMake generate step:
@@ -52,4 +40,6 @@ SET(CMAKE_MAKEFILE_PRODUCTS
 SET(CMAKE_DEPEND_INFO_FILES
   "main/CMakeFiles/hex.dir/DependInfo.cmake"
   "main/CMakeFiles/hex_benchmark.dir/DependInfo.cmake"
+  "tests/CMakeFiles/simple_hash_test.dir/DependInfo.cmake"
+  "tests/CMakeFiles/simple_pattern_test.dir/DependInfo.cmake"
   )
