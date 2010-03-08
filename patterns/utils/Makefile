@@ -122,6 +122,20 @@ hash_gen/fast:
 	cd /home/borek/Desktop/mimhex && $(MAKE) -f patterns/utils/CMakeFiles/hash_gen.dir/build.make patterns/utils/CMakeFiles/hash_gen.dir/build
 .PHONY : hash_gen/fast
 
+# Convenience name for target.
+patterns/utils/CMakeFiles/simple_pattern_conv.dir/rule:
+	cd /home/borek/Desktop/mimhex && $(MAKE) -f CMakeFiles/Makefile2 patterns/utils/CMakeFiles/simple_pattern_conv.dir/rule
+.PHONY : patterns/utils/CMakeFiles/simple_pattern_conv.dir/rule
+
+# Convenience name for target.
+simple_pattern_conv: patterns/utils/CMakeFiles/simple_pattern_conv.dir/rule
+.PHONY : simple_pattern_conv
+
+# fast build rule for target.
+simple_pattern_conv/fast:
+	cd /home/borek/Desktop/mimhex && $(MAKE) -f patterns/utils/CMakeFiles/simple_pattern_conv.dir/build.make patterns/utils/CMakeFiles/simple_pattern_conv.dir/build
+.PHONY : simple_pattern_conv/fast
+
 hash_generator.o: hash_generator.cpp.o
 .PHONY : hash_generator.o
 
@@ -146,6 +160,30 @@ hash_generator.cpp.s:
 	cd /home/borek/Desktop/mimhex && $(MAKE) -f patterns/utils/CMakeFiles/hash_gen.dir/build.make patterns/utils/CMakeFiles/hash_gen.dir/hash_generator.cpp.s
 .PHONY : hash_generator.cpp.s
 
+simple_pattern_conv.o: simple_pattern_conv.cpp.o
+.PHONY : simple_pattern_conv.o
+
+# target to build an object file
+simple_pattern_conv.cpp.o:
+	cd /home/borek/Desktop/mimhex && $(MAKE) -f patterns/utils/CMakeFiles/simple_pattern_conv.dir/build.make patterns/utils/CMakeFiles/simple_pattern_conv.dir/simple_pattern_conv.cpp.o
+.PHONY : simple_pattern_conv.cpp.o
+
+simple_pattern_conv.i: simple_pattern_conv.cpp.i
+.PHONY : simple_pattern_conv.i
+
+# target to preprocess a source file
+simple_pattern_conv.cpp.i:
+	cd /home/borek/Desktop/mimhex && $(MAKE) -f patterns/utils/CMakeFiles/simple_pattern_conv.dir/build.make patterns/utils/CMakeFiles/simple_pattern_conv.dir/simple_pattern_conv.cpp.i
+.PHONY : simple_pattern_conv.cpp.i
+
+simple_pattern_conv.s: simple_pattern_conv.cpp.s
+.PHONY : simple_pattern_conv.s
+
+# target to generate assembly for a file
+simple_pattern_conv.cpp.s:
+	cd /home/borek/Desktop/mimhex && $(MAKE) -f patterns/utils/CMakeFiles/simple_pattern_conv.dir/build.make patterns/utils/CMakeFiles/simple_pattern_conv.dir/simple_pattern_conv.cpp.s
+.PHONY : simple_pattern_conv.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -155,10 +193,14 @@ help:
 	@echo "... edit_cache"
 	@echo "... hash_gen"
 	@echo "... rebuild_cache"
+	@echo "... simple_pattern_conv"
 	@echo "... test"
 	@echo "... hash_generator.o"
 	@echo "... hash_generator.i"
 	@echo "... hash_generator.s"
+	@echo "... simple_pattern_conv.o"
+	@echo "... simple_pattern_conv.i"
+	@echo "... simple_pattern_conv.s"
 .PHONY : help
 
 

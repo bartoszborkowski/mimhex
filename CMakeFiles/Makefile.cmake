@@ -48,6 +48,7 @@ SET(CMAKE_DEPEND_INFO_FILES
   "main/CMakeFiles/hex_benchmark.dir/DependInfo.cmake"
   "patterns/gathering/CMakeFiles/gather_patterns.dir/DependInfo.cmake"
   "patterns/utils/CMakeFiles/hash_gen.dir/DependInfo.cmake"
+  "patterns/utils/CMakeFiles/simple_pattern_conv.dir/DependInfo.cmake"
   "tests/CMakeFiles/simple_hash_test.dir/DependInfo.cmake"
   "tests/CMakeFiles/simple_pattern_test.dir/DependInfo.cmake"
   )

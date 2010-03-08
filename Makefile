@@ -161,6 +161,19 @@ hash_gen/fast:
 .PHONY : hash_gen/fast
 
 #=============================================================================
+# Target rules for targets named simple_pattern_conv
+
+# Build rule for target.
+simple_pattern_conv: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 simple_pattern_conv
+.PHONY : simple_pattern_conv
+
+# fast build rule for target.
+simple_pattern_conv/fast:
+	$(MAKE) -f patterns/utils/CMakeFiles/simple_pattern_conv.dir/build.make patterns/utils/CMakeFiles/simple_pattern_conv.dir/build
+.PHONY : simple_pattern_conv/fast
+
+#=============================================================================
 # Target rules for targets named simple_hash_test
 
 # Build rule for target.
@@ -199,6 +212,7 @@ help:
 	@echo "... hex_benchmark"
 	@echo "... gather_patterns"
 	@echo "... hash_gen"
+	@echo "... simple_pattern_conv"
 	@echo "... simple_hash_test"
 	@echo "... simple_pattern_test"
 .PHONY : help
