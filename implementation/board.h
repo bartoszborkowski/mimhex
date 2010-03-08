@@ -2,32 +2,19 @@
 #define HEX_BOARD_H_
 
 #include <string>
+#include "small_set.h"
+#include "params.h"
+#include "switches.h"
+
+using namespace std;
 
 typedef unsigned int uint;
+typedef unsigned short ushort;
 
 namespace Hex {
 
 const uint kBoardSize = 11;
-const uint kBoardSizeAligned = 13;	// kBoardSize + 2
-
-// -----------------------------------------------------------------------------
-
-class Rand {
-public:
-	static void init (uint seed) { _seed = seed; }
-	static uint next_rand() {
-		uint lo = 16807 * (_seed & 0xffff);
-		uint hi = 16807 * (_seed >> 16);
-		lo += (hi & 0x7fff) << 16;
-		lo += hi >> 15;
-		return _seed = (lo & 0x7FFFFFFF) + (lo >> 31);
-	}
-	static uint next_rand(uint n) {
-	  return ((next_rand() & 0xffff) * n) >> 16;
-	}
-private:
-	static uint _seed;
-};
+const uint kBoardSizeAligned = 16;	// kBoardSize aligned to nearest higher power of 2
 
 // -----------------------------------------------------------------------------
 
@@ -69,10 +56,10 @@ class Location {
   static bool ValidLocation(uint x, uint y);
   static bool ValidPosition(uint pos);
   static void ToCoords(uint pos, uint& x, uint& y);
+  static uint ToTablePos(uint x, uint y);
 
  private:
   Location();
-  static uint ToTablePos(uint x, uint y);
 
  private:
   uint _pos;
@@ -100,12 +87,15 @@ class Board {
  public:
   const static Board Empty();
 
-  typedef unsigned short* ushort_ptr;
+  typedef ushort* ushort_ptr;
 
   Board();
   Player CurrentPlayer() const;
+  Move GenerateMoveUsingKnowledge(const Player&) const;
   Move RandomLegalMove (const Player&) const;
+  Move RandomLegalAvoidBridges (const Player&) const;
   void PlayLegal (const Move&);
+  void UpdateBridgeData (uint pos, uint replace_pos);
   bool IsFull() const;
   Player Winner() const;
   void Load (const Board&);
@@ -120,20 +110,42 @@ class Board {
   uint Find(uint pos);
   uint ConstFind(uint pos) const;
 
+  void UpdateBridges(uint pos);
+  void UpdateBridgeBound(uint pos);
+
+  void clearShortestPathsStats();
+
  private:
   static const uint table_size;
   static const uint guarded_board_size;
   short _board[kBoardSizeAligned * kBoardSizeAligned];
-  unsigned short _fast_field_map[kBoardSizeAligned * kBoardSizeAligned];
-  unsigned short _reverse_fast_field_map[kBoardSizeAligned * kBoardSizeAligned];
+
+/*this is used in feature which is variation of AMAF*/
+  short timesOfBeingOnShortestPath[kBoardSizeAligned * kBoardSizeAligned];
+
+/*this two ones are used in find and union. _fast_field_map is kind of sorted - 
+  fields that are'nt bridges are before those, which are.*/
+  ushort _fast_field_map[kBoardSizeAligned * kBoardSizeAligned];
+  ushort _reverse_fast_field_map[kBoardSizeAligned * kBoardSizeAligned];
+
+/*This ones are used in bridges. 
+  First from pair is an index of second free field in bridge. Second guy from pair
+  says if bridge is built by first player.*/
+  SmallSet<pair<ushort,bool> > _field_bridge_connections[kBoardSizeAligned * kBoardSizeAligned]; 
+  SmallSet<ushort, 50> attacked_bridges;
+
   uint _moves_left;
+  int _field_map_bound;		// index of last field in _fast_field_map that isn't a bridge
   Player _current;
+
+public:
+  Switches switches;		//set of info about what knowledge do we use.
+							// Assuming that it doesn't change during single "random" playout
+
 };
 
 // -----------------------------------------------------------------------------
 
 } // namespace Hex
-
-#undef TREE_BALANCING
 
 #endif

@@ -25,6 +25,8 @@ private:
 	void CSetPlayoutsPerMove(Gtp::Io& inout);
 	void CShowTree(Gtp::Io& inout);
 	void CGenMoveNoPlay(Gtp::Io& inout);
+	void CDefendingBridges(Gtp::Io& inout);
+	void CAvoidingBridges(Gtp::Io& inout);
 };
 
 } // namespace Hex

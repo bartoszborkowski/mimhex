@@ -19,6 +19,8 @@ Protocol::Protocol() {
 	gtp.Register ("set_playouts_per_move",	this, &Protocol::CSetPlayoutsPerMove);
 	gtp.Register ("showtree",				this, &Protocol::CShowTree);
 	gtp.Register ("genmove_noplay",			this, &Protocol::CGenMoveNoPlay);
+	gtp.Register ("set_defending_bridges",	this, &Protocol::CDefendingBridges);
+	gtp.Register ("set_avoiding_bridges",	this, &Protocol::CAvoidingBridges);
 }
 
 void Protocol::Run(std::istream& in, std::ostream& out) {
@@ -118,6 +120,20 @@ void Protocol::CGenMoveNoPlay(Gtp::Io& inout) {
 
 	Move move = game.GenMove(Player::OfString(player));
 	inout.out << move.GetLocation().ToCoords();
+}
+
+void Protocol::CDefendingBridges(Gtp::Io& inout) {
+	int value = inout.Read<int>();
+	inout.CheckEmpty();
+	if (value == 0) game.setDefendingBridges(false);
+	else game.setDefendingBridges(true);
+}
+
+void Protocol::CAvoidingBridges(Gtp::Io& inout) {
+	int value = inout.Read<int>();
+	inout.CheckEmpty();
+	if (value == 0) game.setAvoidingBridges(false);
+	else game.setAvoidingBridges(true);
 }
 
 } // namespace Hex

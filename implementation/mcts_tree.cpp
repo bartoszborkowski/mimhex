@@ -110,7 +110,7 @@ Player MCTSTree::RandomFinish(Board& board, uint* path,
 
 	while (!board.IsFull()) {
 	  Player pl = board.CurrentPlayer();
-	  Move move = board.RandomLegalMove(pl);
+	  Move move = board.GenerateMoveUsingKnowledge(pl);
 	  path[++current_level] = move.GetLocation().GetPos();
 	  board.PlayLegal(move);
 	}

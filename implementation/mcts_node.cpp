@@ -103,9 +103,11 @@ void MCTSNode::RecursivePrint(std::ostream& stream, uint max_children,
 		stream << "root ";
 	}
 
+	stream << "EVAL: "<<Eval()<<" GETMU "<<GetMu()<<" ";
+
 	if ((current_level & 1) == 0) {
 		stream << static_cast<double>(uct_stats.played - uct_stats.won)
-				* 100 / uct_stats.played;
+				* 100 / uct_stats.played<<' '<<uct_stats.played<<' '<<uct_stats.won;
 	} else {
 		stream << static_cast<double>(uct_stats.won) * 100 / uct_stats.played;
 	}

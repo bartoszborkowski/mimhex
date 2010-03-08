@@ -17,6 +17,8 @@ public:
 	void PrintTree(std::string& ascii_tree, uint children);
 	bool IsValidMove(const Move& move);
 	bool IsFinished();
+	void setDefendingBridges(bool v);
+	void setAvoidingBridges(bool v);
 
 private:
 	Board current_board;
