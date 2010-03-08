@@ -35,6 +35,7 @@ ENDIF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 IF(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   INCLUDE("/home/borek/Desktop/mimhex/main/cmake_install.cmake")
+  INCLUDE("/home/borek/Desktop/mimhex/patterns/cmake_install.cmake")
   INCLUDE("/home/borek/Desktop/mimhex/tests/cmake_install.cmake")
 
 ENDIF(NOT CMAKE_INSTALL_LOCAL_ONLY)

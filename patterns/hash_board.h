@@ -3,6 +3,7 @@
 
 
 #include "template.h"
+#include "pattern.h"
 #include "macro_definitions.h"
 
 namespace HexPatterns
@@ -22,6 +23,8 @@ namespace HexPatterns
             Hash GetHash(const Hex::Move &move) const;
 
             const Hash * GetAllHash() const;
+
+            uint GetBoardSize() const;
 
             void Play(const Hex::Location &loc, const Hex::Player &player);
             void Play(uint position, const Hex::Player &player);

@@ -5,5 +5,5 @@
 # This file replicates the SUBDIRS() and ADD_TEST() commands from the source
 # tree CMakeLists.txt file, skipping any SUBDIRS() or ADD_TEST() commands
 # that are excluded by CMake control structures, i.e. IF() commands.
-ADD_TEST(test1 "simple_hash_test")
-ADD_TEST(test2 "simple_pattern_test")
+ADD_TEST(hash_test "simple_hash_test")
+ADD_TEST(pattern_test "simple_pattern_test")

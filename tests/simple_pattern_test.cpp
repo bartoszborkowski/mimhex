@@ -1,14 +1,12 @@
+#include <inttypes.h>
 #include <iostream>
 #include <time.h>
 
 #include <boost/random.hpp>
 
 #include "board.h"
-#include "template.h"
 #include "template.cpp"
-#include "pattern.h"
 #include "pattern.cpp"
-#include "macro_definitions.h"
 
 using namespace HexPatterns;
 

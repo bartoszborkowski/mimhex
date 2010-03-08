@@ -21,6 +21,11 @@ inline const Hash * HashBoard::GetAllHash() const
     return position_hash;
 }
 
+inline uint HashBoard::GetBoardSize() const
+{
+    return kFieldsAlignedAmount;
+}
+
 inline void HashBoard::Play(const Hex::Location &loc, const Hex::Player &player)
 {
     return Play(loc.GetPos(), player);

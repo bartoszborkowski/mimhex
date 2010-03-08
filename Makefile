@@ -135,6 +135,32 @@ hex_benchmark/fast:
 .PHONY : hex_benchmark/fast
 
 #=============================================================================
+# Target rules for targets named gather_patterns
+
+# Build rule for target.
+gather_patterns: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gather_patterns
+.PHONY : gather_patterns
+
+# fast build rule for target.
+gather_patterns/fast:
+	$(MAKE) -f patterns/gathering/CMakeFiles/gather_patterns.dir/build.make patterns/gathering/CMakeFiles/gather_patterns.dir/build
+.PHONY : gather_patterns/fast
+
+#=============================================================================
+# Target rules for targets named hash_gen
+
+# Build rule for target.
+hash_gen: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hash_gen
+.PHONY : hash_gen
+
+# fast build rule for target.
+hash_gen/fast:
+	$(MAKE) -f patterns/utils/CMakeFiles/hash_gen.dir/build.make patterns/utils/CMakeFiles/hash_gen.dir/build
+.PHONY : hash_gen/fast
+
+#=============================================================================
 # Target rules for targets named simple_hash_test
 
 # Build rule for target.
@@ -171,6 +197,8 @@ help:
 	@echo "... test"
 	@echo "... hex"
 	@echo "... hex_benchmark"
+	@echo "... gather_patterns"
+	@echo "... hash_gen"
 	@echo "... simple_hash_test"
 	@echo "... simple_pattern_test"
 .PHONY : help

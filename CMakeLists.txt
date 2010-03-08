@@ -9,4 +9,5 @@ ADD_DEFINITIONS ("-W -Wall -Wextra -Werror")
 ADD_DEFINITIONS ("-O3 -fomit-frame-pointer")
 
 ADD_SUBDIRECTORY (main)
+ADD_SUBDIRECTORY (patterns)
 ADD_SUBDIRECTORY (tests)

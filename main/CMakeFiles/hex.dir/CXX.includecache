@@ -181,6 +181,8 @@ main/../patterns/hash_board.h
 main/../patterns/hash_board.h
 template.h
 main/../patterns/template.h
+pattern.h
+main/../patterns/pattern.h
 macro_definitions.h
 main/../patterns/macro_definitions.h
 hash_board-inl.h

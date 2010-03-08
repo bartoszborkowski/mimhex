@@ -2,11 +2,8 @@
 #include <iostream>
 #include <vector>
 
-#include "template.h"
 #include "template.cpp"
-#include "pattern.h"
 #include "pattern.cpp"
-#include "macro_definitions.h"
 
 using namespace HexPatterns;
 

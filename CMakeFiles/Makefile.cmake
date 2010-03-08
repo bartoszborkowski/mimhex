@@ -12,6 +12,9 @@ SET(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/CMakeSystem.cmake"
   "CMakeLists.txt"
   "main/CMakeLists.txt"
+  "patterns/CMakeLists.txt"
+  "patterns/gathering/CMakeLists.txt"
+  "patterns/utils/CMakeLists.txt"
   "tests/CMakeLists.txt"
   "/usr/share/cmake/Modules/CMakeCInformation.cmake"
   "/usr/share/cmake/Modules/CMakeCXXInformation.cmake"
@@ -29,6 +32,9 @@ SET(CMAKE_MAKEFILE_OUTPUTS
   "CMakeFiles/cmake.check_cache"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "main/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "patterns/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "patterns/gathering/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "patterns/utils/CMakeFiles/CMakeDirectoryInformation.cmake"
   "tests/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
@@ -40,6 +46,8 @@ SET(CMAKE_MAKEFILE_PRODUCTS
 SET(CMAKE_DEPEND_INFO_FILES
   "main/CMakeFiles/hex.dir/DependInfo.cmake"
   "main/CMakeFiles/hex_benchmark.dir/DependInfo.cmake"
+  "patterns/gathering/CMakeFiles/gather_patterns.dir/DependInfo.cmake"
+  "patterns/utils/CMakeFiles/hash_gen.dir/DependInfo.cmake"
   "tests/CMakeFiles/simple_hash_test.dir/DependInfo.cmake"
   "tests/CMakeFiles/simple_pattern_test.dir/DependInfo.cmake"
   )

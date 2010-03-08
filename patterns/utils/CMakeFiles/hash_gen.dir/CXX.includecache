@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/borek/Desktop/mimhex/patterns/utils/hash_generator.cpp
+inttypes.h
+-
+iostream
+-
+time.h
+-
+boost/random.hpp
+-
+boost/lexical_cast.hpp
+-
+macro_definitions.h
+/home/borek/Desktop/mimhex/patterns/utils/macro_definitions.h
+
+patterns/utils/../../implementation/board.h
+string
+-
+small_set.h
+patterns/utils/../../implementation/small_set.h
+
+patterns/utils/../../lib/conditional_assert.h
+cassert
+-
+
+patterns/utils/../../lib/random.h
+conditional_assert.h
+patterns/utils/../../lib/conditional_assert.h
+
+patterns/utils/../../lib/small_set.h
+conditional_assert.h
+patterns/utils/../../lib/conditional_assert.h
+random.h
+patterns/utils/../../lib/random.h
+
+patterns/utils/../../patterns/macro_definitions.h
+board.h
+patterns/utils/../../patterns/board.h
+

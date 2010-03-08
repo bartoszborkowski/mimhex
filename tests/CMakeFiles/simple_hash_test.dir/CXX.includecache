@@ -13,16 +13,10 @@ iostream
 -
 vector
 -
-template.h
-/home/borek/Desktop/mimhex/tests/template.h
 template.cpp
 /home/borek/Desktop/mimhex/tests/template.cpp
-pattern.h
-/home/borek/Desktop/mimhex/tests/pattern.h
 pattern.cpp
 /home/borek/Desktop/mimhex/tests/pattern.cpp
-macro_definitions.h
-/home/borek/Desktop/mimhex/tests/macro_definitions.h
 
 tests/../implementation/board.h
 string

@@ -1,0 +1,1 @@
+/usr/bin/c++     -fPIC CMakeFiles/gather_patterns.dir/gather_patterns.cpp.o  -o gather_patterns -rdynamic 

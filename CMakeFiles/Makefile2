@@ -140,6 +140,124 @@ clean: main/CMakeFiles/hex_benchmark.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Directory level rules for directory patterns
+
+# Convenience name for "all" pass in the directory.
+patterns/all: patterns/gathering/all
+patterns/all: patterns/utils/all
+.PHONY : patterns/all
+
+# Convenience name for "clean" pass in the directory.
+patterns/clean: patterns/gathering/clean
+patterns/clean: patterns/utils/clean
+.PHONY : patterns/clean
+
+# Convenience name for "preinstall" pass in the directory.
+patterns/preinstall: patterns/gathering/preinstall
+patterns/preinstall: patterns/utils/preinstall
+.PHONY : patterns/preinstall
+
+#=============================================================================
+# Directory level rules for directory patterns/gathering
+
+# Convenience name for "all" pass in the directory.
+patterns/gathering/all: patterns/gathering/CMakeFiles/gather_patterns.dir/all
+.PHONY : patterns/gathering/all
+
+# Convenience name for "clean" pass in the directory.
+patterns/gathering/clean: patterns/gathering/CMakeFiles/gather_patterns.dir/clean
+.PHONY : patterns/gathering/clean
+
+# Convenience name for "preinstall" pass in the directory.
+patterns/gathering/preinstall:
+.PHONY : patterns/gathering/preinstall
+
+#=============================================================================
+# Target rules for target patterns/gathering/CMakeFiles/gather_patterns.dir
+
+# All Build rule for target.
+patterns/gathering/CMakeFiles/gather_patterns.dir/all:
+	$(MAKE) -f patterns/gathering/CMakeFiles/gather_patterns.dir/build.make patterns/gathering/CMakeFiles/gather_patterns.dir/depend
+	$(MAKE) -f patterns/gathering/CMakeFiles/gather_patterns.dir/build.make patterns/gathering/CMakeFiles/gather_patterns.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/borek/Desktop/mimhex/CMakeFiles  3
+	@echo "Built target gather_patterns"
+.PHONY : patterns/gathering/CMakeFiles/gather_patterns.dir/all
+
+# Include target in all.
+all: patterns/gathering/CMakeFiles/gather_patterns.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+patterns/gathering/CMakeFiles/gather_patterns.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/borek/Desktop/mimhex/CMakeFiles 1
+	$(MAKE) -f CMakeFiles/Makefile2 patterns/gathering/CMakeFiles/gather_patterns.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/borek/Desktop/mimhex/CMakeFiles 0
+.PHONY : patterns/gathering/CMakeFiles/gather_patterns.dir/rule
+
+# Convenience name for target.
+gather_patterns: patterns/gathering/CMakeFiles/gather_patterns.dir/rule
+.PHONY : gather_patterns
+
+# clean rule for target.
+patterns/gathering/CMakeFiles/gather_patterns.dir/clean:
+	$(MAKE) -f patterns/gathering/CMakeFiles/gather_patterns.dir/build.make patterns/gathering/CMakeFiles/gather_patterns.dir/clean
+.PHONY : patterns/gathering/CMakeFiles/gather_patterns.dir/clean
+
+# clean rule for target.
+clean: patterns/gathering/CMakeFiles/gather_patterns.dir/clean
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory patterns/utils
+
+# Convenience name for "all" pass in the directory.
+patterns/utils/all: patterns/utils/CMakeFiles/hash_gen.dir/all
+.PHONY : patterns/utils/all
+
+# Convenience name for "clean" pass in the directory.
+patterns/utils/clean: patterns/utils/CMakeFiles/hash_gen.dir/clean
+.PHONY : patterns/utils/clean
+
+# Convenience name for "preinstall" pass in the directory.
+patterns/utils/preinstall:
+.PHONY : patterns/utils/preinstall
+
+#=============================================================================
+# Target rules for target patterns/utils/CMakeFiles/hash_gen.dir
+
+# All Build rule for target.
+patterns/utils/CMakeFiles/hash_gen.dir/all:
+	$(MAKE) -f patterns/utils/CMakeFiles/hash_gen.dir/build.make patterns/utils/CMakeFiles/hash_gen.dir/depend
+	$(MAKE) -f patterns/utils/CMakeFiles/hash_gen.dir/build.make patterns/utils/CMakeFiles/hash_gen.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/borek/Desktop/mimhex/CMakeFiles  4
+	@echo "Built target hash_gen"
+.PHONY : patterns/utils/CMakeFiles/hash_gen.dir/all
+
+# Include target in all.
+all: patterns/utils/CMakeFiles/hash_gen.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+patterns/utils/CMakeFiles/hash_gen.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/borek/Desktop/mimhex/CMakeFiles 1
+	$(MAKE) -f CMakeFiles/Makefile2 patterns/utils/CMakeFiles/hash_gen.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/borek/Desktop/mimhex/CMakeFiles 0
+.PHONY : patterns/utils/CMakeFiles/hash_gen.dir/rule
+
+# Convenience name for target.
+hash_gen: patterns/utils/CMakeFiles/hash_gen.dir/rule
+.PHONY : hash_gen
+
+# clean rule for target.
+patterns/utils/CMakeFiles/hash_gen.dir/clean:
+	$(MAKE) -f patterns/utils/CMakeFiles/hash_gen.dir/build.make patterns/utils/CMakeFiles/hash_gen.dir/clean
+.PHONY : patterns/utils/CMakeFiles/hash_gen.dir/clean
+
+# clean rule for target.
+clean: patterns/utils/CMakeFiles/hash_gen.dir/clean
+.PHONY : clean
+
+#=============================================================================
 # Directory level rules for directory tests
 
 # Convenience name for "all" pass in the directory.
@@ -163,7 +281,7 @@ tests/preinstall:
 tests/CMakeFiles/simple_hash_test.dir/all:
 	$(MAKE) -f tests/CMakeFiles/simple_hash_test.dir/build.make tests/CMakeFiles/simple_hash_test.dir/depend
 	$(MAKE) -f tests/CMakeFiles/simple_hash_test.dir/build.make tests/CMakeFiles/simple_hash_test.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/borek/Desktop/mimhex/CMakeFiles  3
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/borek/Desktop/mimhex/CMakeFiles  5
 	@echo "Built target simple_hash_test"
 .PHONY : tests/CMakeFiles/simple_hash_test.dir/all
 
@@ -198,7 +316,7 @@ clean: tests/CMakeFiles/simple_hash_test.dir/clean
 tests/CMakeFiles/simple_pattern_test.dir/all:
 	$(MAKE) -f tests/CMakeFiles/simple_pattern_test.dir/build.make tests/CMakeFiles/simple_pattern_test.dir/depend
 	$(MAKE) -f tests/CMakeFiles/simple_pattern_test.dir/build.make tests/CMakeFiles/simple_pattern_test.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/borek/Desktop/mimhex/CMakeFiles  4
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/borek/Desktop/mimhex/CMakeFiles  6
 	@echo "Built target simple_pattern_test"
 .PHONY : tests/CMakeFiles/simple_pattern_test.dir/all
 

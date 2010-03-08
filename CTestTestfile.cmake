@@ -6,4 +6,5 @@
 # tree CMakeLists.txt file, skipping any SUBDIRS() or ADD_TEST() commands
 # that are excluded by CMake control structures, i.e. IF() commands.
 SUBDIRS(main)
+SUBDIRS(patterns)
 SUBDIRS(tests)
