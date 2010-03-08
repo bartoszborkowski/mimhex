@@ -184,13 +184,13 @@ namespace detail {
     return t;                                           \
   }
 
-  Specialization(bool);
-  Specialization(char);
-  Specialization(int);
-  Specialization(unsigned int);
-  Specialization(float);
-  Specialization(double);
-  Specialization(string);
+  Specialization(bool)
+  Specialization(char)
+  Specialization(int)
+  Specialization(unsigned int)
+  Specialization(float)
+  Specialization(double)
+  Specialization(string)
 #undef Specialization
 
 } // namespace detail
