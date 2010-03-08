@@ -54,10 +54,10 @@ bool Game::IsFinished() {
 }
 
 void Game::setDefendingBridges(bool v){
-	current_board.switches.defendingBridgesOn = v;
+	Switches::SetDefendingBridges(v);
 }
 void Game::setAvoidingBridges(bool v){
-	current_board.switches.avoidingBridgesOn = v;
+	Switches::SetAvoidingBridges(v);
 }
 
 } // namespace Hex
