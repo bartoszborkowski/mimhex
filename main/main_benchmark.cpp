@@ -1,3 +1,4 @@
+#include "switches.cpp"
 #include "board.h"
 #include "board.cpp"
 #include "playout.cpp"
