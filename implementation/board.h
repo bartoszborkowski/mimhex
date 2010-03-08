@@ -27,7 +27,7 @@ class Player {
   bool operator== (const Player&);
   bool operator!= (const Player&);
 
-  uint GetVal();
+  uint GetVal() const;
 
   static bool ValidPlayer(const std::string& player);
 

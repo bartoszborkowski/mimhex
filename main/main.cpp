@@ -9,6 +9,9 @@
 #include "protocol.h"
 #include "protocol.cpp"
 #include "params.h"
+#include "template.cpp"
+#include "pattern.cpp"
+#include "hash_board.cpp"
 
 #include <iostream>
 #include <cstdlib>

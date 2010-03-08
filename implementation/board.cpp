@@ -37,7 +37,7 @@ inline bool Player::operator!= (const Player& player) {
 
 inline Player::Player(uint val) : _val(val) {}
 
-inline uint Player::GetVal() { return _val; }
+inline uint Player::GetVal() const { return _val; }
 
 inline bool Player::ValidPlayer(const std::string& player) {
 	return player == "black" || player == "white";

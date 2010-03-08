@@ -1,6 +1,6 @@
 CXX = g++
 OPTIONS = -Wall -W -fomit-frame-pointer -O3
-INCLUDE_DIR = -I ../lib -I ../implementation -I ../../../Downloads/boost_1_38_0
+INCLUDE_DIR = -I ../lib -I ../implementation -I ../patterns -I ../../../Downloads/boost_1_38_0
 DEST_DIR = .
 
 all: benchmark main
