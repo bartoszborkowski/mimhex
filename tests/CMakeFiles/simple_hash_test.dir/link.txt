@@ -1,1 +1,0 @@
-/usr/bin/c++     -fPIC CMakeFiles/simple_hash_test.dir/simple_hash_test.cpp.o  -o simple_hash_test -rdynamic 

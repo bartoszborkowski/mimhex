@@ -1,1 +1,0 @@
-/usr/bin/c++     -fPIC CMakeFiles/simple_pattern_conv.dir/simple_pattern_conv.cpp.o  -o simple_pattern_conv -rdynamic 

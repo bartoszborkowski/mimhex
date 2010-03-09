@@ -63,9 +63,8 @@ namespace HexPatterns
 
             ifs.getline(buffer, BUFFER_SIZE);
             if (buffer[0] != COMMENT_LINE) {
-                ASSERT(static_cast<uint>(line[2]) <= Hex::kFieldsAlignedAmount);
-
                 SplitString(buffer, ' ', line);
+                ASSERT(static_cast<uint>(line[2]) <= Hex::kFieldsAlignedAmount);
 
                 rep(ii, static_cast<uint>(line[2])) {
                     uint tmp = 3 + ii * 4;
