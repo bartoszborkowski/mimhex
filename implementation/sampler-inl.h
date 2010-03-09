@@ -1,13 +1,16 @@
+/*******************************************************************************
+ *                              Bartosz Borkowski                              *
+ *              Faculty of Mathematics, Informatics and Mechanics              *
+ *                              Warsaw University                              *
+ *                             9th March 2010                                  *
+ *******************************************************************************/
+
 #ifndef MIMHEX_SAMPLER_INL_H_
 #define MIMHEX_SAMPLER_INL_H_
 
 inline uint Sampler::RandomMove() const
 {
-/* returns random field from set
-[kBoardSizeAligned + 1, kBoardSize * kBoardSizeAligned + kBoardSize] \
-\ {i : i | kBoardSizeAligned or (i + 1) | kBoardSizeAligned} */
-// TODO: change the random generator to boost
-    double r = 1.0;//((double) Rand::next_rand() / ((uint(1) << 31) - 1 - 1)) * all_sum;
+    double r = random_generator() * all_sum;
     uint i, j;
 
     for (i = 1; i <= kBoardSize; ++i)

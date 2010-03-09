@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *                              Bartosz Borkowski                              *
+ *              Faculty of Mathematics, Informatics and Mechanics              *
+ *                              Warsaw University                              *
+ *                             9th March 2010                                  *
+ *******************************************************************************/
+
 #include <iostream>
 #include <fstream>
 #include <sstream>

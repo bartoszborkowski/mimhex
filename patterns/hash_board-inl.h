@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *                              Bartosz Borkowski                              *
+ *              Faculty of Mathematics, Informatics and Mechanics              *
+ *                              Warsaw University                              *
+ *                             9th March 2010                                  *
+ *******************************************************************************/
+
 #ifndef MIMHEX_HASH_BOARD_INL_H_
 #define MIMHEX_HASH_BOARD_INL_H_
 
@@ -14,7 +21,7 @@ inline const Hash * HashBoard::GetAllHash() const
 inline void HashBoard::Play(uint position, uint player)
 {
     rep(ii, pattern_count[position])
-        position_hash[patterns[patterns_at[position][ii]].GetPosition()] ^=
+        position_hash[patterns_at[position][ii]] ^=
         patterns[patterns_at[position][ii]].HashChange(position, player);
 
     return;

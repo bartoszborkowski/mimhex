@@ -1,5 +1,14 @@
+/*******************************************************************************
+ *                              Bartosz Borkowski                              *
+ *              Faculty of Mathematics, Informatics and Mechanics              *
+ *                              Warsaw University                              *
+ *                             9th March 2010                                  *
+ *******************************************************************************/
+
 #ifndef MIMHEX_HASH_BOARD_H_
 #define MIMHEX_HASH_BOARD_H_
+
+#include <string>
 
 #include "template.h"
 #include "pattern.h"
@@ -23,6 +32,8 @@ namespace HexPatterns
             void Play(uint position, uint player);
 
             uint GetBoardSize() const;
+
+            std::string ToAsciiArt() const;
 
         private:
             uint pattern_count[Hex::kFieldsAlignedAmount];

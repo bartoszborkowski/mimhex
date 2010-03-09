@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *                              Bartosz Borkowski                              *
+ *              Faculty of Mathematics, Informatics and Mechanics              *
+ *                              Warsaw University                              *
+ *                             9th March 2010                                  *
+ *******************************************************************************/
+
 #include <sstream>
 
 #include "pattern.h"
@@ -7,25 +14,28 @@ namespace HexPatterns
     uint Pattern::InitialisePatterns(const char */*pattern_file*/)
     {
     // TODO: make this a 'from file' function
-        rep(ii, Hex::kBoardSize)
-            rep(jj, Hex::kBoardSize) {
-                uint kk = NORMALISE_POSITION(ii, jj);
+        rep(ii, Hex::kBoardSize + 2)
+            rep(jj, Hex::kBoardSize + 2) {
+                uint kk = GUARDED_POSITION(ii, jj);
                 patterns[kk] = Pattern(kk, 0, kk);
             }
 
         return 0;
     }
 
-    Pattern::Pattern() : id(-1), template_id(-1), central_position(-1) {}
+    Pattern::Pattern() : id(-1), template_id(-1), central_position(-1)
+    {
+        memset(fields_base_hash, 0, kHashMemory);
+    }
 
     Pattern::Pattern(uint _id, uint _template_id, int _position) : id(_id),
         template_id(_template_id), central_position(_position)
     {
         memset(fields_base_hash, 0, kHashMemory);
 
-        rep(ii, Hex::kBoardSize)
-            rep(jj, Hex::kBoardSize) {
-                uint kk = NORMALISE_POSITION(ii, jj);
+        rep(ii, Hex::kBoardSize + 2)
+            rep(jj, Hex::kBoardSize + 2) {
+                uint kk = GUARDED_POSITION(ii, jj);
                 rep(ff, FIELD_STATES)
                     fields_base_hash[kk][ff] =
                         templates[template_id].GetHash(kk - central_position, ff);

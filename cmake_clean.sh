@@ -1,4 +1,4 @@
-rm -Rvf CMakeFiles/ CTestTestfile.cmake Makefile cmake_install.cmake
+rm -Rvf CMakeCache.txt Testing/ CMakeFiles/ CTestTestfile.cmake Makefile cmake_install.cmake
 cd main
 rm -Rvf CMakeFiles/ CTestTestfile.cmake Makefile cmake_install.cmake
 cd ../implementation

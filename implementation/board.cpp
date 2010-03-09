@@ -178,8 +178,8 @@ Move Board::RandomLegalMove (const Player& player) const {
 #undef STRANGE_NUMBER
 
     /* Patterns random move */
-    //if (Sampler::use_patterns)
-        //return Move(player, sampler.RandomMove());
+    if (Sampler::use_patterns)
+        return Move(player, sampler.RandomMove());
     /* Patterns random move */
 
 	return Move(player, _fast_field_map[result]);
@@ -193,8 +193,8 @@ inline void Board::PlayLegal (const Move& move) {
 	ASSERT(IsValidMove(move));
 
     /* Patterns move */
-    //if (Sampler::use_patterns)
-        //return sampler.Play(move);
+    if (Sampler::use_patterns)
+        return sampler.Play(move);
     /* Patterns move */
 
 	uint pos = move.GetLocation().GetPos();

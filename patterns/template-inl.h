@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *                              Bartosz Borkowski                              *
+ *              Faculty of Mathematics, Informatics and Mechanics              *
+ *                              Warsaw University                              *
+ *                             9th March 2010                                  *
+ *******************************************************************************/
+
 #ifndef MIMHEX_TEMPLATE_INL_H_
 #define MIMHEX_TEMPLATE_INL_H_
 

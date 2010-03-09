@@ -129,7 +129,7 @@ class Board {
   int _field_map_bound;
   Player _current;
 
-  //Sampler sampler;
+  Sampler sampler;
 
   SmallSet<ushort, 50> attacked_bridges;
 

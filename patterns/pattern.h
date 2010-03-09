@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *                              Bartosz Borkowski                              *
+ *              Faculty of Mathematics, Informatics and Mechanics              *
+ *                              Warsaw University                              *
+ *                             9th March 2010                                  *
+ *******************************************************************************/
+
 #ifndef MIMHEX_PATTERN_H_
 #define MIMHEX_PATTERN_H_
 

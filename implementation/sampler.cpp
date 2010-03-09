@@ -1,10 +1,29 @@
+/*******************************************************************************
+ *                              Bartosz Borkowski                              *
+ *              Faculty of Mathematics, Informatics and Mechanics              *
+ *                              Warsaw University                              *
+ *                             9th March 2010                                  *
+ *******************************************************************************/
+
 #include <sstream>
+#include <inttypes.h>
+#include <time.h>
 
 #include "sampler.h"
 
 namespace Hex
 {
-    bool Sampler::use_patterns = false;
+    bool Sampler::use_patterns = true;
+    boost::rand48 Sampler::base_generator;
+    boost::uniform_01<boost::rand48> Sampler::random_generator(base_generator);
+
+    uint Sampler::InitialiseSampler()
+    {
+        base_generator.seed(static_cast<int32_t>(time(0)));
+        random_generator = boost::uniform_01<boost::rand48>(base_generator);
+
+        return 0;
+    }
 
     Sampler::Sampler()
     {
@@ -20,6 +39,18 @@ namespace Hex
             //TODO: implement get_strength
             //gammas[ii] = get_strength[hash_board[ii]];
         }
+    }
+
+    Sampler::Sampler(const Sampler &sampler)
+    {
+        memcpy(this, &sampler, sizeof(Sampler));
+    }
+
+    Sampler & Sampler::operator =(const Sampler &sampler)
+    {
+        memcpy(this, &sampler, sizeof(Sampler));
+
+        return *this;
     }
 
     std::string Sampler::ToAsciiArt() const

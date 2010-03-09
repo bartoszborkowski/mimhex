@@ -1,8 +1,15 @@
+/*******************************************************************************
+ *                              Bartosz Borkowski                              *
+ *              Faculty of Mathematics, Informatics and Mechanics              *
+ *                              Warsaw University                              *
+ *                             9th March 2010                                  *
+ *******************************************************************************/
+
 #include <inttypes.h>
 #include <iostream>
 #include <time.h>
 
-#include <boost/random.hpp>
+#include <boost/random/linear_congruential.hpp>
 
 #include "board.cpp"
 #include "template.cpp"
@@ -28,19 +35,19 @@ int main()
  * A simple test for patterns created on the board.
  */
 {
-    boost::rand48 generator;
+    boost::rand48 random_generator;
     const uint size = Hex::kBoardSize * Hex::kBoardSize;
     uint board[size];
 
-    generator.seed(static_cast<int32_t>(time(0)));
+    random_generator.seed(static_cast<int32_t>(time(0)));
 
     rep(ii, Hex::kBoardSize)
         rep(jj, Hex::kBoardSize)
-            board[ii * Hex::kBoardSize + jj] = NORMALISE_POSITION(ii, jj);
+            board[ii * Hex::kBoardSize + jj] = NORMALISED_POSITION(ii, jj);
 
     rep(ii, Hex::kFieldsAlignedAmount * Hex::kFieldsAlignedAmount * 100) {
-        uint f1 = board[generator() % size];
-        uint f2 = board[generator() % size];
+        uint f1 = board[random_generator() % size];
+        uint f2 = board[random_generator() % size];
 
         if (Compare(f1, f1 - 16, f2, f2 - 16) ||
             Compare(f1, f1 - 15, f2, f2 - 15) ||

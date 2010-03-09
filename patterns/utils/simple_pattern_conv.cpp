@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *                              Bartosz Borkowski                              *
+ *              Faculty of Mathematics, Informatics and Mechanics              *
+ *                              Warsaw University                              *
+ *                             9th March 2010                                  *
+ *******************************************************************************/
+
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -23,7 +30,7 @@ Hash CalculateHash(Hash h[][FIELD_STATES],
 
 int main(int, char **)
 {
-    const uint max_patterns = ~0;
+    const uint max_patterns = 3000000000;
     Hash pattern_conv[max_patterns];
     Hash pattern_appearance[max_patterns];
     Hash min_pattern_appearance[max_patterns];
