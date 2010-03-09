@@ -201,10 +201,10 @@ private:
     void UpdateBridgeBound(uint pos);
 
     void clearShortestPathsStats();
-    void UpdatePathsStatsFloodFillFU(Board& board, Player& winner);
-    void UpdatePathsStatsFloodFillBFS(Board& board, Player& winner);
-    void UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, Player& winner);
-    void UpdatePathsStatsOneShortestPathBFS(Board& aBoard, Player& winner);
+    void UpdatePathsStatsFloodFillFU(const Player& winner);
+    void UpdatePathsStatsFloodFillBFS(const Player& winner);
+    void UpdatePathsStatsAllShortestPathsBFS(const Player& winner);
+    void UpdatePathsStatsOneShortestPathBFS(const Player& winner);
 
 private:
     /**
@@ -246,9 +246,20 @@ private:
     static const ushort root_right = 4;
 
     /**
-     * Magic value used for fields that are empty
+     * Special value used for fields that are empty
      */
     static const ushort board_empty = 0;
+
+    /**
+     * Special values that can be added to a positions in order to get another,
+     * relatively shifted positions.
+     */
+    static const uint upper_left = -actual_board_size;
+    static const uint upper_right = -actual_board_size + 1;
+    static const uint left = -1;
+    static const uint right = +1;
+    static const uint lower_left = actual_board_size - 1;
+    static const uint lower_right = actual_board_size;
 
     /**
      * Magic value used for aquiring actual positions from values kept in the
