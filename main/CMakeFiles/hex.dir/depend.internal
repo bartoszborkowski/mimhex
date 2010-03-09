@@ -15,6 +15,9 @@ main/CMakeFiles/hex.dir/main.cpp.o
  main/../implementation/playout.cpp
  main/../implementation/protocol.cpp
  main/../implementation/protocol.h
+ main/../implementation/sampler-inl.h
+ main/../implementation/sampler.cpp
+ main/../implementation/sampler.h
  main/../lib/absolute_cast.h
  main/../lib/auto_pointer.h
  main/../lib/conditional_assert.h

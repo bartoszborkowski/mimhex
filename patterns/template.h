@@ -31,7 +31,7 @@ namespace HexPatterns
             Hash base_hash;
             uint size;
             int min_relative;
-            Hash fields_base_hash[kFieldsAlignedAmount][FIELD_STATES];
+            Hash fields_base_hash[Hex::kFieldsAlignedAmount][FIELD_STATES];
     };
 
     Template templates[TEMPLATES_AMOUNT];

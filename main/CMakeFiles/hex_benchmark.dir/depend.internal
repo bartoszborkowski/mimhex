@@ -6,6 +6,19 @@ main/CMakeFiles/hex_benchmark.dir/main_benchmark.cpp.o
  main/../implementation/board.cpp
  main/../implementation/board.h
  main/../implementation/playout.cpp
+ main/../implementation/sampler-inl.h
+ main/../implementation/sampler.cpp
+ main/../implementation/sampler.h
  main/../lib/conditional_assert.h
  main/../lib/random.h
  main/../lib/small_set.h
+ main/../patterns/hash_board-inl.h
+ main/../patterns/hash_board.cpp
+ main/../patterns/hash_board.h
+ main/../patterns/macro_definitions.h
+ main/../patterns/pattern-inl.h
+ main/../patterns/pattern.cpp
+ main/../patterns/pattern.h
+ main/../patterns/template-inl.h
+ main/../patterns/template.cpp
+ main/../patterns/template.h

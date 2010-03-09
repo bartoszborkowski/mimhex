@@ -2,8 +2,12 @@
 #include <iostream>
 #include <vector>
 
+#include "board.cpp"
 #include "template.cpp"
 #include "pattern.cpp"
+#include "hash_board.cpp"
+#include "sampler.cpp"
+#include "macro_definitions.h"
 
 using namespace HexPatterns;
 

@@ -14,6 +14,9 @@ main/CMakeFiles/hex.dir/main.cpp.o: main/../implementation/params.h
 main/CMakeFiles/hex.dir/main.cpp.o: main/../implementation/playout.cpp
 main/CMakeFiles/hex.dir/main.cpp.o: main/../implementation/protocol.cpp
 main/CMakeFiles/hex.dir/main.cpp.o: main/../implementation/protocol.h
+main/CMakeFiles/hex.dir/main.cpp.o: main/../implementation/sampler-inl.h
+main/CMakeFiles/hex.dir/main.cpp.o: main/../implementation/sampler.cpp
+main/CMakeFiles/hex.dir/main.cpp.o: main/../implementation/sampler.h
 main/CMakeFiles/hex.dir/main.cpp.o: main/../lib/absolute_cast.h
 main/CMakeFiles/hex.dir/main.cpp.o: main/../lib/auto_pointer.h
 main/CMakeFiles/hex.dir/main.cpp.o: main/../lib/conditional_assert.h

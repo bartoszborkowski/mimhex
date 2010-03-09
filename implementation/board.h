@@ -2,6 +2,7 @@
 #define HEX_BOARD_H_
 
 #include <string>
+
 #include "small_set.h"
 
 using namespace std;
@@ -11,8 +12,9 @@ typedef unsigned short ushort;
 
 namespace Hex {
 
-const uint kBoardSize = 11;
-const uint kBoardSizeAligned = 16;	// kBoardSize aligned to nearest higher power of 2
+  const uint kBoardSize = 11;
+  const uint kBoardSizeAligned = 16;	// kBoardSize aligned to nearest higher power of 2
+  const uint kFieldsAlignedAmount = kBoardSizeAligned * kBoardSizeAligned;
 
 // -----------------------------------------------------------------------------
 
@@ -80,6 +82,11 @@ class Move {
 };
 
 // -----------------------------------------------------------------------------
+}
+
+#include "sampler.h"
+
+namespace Hex {
 
 class Board {
  public:
@@ -121,6 +128,8 @@ class Board {
   uint _moves_left;
   int _field_map_bound;
   Player _current;
+
+  //Sampler sampler;
 
   SmallSet<ushort, 50> attacked_bridges;
 

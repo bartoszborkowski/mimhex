@@ -3,10 +3,17 @@
 
 tests/CMakeFiles/simple_hash_test.dir/simple_hash_test.cpp.o
  /home/borek/Desktop/mimhex/tests/simple_hash_test.cpp
+ tests/../implementation/board.cpp
  tests/../implementation/board.h
+ tests/../implementation/sampler-inl.h
+ tests/../implementation/sampler.cpp
+ tests/../implementation/sampler.h
  tests/../lib/conditional_assert.h
  tests/../lib/random.h
  tests/../lib/small_set.h
+ tests/../patterns/hash_board-inl.h
+ tests/../patterns/hash_board.cpp
+ tests/../patterns/hash_board.h
  tests/../patterns/macro_definitions.h
  tests/../patterns/pattern-inl.h
  tests/../patterns/pattern.cpp

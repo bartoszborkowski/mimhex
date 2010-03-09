@@ -1,7 +1,6 @@
 #ifndef MIMHEX_HASH_BOARD_H_
 #define MIMHEX_HASH_BOARD_H_
 
-
 #include "template.h"
 #include "pattern.h"
 #include "macro_definitions.h"
@@ -18,22 +17,17 @@ namespace HexPatterns
             HashBoard(const HashBoard &board);
             HashBoard & operator =(const HashBoard &board);
 
-            Hash GetHash(const Hex::Location &loc) const;
             Hash GetHash(uint position) const;
-            Hash GetHash(const Hex::Move &move) const;
-
             const Hash * GetAllHash() const;
+
+            void Play(uint position, uint player);
 
             uint GetBoardSize() const;
 
-            void Play(const Hex::Location &loc, const Hex::Player &player);
-            void Play(uint position, const Hex::Player &player);
-            void Play(const Hex::Move &move);
-
         private:
-            uint pattern_count[kFieldsAlignedAmount];
-            uint patterns_at[kFieldsAlignedAmount][MAX_PATTERNS];
-            Hash position_hash[kFieldsAlignedAmount];
+            uint pattern_count[Hex::kFieldsAlignedAmount];
+            uint patterns_at[Hex::kFieldsAlignedAmount][MAX_PATTERNS];
+            Hash position_hash[Hex::kFieldsAlignedAmount];
     };
 
     #include "hash_board-inl.h"

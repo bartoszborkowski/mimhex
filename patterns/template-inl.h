@@ -20,7 +20,7 @@ inline Hash Template::GetHash(int relative_position, uint player) const
 {
     int position = relative_position - min_relative;
 
-    if (position < 0 || static_cast<uint>(position) > kFieldsAlignedAmount)
+    if (position < 0 || static_cast<uint>(position) > Hex::kFieldsAlignedAmount)
         return 0;
     else
         return fields_base_hash[position][player];

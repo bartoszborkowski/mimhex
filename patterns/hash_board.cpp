@@ -11,7 +11,7 @@ namespace HexPatterns
 
         HashBoard board;
 
-        rep(ii, kFieldsAlignedAmount)
+        rep(ii, Hex::kFieldsAlignedAmount)
             board.pattern_count[ii] = 0;
 
         rep(ii, Hex::kBoardSize)
@@ -32,7 +32,7 @@ namespace HexPatterns
 
     HashBoard::HashBoard()
     {
-        rep(ii, kFieldsAlignedAmount)
+        rep(ii, Hex::kFieldsAlignedAmount)
             pattern_count[ii] = 0;
     }
 

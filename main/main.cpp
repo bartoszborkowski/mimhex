@@ -12,6 +12,7 @@
 #include "template.cpp"
 #include "pattern.cpp"
 #include "hash_board.cpp"
+#include "sampler.cpp"
 
 #include <iostream>
 #include <cstdlib>

@@ -41,12 +41,12 @@ namespace HexPatterns
     {
         std::ifstream ifs(template_file, std::ifstream::in);
         char buffer[BUFFER_SIZE];
-        Hash fields_hash[kFieldsAlignedAmount][FIELD_STATES];
+        Hash fields_hash[Hex::kFieldsAlignedAmount][FIELD_STATES];
         std::vector<int> line;
 
         int min_relative_position;
-        int fields_relative_positions[kFieldsAlignedAmount];
-        Hash auxiliary_hash[kFieldsAlignedAmount][FIELD_STATES];
+        int fields_relative_positions[Hex::kFieldsAlignedAmount];
+        Hash auxiliary_hash[Hex::kFieldsAlignedAmount][FIELD_STATES];
 
         if (!ifs.good()) {
             std::cerr << "Error: could not open file: " << template_file << std::endl;
@@ -58,12 +58,12 @@ namespace HexPatterns
             memset(fields_hash, 0, kHashMemory);
             memset(auxiliary_hash, 0, kHashMemory);
 
-            min_relative_position = kFieldsAlignedAmount;
+            min_relative_position = Hex::kFieldsAlignedAmount;
             line.clear();
 
             ifs.getline(buffer, BUFFER_SIZE);
             if (buffer[0] != COMMENT_LINE) {
-                ASSERT(static_cast<uint>(line[2]) <= kFieldsAlignedAmount);
+                ASSERT(static_cast<uint>(line[2]) <= Hex::kFieldsAlignedAmount);
 
                 SplitString(buffer, ' ', line);
 
@@ -126,7 +126,7 @@ namespace HexPatterns
             << "\tbase_hash \t"<< base_hash << std::endl
             << "\tsize \t\t" << size << std::endl;
 
-        rep(ii, kFieldsAlignedAmount)
+        rep(ii, Hex::kFieldsAlignedAmount)
             if (fields_base_hash[ii][0]) {
                 ret << "\thash[" << static_cast<int>(ii + min_relative)
                     << "][0] \t\t" << fields_base_hash[ii][0] << std::endl

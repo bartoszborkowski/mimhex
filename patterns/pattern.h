@@ -25,7 +25,7 @@ namespace HexPatterns
             uint id;
             uint template_id;
             uint central_position;
-            Hash fields_base_hash[kFieldsAlignedAmount][FIELD_STATES];
+            Hash fields_base_hash[Hex::kFieldsAlignedAmount][FIELD_STATES];
     };
 
     Pattern patterns[PATTERNS_AMOUNT];

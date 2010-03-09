@@ -7,6 +7,8 @@
 #IncludeRegexTransform: 
 
 /home/borek/Desktop/mimhex/patterns/gathering/gather_patterns.cpp
+board.cpp
+/home/borek/Desktop/mimhex/patterns/gathering/board.cpp
 gtp.hpp
 /home/borek/Desktop/mimhex/patterns/gathering/gtp.hpp
 gtp.cpp
@@ -17,9 +19,23 @@ pattern.cpp
 /home/borek/Desktop/mimhex/patterns/gathering/pattern.cpp
 hash_board.cpp
 /home/borek/Desktop/mimhex/patterns/gathering/hash_board.cpp
+sampler.cpp
+/home/borek/Desktop/mimhex/patterns/gathering/sampler.cpp
 iostream
 -
 inttypes.h
+-
+
+patterns/gathering/../../implementation/board.cpp
+board.h
+patterns/gathering/../../implementation/board.h
+random.h
+patterns/gathering/../../implementation/random.h
+conditional_assert.h
+patterns/gathering/../../implementation/conditional_assert.h
+cstring
+-
+sstream
 -
 
 patterns/gathering/../../implementation/board.h
@@ -27,6 +43,26 @@ string
 -
 small_set.h
 patterns/gathering/../../implementation/small_set.h
+sampler.h
+patterns/gathering/../../implementation/sampler.h
+
+patterns/gathering/../../implementation/sampler-inl.h
+
+patterns/gathering/../../implementation/sampler.cpp
+sstream
+-
+sampler.h
+patterns/gathering/../../implementation/sampler.h
+
+patterns/gathering/../../implementation/sampler.h
+string
+-
+board.h
+patterns/gathering/../../implementation/board.h
+hash_board.h
+patterns/gathering/../../implementation/hash_board.h
+sampler-inl.h
+patterns/gathering/../../implementation/sampler-inl.h
 
 patterns/gathering/../../lib/conditional_assert.h
 cassert

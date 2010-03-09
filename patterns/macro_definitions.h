@@ -17,7 +17,7 @@ namespace HexPatterns
     #define TEMPLATES_AMOUNT        1
     #define TEMPLATES_FILE          "template_data.txt"
 
-    #define PATTERNS_AMOUNT         (Hex::kBoardSizeAligned * Hex::kBoardSizeAligned)
+    #define PATTERNS_AMOUNT         (Hex::kFieldsAlignedAmount)
     #define PATTERNS_FILE           "pattern_data.txt"
 
     #define MAX_PATTERNS            8
@@ -26,8 +26,7 @@ namespace HexPatterns
 
     typedef uint Hash;
 
-    const uint kFieldsAlignedAmount = Hex::kBoardSizeAligned * Hex::kBoardSizeAligned;
-    const uint kHashMemory = kFieldsAlignedAmount * FIELD_STATES * sizeof(Hash);
+    const uint kHashMemory = Hex::kFieldsAlignedAmount * FIELD_STATES * sizeof(Hash);
 } // namespace HexPatterns
 
 #endif

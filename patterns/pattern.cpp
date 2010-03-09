@@ -53,7 +53,7 @@ namespace HexPatterns
             << "\ttemplate_id \t"<< template_id << std::endl
             << "\tposition \t" << central_position << std::endl;
 
-        rep(ii, kFieldsAlignedAmount)
+        rep(ii, Hex::kFieldsAlignedAmount)
             if (fields_base_hash[ii][0]) {
                 ret << "\thash[" << ii
                     << "][0] \t\t" << fields_base_hash[ii][0] << std::endl

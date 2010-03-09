@@ -4,9 +4,12 @@
 
 #include <boost/random.hpp>
 
-#include "board.h"
+#include "board.cpp"
 #include "template.cpp"
 #include "pattern.cpp"
+#include "hash_board.cpp"
+#include "sampler.cpp"
+#include "macro_definitions.h"
 
 using namespace HexPatterns;
 
@@ -35,7 +38,7 @@ int main()
         rep(jj, Hex::kBoardSize)
             board[ii * Hex::kBoardSize + jj] = NORMALISE_POSITION(ii, jj);
 
-    rep(ii, kFieldsAlignedAmount * kFieldsAlignedAmount * kFieldsAlignedAmount) {
+    rep(ii, Hex::kFieldsAlignedAmount * Hex::kFieldsAlignedAmount * 100) {
         uint f1 = board[generator() % size];
         uint f2 = board[generator() % size];
 

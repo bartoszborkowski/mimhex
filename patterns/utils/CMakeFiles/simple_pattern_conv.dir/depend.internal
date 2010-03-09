@@ -3,13 +3,21 @@
 
 patterns/utils/CMakeFiles/simple_pattern_conv.dir/simple_pattern_conv.cpp.o
  /home/borek/Desktop/mimhex/patterns/utils/simple_pattern_conv.cpp
+ patterns/utils/../../implementation/board.cpp
  patterns/utils/../../implementation/board.h
+ patterns/utils/../../implementation/sampler-inl.h
+ patterns/utils/../../implementation/sampler.cpp
+ patterns/utils/../../implementation/sampler.h
  patterns/utils/../../lib/conditional_assert.h
  patterns/utils/../../lib/random.h
  patterns/utils/../../lib/small_set.h
+ patterns/utils/../../patterns/hash_board-inl.h
+ patterns/utils/../../patterns/hash_board.cpp
+ patterns/utils/../../patterns/hash_board.h
  patterns/utils/../../patterns/macro_definitions.h
  patterns/utils/../../patterns/pattern-inl.h
  patterns/utils/../../patterns/pattern.cpp
  patterns/utils/../../patterns/pattern.h
  patterns/utils/../../patterns/template-inl.h
+ patterns/utils/../../patterns/template.cpp
  patterns/utils/../../patterns/template.h

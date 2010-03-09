@@ -3,8 +3,12 @@
 #include <fstream>
 #include <boost/lexical_cast.hpp>
 
+#include "board.cpp"
 #include "template.cpp"
 #include "pattern.cpp"
+#include "hash_board.cpp"
+#include "sampler.cpp"
+#include "macro_definitions.h"
 
 #define BUFF_SIZE 1024
 

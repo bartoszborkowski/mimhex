@@ -31,6 +31,8 @@ pattern.cpp
 /home/borek/Desktop/mimhex/main/pattern.cpp
 hash_board.cpp
 /home/borek/Desktop/mimhex/main/hash_board.cpp
+sampler.cpp
+/home/borek/Desktop/mimhex/main/sampler.cpp
 iostream
 -
 cstdlib
@@ -55,6 +57,8 @@ string
 -
 small_set.h
 main/../implementation/small_set.h
+sampler.h
+main/../implementation/sampler.h
 
 main/../implementation/game.cpp
 game.h
@@ -117,6 +121,24 @@ gtp.hpp
 main/../implementation/gtp.hpp
 game.h
 main/../implementation/game.h
+
+main/../implementation/sampler-inl.h
+
+main/../implementation/sampler.cpp
+sstream
+-
+sampler.h
+main/../implementation/sampler.h
+
+main/../implementation/sampler.h
+string
+-
+board.h
+main/../implementation/board.h
+hash_board.h
+main/../implementation/hash_board.h
+sampler-inl.h
+main/../implementation/sampler-inl.h
 
 main/../lib/absolute_cast.h
 

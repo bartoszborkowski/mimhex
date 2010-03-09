@@ -3,7 +3,11 @@
 
 patterns/gathering/CMakeFiles/gather_patterns.dir/gather_patterns.cpp.o
  /home/borek/Desktop/mimhex/patterns/gathering/gather_patterns.cpp
+ patterns/gathering/../../implementation/board.cpp
  patterns/gathering/../../implementation/board.h
+ patterns/gathering/../../implementation/sampler-inl.h
+ patterns/gathering/../../implementation/sampler.cpp
+ patterns/gathering/../../implementation/sampler.h
  patterns/gathering/../../lib/conditional_assert.h
  patterns/gathering/../../lib/gtp.cpp
  patterns/gathering/../../lib/gtp.hpp

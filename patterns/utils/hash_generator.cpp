@@ -5,6 +5,11 @@
 #include <boost/random.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "board.cpp"
+#include "template.cpp"
+#include "pattern.cpp"
+#include "hash_board.cpp"
+#include "sampler.cpp"
 #include "macro_definitions.h"
 
 int main(int argc, char *argv[])
