@@ -64,14 +64,14 @@ uint Location::GetPos() const { return _pos; }
 
 std::string Location::ToCoords() const {
     std::stringstream coords;
-    coords << static_cast<char>(_pos % kBoardSizeAligned + 'a' - 2);
-    coords << _pos / kBoardSizeAligned - 1;
+    coords << static_cast<char>(_pos % actual_board_size + 'a' - 2);
+    coords << _pos / actual_board_size - 1;
     return coords.str();
 }
 
 uint Location::ToTablePos(uint x, uint y) {
     ASSERT (ValidLocation(x, y));
-    return (++y) * (kBoardSizeAligned) + x + 1;
+    return (++y) * actual_board_size + x + 1;
 }
 
 bool Location::operator==(Location loc) const {
@@ -99,12 +99,12 @@ bool Location::ValidPosition(uint pos) {
 }
 
 bool Location::ValidLocation(uint x, uint y) {
-    return x > 0 && y > 0 && x <= kBoardSize && y <= kBoardSize;
+    return x > 0 && y > 0 && x <= board_size && y <= board_size;
 }
 
 void Location::ToCoords(uint pos, uint& x, uint& y) {
-    x = pos % kBoardSizeAligned - 1;
-    y = pos / kBoardSizeAligned - 1;
+    x = pos % actual_board_size  - 1;
+    y = pos / actual_board_size  - 1;
 }
 
 // -----------------------------------------------------------------------------
@@ -120,39 +120,60 @@ Player Move::GetPlayer() const { return _player; }
 
 // -----------------------------------------------------------------------------
 
-const uint Board::guard_count = 2; //two guards on each side
-const uint Board::guarded_board_size = kBoardSize + guard_count * 2;
-const uint Board::table_size = kBoardSizeAligned * kBoardSizeAligned;
+uint Board::ToPos(int x, int y) {
+    return (x + guard_count - 1) * actual_board_size + (y + guard_count - 1);
+}
+
+uint Board::ToPos(ushort val) {
+    return val & (~board_second);
+}
+
+ushort Board::ToFirst(ushort pos) {
+    return pos;
+}
+
+ushort Board::ToSecond(ushort pos) {
+    return pos | board_second;
+}
+
+bool Board::IsFirst(ushort val) {
+    return !((val - 1) & board_second);
+}
+
+bool Board::IsSecond(ushort val) {
+    return val & board_second;
+}
+
+bool Board::IsEmpty(ushort val) {
+    return val == 0;
+}
 
 const Board Board::Empty() {
 
     Board board;
 
-    /*building F&U structures*/
-
     uint counter = 0;
-    for (uint i = 0; i < table_size; ++i)
+    for (uint i = 0; i < actual_field_count; ++i)
         board._reverse_fast_field_map[i] = -1;
-    for (uint i = 2; i <= kBoardSize + 1; ++i) {
-        for (uint j = 2; j <= kBoardSize + 1; ++j) {
-            uint field = i * kBoardSizeAligned + j;
+    for (uint i = 1; i <= board_size; ++i) {
+        for (uint j = 1; j <= board_size; ++j) {
+            signed int field = ToPos(i, j);
             board._fast_field_map[counter] = field;
             board._reverse_fast_field_map[field] = counter++;
         }
     }
 
-    for (uint i = 0; i < table_size; ++i)            /*cleaning board*/
-        board._board[i] = 0;
-    for (uint i = 2; i <= kBoardSize + 1; ++i)        /*initializing guards. Assuming two layers of guards!*/
-        board._board[i + kBoardSizeAligned] = 2 + kBoardSizeAligned;
-    for (uint i = (guarded_board_size - 2) * kBoardSizeAligned + 2;
-            i < (guarded_board_size - 2) * (kBoardSizeAligned + 1); ++i) {
-        board._board[i] = (guarded_board_size - 2) * kBoardSizeAligned + 2;
-    }
-    for (uint i = 2 * kBoardSizeAligned + 1, j = 0; j < guarded_board_size - 4;
-            i += kBoardSizeAligned, j++) {
-        board._board[i] = -1;
-        board._board[i + kBoardSize + 1] = -1;
+    for (uint i = 0; i < actual_field_count; ++i)
+        board._board[i] = board_empty;
+    board._board[root_up] = ToFirst(root_up);
+    board._board[root_down] = ToFirst(root_down);
+    board._board[root_left] = ToSecond(root_left);
+    board._board[root_right] = ToSecond(root_right);
+    for (uint i = 1; i <= board_size; ++i) {
+        board._board[ToPos(i, 0)] = ToFirst(root_up);
+        board._board[ToPos(i, board_size + 1)] = ToFirst(root_down);
+        board._board[ToPos(0, i)] = ToSecond(root_left);
+        board._board[ToPos(board_size + 1, i)] = ToSecond(root_right);
     }
 
     board.clearShortestPathsStats();
@@ -160,9 +181,9 @@ const Board Board::Empty() {
     return board;
 }
 
-void Board::clearShortestPathsStats(){
+void Board::clearShortestPathsStats() {
 
-    for(uint i=0; i<table_size; i++)
+    for(uint i=0; i<actual_field_count; i++)
         timesOfBeingOnShortestPath[i]=0;
 }
 
@@ -170,56 +191,56 @@ void Board::clearShortestPathsStats(){
 void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, Player& winner)
 {
 
-    short queue[table_size/2+1];    //bfs queue
-    unsigned short visited[table_size];    //marks in which step node was visited
+    short queue[actual_field_count/2+1];    //bfs queue
+    unsigned short visited[actual_field_count];    //marks in which step node was visited
     short beg=0, end=-1;        //queue markings
 
-    memset(visited,0,table_size*sizeof(visited[0]));
+    memset(visited,0,actual_field_count*sizeof(visited[0]));
 
     if (Player::First() == winner){
-        for(uint i=2*kBoardSizeAligned+2; i<2*kBoardSizeAligned+kBoardSize+2; i++)
-            if(_board[i]>0){
+        for(uint i=2*actual_board_size +2; i<2*actual_board_size +board_size+2; i++)
+            if(IsFirst(_board[i])){
                 queue[++end]=i;        //I put to queue every node by the edge
                 visited[i]=1;        //and mark it as visited in first step
             }
         for(; beg<=end; beg++){            //bfs
-            if((visited[queue[beg]+1] == 0) && _board[queue[beg]+1]>0){
+            if((visited[queue[beg]+1] == 0) && IsFirst(_board[queue[beg]+1])>0){
                 queue[++end]=queue[beg]+1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]-1] == 0) && _board[queue[beg]-1]>0){
+            if((visited[queue[beg]-1] == 0) && IsFirst(_board[queue[beg]-1])>0){
                 queue[++end]=queue[beg]-1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]-kBoardSizeAligned+1] == 0) && _board[queue[beg]-kBoardSizeAligned+1]>0){
-                queue[++end]=queue[beg]-kBoardSizeAligned+1;
+            if((visited[queue[beg]-actual_board_size +1] == 0) && IsFirst(_board[queue[beg]-actual_board_size+1])){
+                queue[++end]=queue[beg]-actual_board_size +1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]+kBoardSizeAligned-1] == 0) && _board[queue[beg]+kBoardSizeAligned-1]>0){
-                queue[++end]=queue[beg]+kBoardSizeAligned-1;
+            if((visited[queue[beg]+actual_board_size -1] == 0) && IsFirst(_board[queue[beg]+actual_board_size-1])){
+                queue[++end]=queue[beg]+actual_board_size -1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]+kBoardSizeAligned] == 0) && _board[queue[beg]+kBoardSizeAligned]>0){
-                queue[++end]=queue[beg]+kBoardSizeAligned;
+            if((visited[queue[beg]+actual_board_size ] == 0) && IsFirst(_board[queue[beg]+actual_board_size])){
+                queue[++end]=queue[beg]+actual_board_size ;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]-kBoardSizeAligned] == 0) && _board[queue[beg]-kBoardSizeAligned]>0){
-                queue[++end]=queue[beg]-kBoardSizeAligned;
+            if((visited[queue[beg]-actual_board_size ] == 0) && IsFirst(_board[queue[beg]-actual_board_size])){
+                queue[++end]=queue[beg]-actual_board_size ;
                 visited[queue[end]] = visited[beg]+1;
             }
         }
         /*Now I have to find the shortest paths.
           I find out which nodes by the other edge were visited as first ones*/
         uint min = (uint) -1;
-        for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
-                i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i) {
+        for (uint i = (board_size+1) * actual_board_size  + 2;
+                i < (board_size+1) * actual_board_size  + 2 + board_size; ++i) {
             if(visited[i] > 0 && visited[i] < min)
                 min = visited[i];
         }
         beg=0;    //cleaning queue
         end=-1;
-        for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
-                i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i)
+        for (uint i = (board_size+1) * actual_board_size  + 2;
+                i < (board_size+1) * actual_board_size  + 2 + board_size; ++i)
             if(visited[i]==min){
                 queue[++end]=i;
                 aBoard.timesOfBeingOnShortestPath[i]++;
@@ -236,23 +257,23 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, Player& winner)
                 visited[queue[end]] = 0;
                 aBoard.timesOfBeingOnShortestPath[queue[end]]++;
             }
-            if(visited[queue[beg]-kBoardSizeAligned+1] == visited[queue[beg]]-1){
-                queue[++end]=queue[beg]-kBoardSizeAligned+1;
+            if(visited[queue[beg]-actual_board_size +1] == visited[queue[beg]]-1){
+                queue[++end]=queue[beg]-actual_board_size +1;
                 visited[queue[end]] = 0;
                 aBoard.timesOfBeingOnShortestPath[queue[end]]++;
             }
-            if(visited[queue[beg]+kBoardSizeAligned-1] == visited[queue[beg]]-1){
-                queue[++end]=queue[beg]+kBoardSizeAligned-1;
+            if(visited[queue[beg]+actual_board_size -1] == visited[queue[beg]]-1){
+                queue[++end]=queue[beg]+actual_board_size -1;
                 visited[queue[end]] = 0;
                 aBoard.timesOfBeingOnShortestPath[queue[end]]++;
             }
-            if(visited[queue[beg]+kBoardSizeAligned] == visited[queue[beg]]-1){
-                queue[++end]=queue[beg]+kBoardSizeAligned;
+            if(visited[queue[beg]+actual_board_size ] == visited[queue[beg]]-1){
+                queue[++end]=queue[beg]+actual_board_size ;
                 visited[queue[end]] = 0;
                 aBoard.timesOfBeingOnShortestPath[queue[end]]++;
             }
-            if(visited[queue[beg]-kBoardSizeAligned] == visited[queue[beg]]-1){
-                queue[++end]=queue[beg]-kBoardSizeAligned;
+            if(visited[queue[beg]-actual_board_size ] == visited[queue[beg]]-1){
+                queue[++end]=queue[beg]-actual_board_size ;
                 visited[queue[end]] = 0;
                 aBoard.timesOfBeingOnShortestPath[queue[end]]++;
             }
@@ -260,47 +281,47 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, Player& winner)
     }else{    //analogically for the other player marked with values < 0
         //there are changes in 'for' statements (vertically, not horizontally)
         //and in comparisions to 0 (lesser, not greater)
-        for(uint i=2*kBoardSizeAligned+2; i<(kBoardSize+2)*kBoardSizeAligned+2; i=i+kBoardSizeAligned)
-            if(_board[i]<0){
+        for(uint i=2*actual_board_size +2; i<(board_size+2)*actual_board_size +2; i=i+actual_board_size )
+            if(IsSecond(_board[i])){
                 queue[++end]=i;
                 visited[i]=1;
             }
         for(; beg<=end; beg++){
-            if((visited[queue[beg]+1] == 0) && _board[queue[beg]+1]<0){
+            if((visited[queue[beg]+1] == 0) && IsSecond(_board[queue[beg]+1])){
                 queue[++end]=queue[beg]+1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]-1] == 0) && _board[queue[beg]-1]<0){
+            if((visited[queue[beg]-1] == 0) && IsSecond(_board[queue[beg]-1])){
                 queue[++end]=queue[beg]-1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]-kBoardSizeAligned+1] == 0) && _board[queue[beg]-kBoardSizeAligned+1]<0){
-                queue[++end]=queue[beg]-kBoardSizeAligned+1;
+            if((visited[queue[beg]-actual_board_size +1] == 0) && IsSecond(_board[queue[beg]-actual_board_size +1])){
+                queue[++end]=queue[beg]-actual_board_size +1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]+kBoardSizeAligned-1] == 0) && _board[queue[beg]+kBoardSizeAligned-1]<0){
-                queue[++end]=queue[beg]+kBoardSizeAligned-1;
+            if((visited[queue[beg]+actual_board_size -1] == 0) && IsSecond(_board[queue[beg]+actual_board_size -1])){
+                queue[++end]=queue[beg]+actual_board_size -1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]+kBoardSizeAligned] == 0) && _board[queue[beg]+kBoardSizeAligned]<0){
-                queue[++end]=queue[beg]+kBoardSizeAligned;
+            if((visited[queue[beg]+actual_board_size ] == 0) && IsSecond(_board[queue[beg]+actual_board_size])){
+                queue[++end]=queue[beg]+actual_board_size ;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]-kBoardSizeAligned] == 0) && _board[queue[beg]-kBoardSizeAligned]<0){
-                queue[++end]=queue[beg]-kBoardSizeAligned;
+            if((visited[queue[beg]-actual_board_size ] == 0) && IsSecond(_board[queue[beg]-actual_board_size])){
+                queue[++end]=queue[beg]-actual_board_size ;
                 visited[queue[end]] = visited[beg]+1;
             }
         }
         uint min = (uint) -1;
-        for (uint i = 2 * kBoardSizeAligned + 1 + kBoardSize;
-                i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; i=i+kBoardSizeAligned) {
+        for (uint i = 2 * actual_board_size  + 1 + board_size;
+                i < (board_size+1) * actual_board_size  + 2 + board_size; i=i+actual_board_size ) {
             if(visited[i]>0 && visited[i]<min)
                 min = visited[i];
         }
         beg=0;
         end=-1;
-        for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
-                i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i)
+        for (uint i = (board_size+1) * actual_board_size  + 2;
+                i < (board_size+1) * actual_board_size  + 2 + board_size; ++i)
             if(visited[i]==min){
                 queue[++end]=i;
                 aBoard.timesOfBeingOnShortestPath[i]++;
@@ -317,23 +338,23 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, Player& winner)
                 visited[queue[end]] = 0;
                 aBoard.timesOfBeingOnShortestPath[queue[end]]++;
             }
-            if(visited[queue[beg]-kBoardSizeAligned+1] == visited[queue[beg]]-1){
-                queue[++end]=queue[beg]-kBoardSizeAligned+1;
+            if(visited[queue[beg]-actual_board_size +1] == visited[queue[beg]]-1){
+                queue[++end]=queue[beg]-actual_board_size +1;
                 visited[queue[end]] = 0;
                 aBoard.timesOfBeingOnShortestPath[queue[end]]++;
             }
-            if(visited[queue[beg]+kBoardSizeAligned-1] == visited[queue[beg]]-1){
-                queue[++end]=queue[beg]+kBoardSizeAligned-1;
+            if(visited[queue[beg]+actual_board_size -1] == visited[queue[beg]]-1){
+                queue[++end]=queue[beg]+actual_board_size -1;
                 visited[queue[end]] = 0;
                 aBoard.timesOfBeingOnShortestPath[queue[end]]++;
             }
-            if(visited[queue[beg]+kBoardSizeAligned] == visited[queue[beg]]-1){
-                queue[++end]=queue[beg]+kBoardSizeAligned;
+            if(visited[queue[beg]+actual_board_size ] == visited[queue[beg]]-1){
+                queue[++end]=queue[beg]+actual_board_size ;
                 visited[queue[end]] = 0;
                 aBoard.timesOfBeingOnShortestPath[queue[end]]++;
             }
-            if(visited[queue[beg]-kBoardSizeAligned] == visited[queue[beg]]-1){
-                queue[++end]=queue[beg]-kBoardSizeAligned;
+            if(visited[queue[beg]-actual_board_size ] == visited[queue[beg]]-1){
+                queue[++end]=queue[beg]-actual_board_size ;
                 visited[queue[end]] = 0;
                 aBoard.timesOfBeingOnShortestPath[queue[end]]++;
             }
@@ -346,48 +367,48 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, Player& winner)
 void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, Player& winner)
 {
 
-    short queue[table_size/2+1];
-    unsigned short visited[table_size];
+    short queue[actual_field_count/2+1];
+    unsigned short visited[actual_field_count];
     short beg=0, end=-1;
 
-    memset(visited,0,table_size*sizeof(visited[0]));
+    memset(visited,0,actual_field_count*sizeof(visited[0]));
 
     if (Player::First() == winner){
-        for(uint i=2*kBoardSizeAligned+2; i<2*kBoardSizeAligned+kBoardSize+2; i++)
-            if(_board[i]>0){
+        for(uint i=2*actual_board_size +2; i<2*actual_board_size +board_size+2; i++)
+            if(IsFirst(_board[i])){
                 queue[++end]=i;
                 visited[i]=1;
             }
         for(; beg<=end; beg++){
-            if((visited[queue[beg]+1] == 0) && _board[queue[beg]+1]>0){
+            if((visited[queue[beg]+1] == 0) && IsFirst(_board[queue[beg]+1])){
                 queue[++end]=queue[beg]+1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]-1] == 0) && _board[queue[beg]-1]>0){
+            if((visited[queue[beg]-1] == 0) && IsFirst(_board[queue[beg]-1])){
                 queue[++end]=queue[beg]-1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]-kBoardSizeAligned+1] == 0) && _board[queue[beg]-kBoardSizeAligned+1]>0){
-                queue[++end]=queue[beg]-kBoardSizeAligned+1;
+            if((visited[queue[beg]-actual_board_size +1] == 0) && IsFirst(_board[queue[beg]-actual_board_size +1])){
+                queue[++end]=queue[beg]-actual_board_size +1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]+kBoardSizeAligned-1] == 0) && _board[queue[beg]+kBoardSizeAligned-1]>0){
-                queue[++end]=queue[beg]+kBoardSizeAligned-1;
+            if((visited[queue[beg]+actual_board_size -1] == 0) && IsFirst(_board[queue[beg]+actual_board_size -1])){
+                queue[++end]=queue[beg]+actual_board_size -1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]+kBoardSizeAligned] == 0) && _board[queue[beg]+kBoardSizeAligned]>0){
-                queue[++end]=queue[beg]+kBoardSizeAligned;
+            if((visited[queue[beg]+actual_board_size ] == 0) && IsFirst(_board[queue[beg]+actual_board_size])){
+                queue[++end]=queue[beg]+actual_board_size ;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]-kBoardSizeAligned] == 0) && _board[queue[beg]-kBoardSizeAligned]>0){
-                queue[++end]=queue[beg]-kBoardSizeAligned;
+            if((visited[queue[beg]-actual_board_size ] == 0) && IsFirst(_board[queue[beg]-actual_board_size])){
+                queue[++end]=queue[beg]-actual_board_size ;
                 visited[queue[end]] = visited[beg]+1;
             }
         }
         uint current=0; //avoiding warnings
         uint min = (uint) -1;
-        for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
-                i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i) {
+        for (uint i = (board_size+1) * actual_board_size  + 2;
+                i < (board_size+1) * actual_board_size  + 2 + board_size; ++i) {
             if(visited[i] > 0 && visited[i] < min){
                 min = visited[i];
                 current = i;
@@ -406,64 +427,64 @@ void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, Player& winner)
                 aBoard.timesOfBeingOnShortestPath[current]++;
                 continue;
             }
-            if(visited[current-kBoardSizeAligned+1] == visited[current]-1){
-                current = current-kBoardSizeAligned+1;
+            if(visited[current-actual_board_size +1] == visited[current]-1){
+                current = current-actual_board_size +1;
                 aBoard.timesOfBeingOnShortestPath[current]++;
                 continue;
             }
-            if(visited[current+kBoardSizeAligned-1] == visited[current]-1){
-                current = current+kBoardSizeAligned-1;
+            if(visited[current+actual_board_size -1] == visited[current]-1){
+                current = current+actual_board_size -1;
                 aBoard.timesOfBeingOnShortestPath[current]++;
                 continue;
             }
-            if(visited[current+kBoardSizeAligned] == visited[current]-1){
-                current = current+kBoardSizeAligned;
+            if(visited[current+actual_board_size ] == visited[current]-1){
+                current = current+actual_board_size ;
                 aBoard.timesOfBeingOnShortestPath[current]++;
                 continue;
             }
-            if(visited[current-kBoardSizeAligned] == visited[current]-1){
-                current = current-kBoardSizeAligned;
+            if(visited[current-actual_board_size ] == visited[current]-1){
+                current = current-actual_board_size ;
                 aBoard.timesOfBeingOnShortestPath[current]++;
                 continue;
             }
             break;
         }
     }else{
-        for(uint i=2*kBoardSizeAligned+2; i<(kBoardSize+2)*kBoardSizeAligned+2; i=i+kBoardSizeAligned)
-            if(_board[i]<0){
+        for(uint i=2*actual_board_size +2; i<(board_size+2)*actual_board_size +2; i=i+actual_board_size )
+            if(IsSecond(_board[i])){
                 queue[++end]=i;
                 visited[i]=1;
             }
         for(; beg<=end; beg++){
-            if((visited[queue[beg]+1] == 0) && _board[queue[beg]+1]<0){
+            if((visited[queue[beg]+1] == 0) && IsSecond(_board[queue[beg]+1])){
                 queue[++end]=queue[beg]+1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]-1] == 0) && _board[queue[beg]-1]<0){
+            if((visited[queue[beg]-1] == 0) && IsSecond(_board[queue[beg]-1])){
                 queue[++end]=queue[beg]-1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]-kBoardSizeAligned+1] == 0) && _board[queue[beg]-kBoardSizeAligned+1]<0){
-                queue[++end]=queue[beg]-kBoardSizeAligned+1;
+            if((visited[queue[beg]-actual_board_size +1] == 0) && IsSecond(_board[queue[beg]-actual_board_size +1])){
+                queue[++end]=queue[beg]-actual_board_size +1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]+kBoardSizeAligned-1] == 0) && _board[queue[beg]+kBoardSizeAligned-1]<0){
-                queue[++end]=queue[beg]+kBoardSizeAligned-1;
+            if((visited[queue[beg]+actual_board_size -1] == 0) && IsSecond(_board[queue[beg]+actual_board_size -1])){
+                queue[++end]=queue[beg]+actual_board_size -1;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]+kBoardSizeAligned] == 0) && _board[queue[beg]+kBoardSizeAligned]<0){
-                queue[++end]=queue[beg]+kBoardSizeAligned;
+            if((visited[queue[beg]+actual_board_size ] == 0) && IsSecond(_board[queue[beg]+actual_board_size])){
+                queue[++end]=queue[beg]+actual_board_size ;
                 visited[queue[end]] = visited[beg]+1;
             }
-            if((visited[queue[beg]-kBoardSizeAligned] == 0) && _board[queue[beg]-kBoardSizeAligned]<0){
-                queue[++end]=queue[beg]-kBoardSizeAligned;
+            if((visited[queue[beg]-actual_board_size ] == 0) && IsSecond(_board[queue[beg]-actual_board_size])){
+                queue[++end]=queue[beg]-actual_board_size ;
                 visited[queue[end]] = visited[beg]+1;
             }
         }
         uint current=0; //avoiding warnings
         uint min = (uint) -1;
-        for (uint i = 2 * kBoardSizeAligned + 1 + kBoardSize;
-                i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; i=i+kBoardSizeAligned) {
+        for (uint i = 2 * actual_board_size  + 1 + board_size;
+                i < (board_size+1) * actual_board_size + 2 + board_size; i=i+actual_board_size ) {
             if(visited[i]>0 && visited[i]<min){
                 min = visited[i];
                 current = i;
@@ -481,23 +502,23 @@ void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, Player& winner)
                 aBoard.timesOfBeingOnShortestPath[current]++;
                 continue;
             }
-            if(visited[current-kBoardSizeAligned+1] == visited[current]-1){
-                current = current-kBoardSizeAligned+1;
+            if(visited[current-actual_board_size +1] == visited[current]-1){
+                current = current-actual_board_size +1;
                 aBoard.timesOfBeingOnShortestPath[current]++;
                 continue;
             }
-            if(visited[current+kBoardSizeAligned-1] == visited[current]-1){
-                current = current+kBoardSizeAligned-1;
+            if(visited[current+actual_board_size -1] == visited[current]-1){
+                current = current+actual_board_size -1;
                 aBoard.timesOfBeingOnShortestPath[current]++;
                 continue;
             }
-            if(visited[current+kBoardSizeAligned] == visited[current]-1){
-                current = current+kBoardSizeAligned;
+            if(visited[current+actual_board_size ] == visited[current]-1){
+                current = current+actual_board_size ;
                 aBoard.timesOfBeingOnShortestPath[current]++;
                 continue;
             }
-            if(visited[current-kBoardSizeAligned] == visited[current]-1){
-                current = current-kBoardSizeAligned;
+            if(visited[current-actual_board_size ] == visited[current]-1){
+                current = current-actual_board_size ;
                 aBoard.timesOfBeingOnShortestPath[current]++;
                 continue;
             }
@@ -511,22 +532,22 @@ void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, Player& winner)
 //FIXME test it after implementing symetric FU!
 void Board::UpdatePathsStatsFloodFillFU(Board& aBoard, Player& winner){
     /* first uses positive numbers, second -1s */
-    /* _board[(guarded_board_size - 2) * kBoardSizeAligned + 2] is always a guard of a first type */
-    /* _board[2 * kBoardSizeAligned + 1] is always a guard of a second type */
+    /* _board[(guarded_board_size - 2) * actual_board_size  + 2] is always a guard of a first type */
+    /* _board[2 * actual_board_size  + 1] is always a guard of a second type */
 
     int startingPoint;
     uint parent;
 
     if (Player::First() == winner){
-        startingPoint = (guarded_board_size - 2) * kBoardSizeAligned + 2;
+        startingPoint = (guarded_board_size - 2) * actual_board_size  + 2;
     }
     else{
-        startingPoint = 2 * kBoardSizeAligned + 1;
+        startingPoint = 2 * actual_board_size  + 1;
     }
 
     parent = Find(startingPoint);
 
-    for(uint i=0; i<table_size; i++){
+    for(uint i=0; i<actual_field_count; i++){
         aBoard.timesOfBeingOnShortestPath[i] += (short)(Find(_board[i]) == parent);
     }
 }
@@ -538,180 +559,180 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, Player& winner){
         int startingPoint;
         uint parent;
 
-        startingPoint = (guarded_board_size - 2) * kBoardSizeAligned + 2;
+        startingPoint = (guarded_board_size - 2) * actual_board_size  + 2;
 
         parent = Find(startingPoint);
 
-        for(uint i=0; i<table_size; i++){
+        for(uint i=0; i<actual_field_count; i++){
             /* this check is necessary due to asymetric FU */
-            if(_board[i] > 0)
+            if(IsFirst(_board[i]))
                 aBoard.timesOfBeingOnShortestPath[i] += (short)(Find(_board[i]) == parent);
         }
     }
     /* FU is not performed for this player, BFS necessary */
     else{
 
-        short queue[table_size/2+1];
-        unsigned short visited[table_size];
+        short queue[actual_field_count/2+1];
+        unsigned short visited[actual_field_count];
         short beg=0, end=-1;
 
-        memset(visited,0,table_size*sizeof(visited[0]));
+        memset(visited,0,actual_field_count*sizeof(visited[0]));
 
         if (Player::First() == winner){
-            for(uint i=2*kBoardSizeAligned+2; i<2*kBoardSizeAligned+kBoardSize+2; i++)
-                if(_board[i]>0){
+            for(uint i=2*actual_board_size +2; i<2*actual_board_size +board_size+2; i++)
+                if(IsFirst(_board[i])){
                     queue[++end]=i;
-                    visited[i]=kBoardSizeAligned;
+                    visited[i]=actual_board_size ;
                 }
             for(; beg<=end; beg++){
-                if((visited[queue[beg]+1] == 0) && _board[queue[beg]+1]>0){
+                if((visited[queue[beg]+1] == 0) && IsFirst(_board[queue[beg]+1])){
                     queue[++end]=queue[beg]+1;
                     visited[queue[end]] = visited[beg];
                 }
-                if((visited[queue[beg]-1] == 0) && _board[queue[beg]-1]>0){
+                if((visited[queue[beg]-1] == 0) && IsFirst(_board[queue[beg]-1])){
                     queue[++end]=queue[beg]-1;
                     visited[queue[end]] = visited[beg];
                 }
-                if((visited[queue[beg]-kBoardSizeAligned+1] == 0) && _board[queue[beg]-kBoardSizeAligned+1]>0){
-                    queue[++end]=queue[beg]-kBoardSizeAligned+1;
+                if((visited[queue[beg]-actual_board_size +1] == 0) && IsFirst(_board[queue[beg]-actual_board_size +1])){
+                    queue[++end]=queue[beg]-actual_board_size +1;
                     visited[queue[end]] = visited[beg]-1;
                 }
-                if((visited[queue[beg]+kBoardSizeAligned-1] == 0) && _board[queue[beg]+kBoardSizeAligned-1]>0){
-                    queue[++end]=queue[beg]+kBoardSizeAligned-1;
+                if((visited[queue[beg]+actual_board_size -1] == 0) && IsFirst(_board[queue[beg]+actual_board_size -1])){
+                    queue[++end]=queue[beg]+actual_board_size -1;
                     visited[queue[end]] = visited[beg]+1;
                 }
-                if((visited[queue[beg]+kBoardSizeAligned] == 0) && _board[queue[beg]+kBoardSizeAligned]>0){
-                    queue[++end]=queue[beg]+kBoardSizeAligned;
+                if((visited[queue[beg]+actual_board_size ] == 0) && IsFirst(_board[queue[beg]+actual_board_size])){
+                    queue[++end]=queue[beg]+actual_board_size ;
                     visited[queue[end]] = visited[beg]+1;
                 }
-                if((visited[queue[beg]-kBoardSizeAligned] == 0) && _board[queue[beg]-kBoardSizeAligned]>0){
-                    queue[++end]=queue[beg]-kBoardSizeAligned;
+                if((visited[queue[beg]-actual_board_size ] == 0) && IsFirst(_board[queue[beg]-actual_board_size])){
+                    queue[++end]=queue[beg]-actual_board_size ;
                     visited[queue[end]] = visited[beg]-1;
                 }
             }
-            for(uint i=kBoardSizeAligned+2; i<kBoardSizeAligned+kBoardSize+2; i++)
+            for(uint i=actual_board_size +2; i<actual_board_size +board_size+2; i++)
                 visited[i]=0;
             beg=0;
             end=-1;
-            for (uint i = (kBoardSize+1) * kBoardSizeAligned + 2;
-                    i < (kBoardSize+1) * kBoardSizeAligned + 2 + kBoardSize; ++i)
+            for (uint i = (board_size+1) * actual_board_size  + 2;
+                    i < (board_size+1) * actual_board_size  + 2 + board_size; ++i)
                 if(visited[i]>0){
                     queue[++end]=i;
                     aBoard.timesOfBeingOnShortestPath[i]++;
                     visited[i]=0;
                 }
             for(; beg<=end; beg++){
-                if(visited[queue[beg]+1] > 0 && visited[queue[beg]+1] < kBoardSizeAligned+kBoardSize){
+                if(visited[queue[beg]+1] > 0 && visited[queue[beg]+1] < actual_board_size +board_size){
                     queue[++end]=queue[beg]+1;
                     visited[queue[end]] = 0;
                     aBoard.timesOfBeingOnShortestPath[queue[end]]++;
                 }
-                if(visited[queue[beg]-1] > 0 && visited[queue[beg]-1] < kBoardSizeAligned+kBoardSize){
+                if(visited[queue[beg]-1] > 0 && visited[queue[beg]-1] < actual_board_size +board_size){
                     queue[++end]=queue[beg]-1;
                     visited[queue[end]] = 0;
                     aBoard.timesOfBeingOnShortestPath[queue[end]]++;
                 }
-                if(visited[queue[beg]-kBoardSizeAligned+1] > 0 &&
-                            visited[queue[beg]-kBoardSizeAligned+1] < kBoardSizeAligned+kBoardSize){
-                    queue[++end]=queue[beg]-kBoardSizeAligned+1;
+                if(visited[queue[beg]-actual_board_size +1] > 0 &&
+                            visited[queue[beg]-actual_board_size +1] < actual_board_size +board_size){
+                    queue[++end]=queue[beg]-actual_board_size +1;
                     visited[queue[end]] = 0;
                     aBoard.timesOfBeingOnShortestPath[queue[end]]++;
                 }
-                if(visited[queue[beg]+kBoardSizeAligned-1] > 0 &&
-                            visited[queue[beg]+kBoardSizeAligned-1] < kBoardSizeAligned+kBoardSize){
-                    queue[++end]=queue[beg]+kBoardSizeAligned-1;
+                if(visited[queue[beg]+actual_board_size -1] > 0 &&
+                            visited[queue[beg]+actual_board_size -1] < actual_board_size +board_size){
+                    queue[++end]=queue[beg]+actual_board_size -1;
                     visited[queue[end]] = 0;
                     aBoard.timesOfBeingOnShortestPath[queue[end]]++;
                 }
-                if(visited[queue[beg]+kBoardSizeAligned] > 0 &&
-                            visited[queue[beg]+kBoardSizeAligned] < kBoardSizeAligned+kBoardSize){
-                    queue[++end]=queue[beg]+kBoardSizeAligned;
+                if(visited[queue[beg]+actual_board_size ] > 0 &&
+                            visited[queue[beg]+actual_board_size ] < actual_board_size +board_size){
+                    queue[++end]=queue[beg]+actual_board_size ;
                     visited[queue[end]] = 0;
                     aBoard.timesOfBeingOnShortestPath[queue[end]]++;
                 }
-                if(visited[queue[beg]-kBoardSizeAligned] > 0 &&
-                            visited[queue[beg]-kBoardSizeAligned] < kBoardSizeAligned+kBoardSize){
-                    queue[++end]=queue[beg]-kBoardSizeAligned;
+                if(visited[queue[beg]-actual_board_size ] > 0 &&
+                            visited[queue[beg]-actual_board_size ] < actual_board_size +board_size){
+                    queue[++end]=queue[beg]-actual_board_size ;
                     visited[queue[end]] = 0;
                     aBoard.timesOfBeingOnShortestPath[queue[end]]++;
                 }
             }
         }else{
-            for(uint i=2*kBoardSizeAligned+2; i<(kBoardSize+2)*kBoardSizeAligned+2; i=i+kBoardSizeAligned)
-                if(_board[i]<0){
+            for(uint i=2*actual_board_size +2; i<(board_size+2)*actual_board_size +2; i=i+actual_board_size )
+                if(IsSecond(_board[i])){
                     queue[++end]=i;
                     visited[i]=1;
                 }
             for(; beg<=end; beg++){
-                if((visited[queue[beg]+1] == 0) && _board[queue[beg]+1]<0){
+                if((visited[queue[beg]+1] == 0) && IsSecond(_board[queue[beg]+1])){
                     queue[++end]=queue[beg]+1;
                     visited[queue[end]] = visited[beg]+1;
                 }
-                if((visited[queue[beg]-1] == 0) && _board[queue[beg]-1]<0){
+                if((visited[queue[beg]-1] == 0) && IsSecond(_board[queue[beg]-1])){
                     queue[++end]=queue[beg]-1;
                     visited[queue[end]] = visited[beg]-1;
                 }
-                if((visited[queue[beg]-kBoardSizeAligned+1] == 0) && _board[queue[beg]-kBoardSizeAligned+1]<0){
-                    queue[++end]=queue[beg]-kBoardSizeAligned+1;
+                if((visited[queue[beg]-actual_board_size +1] == 0) && IsSecond(_board[queue[beg]-actual_board_size +1])){
+                    queue[++end]=queue[beg]-actual_board_size +1;
                     visited[queue[end]] = visited[beg]+1;
                 }
-                if((visited[queue[beg]+kBoardSizeAligned-1] == 0) && _board[queue[beg]+kBoardSizeAligned-1]<0){
-                    queue[++end]=queue[beg]+kBoardSizeAligned-1;
+                if((visited[queue[beg]+actual_board_size -1] == 0) && IsSecond(_board[queue[beg]+actual_board_size -1])){
+                    queue[++end]=queue[beg]+actual_board_size -1;
                     visited[queue[end]] = visited[beg]-1;
                 }
-                if((visited[queue[beg]+kBoardSizeAligned] == 0) && _board[queue[beg]+kBoardSizeAligned]<0){
-                    queue[++end]=queue[beg]+kBoardSizeAligned;
+                if((visited[queue[beg]+actual_board_size ] == 0) && IsSecond(_board[queue[beg]+actual_board_size])){
+                    queue[++end]=queue[beg]+actual_board_size ;
                     visited[queue[end]] = visited[beg];
                 }
-                if((visited[queue[beg]-kBoardSizeAligned] == 0) && _board[queue[beg]-kBoardSizeAligned]<0){
-                    queue[++end]=queue[beg]-kBoardSizeAligned;
+                if((visited[queue[beg]-actual_board_size ] == 0) && IsSecond(_board[queue[beg]-actual_board_size])){
+                    queue[++end]=queue[beg]-actual_board_size ;
                     visited[queue[end]] = visited[beg];
                 }
             }
-            for(uint i=2*kBoardSizeAligned+1;
-                        i<(kBoardSize+2)*kBoardSizeAligned+1; i=i+kBoardSizeAligned)
+            for(uint i=2*actual_board_size +1;
+                        i<(board_size+2)*actual_board_size +1; i=i+actual_board_size )
                 visited[i]=0;
             beg=0;
             end=-1;
-            for(uint i=2*kBoardSizeAligned+1+kBoardSize;
-                        i<(kBoardSize+2)*kBoardSizeAligned+1+kBoardSize; i=i+kBoardSizeAligned)
+            for(uint i=2*actual_board_size +1+board_size;
+                        i<(board_size+2)*actual_board_size +1+board_size; i=i+actual_board_size )
                 if(visited[i]>0){
                     queue[++end]=i;
                     aBoard.timesOfBeingOnShortestPath[i]++;
                     visited[i]=0;
                 }
             for(; beg<=end; beg++){
-                if(visited[queue[beg]+1] > 0 && visited[queue[beg]+1] < kBoardSizeAligned+kBoardSize){
+                if(visited[queue[beg]+1] > 0 && visited[queue[beg]+1] < actual_board_size +board_size){
                     queue[++end]=queue[beg]+1;
                     visited[queue[end]] = 0;
                     aBoard.timesOfBeingOnShortestPath[queue[end]]++;
                 }
-                if(visited[queue[beg]-1] > 0 && visited[queue[beg]-1] < kBoardSizeAligned+kBoardSize){
+                if(visited[queue[beg]-1] > 0 && visited[queue[beg]-1] < actual_board_size +board_size){
                     queue[++end]=queue[beg]-1;
                     visited[queue[end]] = 0;
                     aBoard.timesOfBeingOnShortestPath[queue[end]]++;
                 }
-                if(visited[queue[beg]-kBoardSizeAligned+1] > 0 &&
-                            visited[queue[beg]-kBoardSizeAligned+1] < kBoardSizeAligned+kBoardSize){
-                    queue[++end]=queue[beg]-kBoardSizeAligned+1;
+                if(visited[queue[beg]-actual_board_size +1] > 0 &&
+                            visited[queue[beg]-actual_board_size +1] < actual_board_size +board_size){
+                    queue[++end]=queue[beg]-actual_board_size +1;
                     visited[queue[end]] = 0;
                     aBoard.timesOfBeingOnShortestPath[queue[end]]++;
                 }
-                if(visited[queue[beg]+kBoardSizeAligned-1] > 0 &&
-                            visited[queue[beg]+kBoardSizeAligned-1] < kBoardSizeAligned+kBoardSize){
-                    queue[++end]=queue[beg]+kBoardSizeAligned-1;
+                if(visited[queue[beg]+actual_board_size -1] > 0 &&
+                            visited[queue[beg]+actual_board_size -1] < actual_board_size +board_size){
+                    queue[++end]=queue[beg]+actual_board_size -1;
                     visited[queue[end]] = 0;
                     aBoard.timesOfBeingOnShortestPath[queue[end]]++;
                 }
-                if(visited[queue[beg]+kBoardSizeAligned] > 0 &&
-                            visited[queue[beg]+kBoardSizeAligned] < kBoardSizeAligned+kBoardSize){
-                    queue[++end]=queue[beg]+kBoardSizeAligned;
+                if(visited[queue[beg]+actual_board_size ] > 0 &&
+                            visited[queue[beg]+actual_board_size ] < actual_board_size +board_size){
+                    queue[++end]=queue[beg]+actual_board_size ;
                     visited[queue[end]] = 0;
                     aBoard.timesOfBeingOnShortestPath[queue[end]]++;
                 }
-                if(visited[queue[beg]-kBoardSizeAligned] > 0 &&
-                            visited[queue[beg]-kBoardSizeAligned] < kBoardSizeAligned+kBoardSize){
-                    queue[++end]=queue[beg]-kBoardSizeAligned;
+                if(visited[queue[beg]-actual_board_size ] > 0 &&
+                            visited[queue[beg]-actual_board_size ] < actual_board_size +board_size){
+                    queue[++end]=queue[beg]-actual_board_size ;
                     visited[queue[end]] = 0;
                     aBoard.timesOfBeingOnShortestPath[queue[end]]++;
                 }
@@ -754,13 +775,12 @@ void Board::PlayLegal (const Move& move) {
     uint pos = move.GetLocation().GetPos();
 
     if (move.GetPlayer() == Player::First()) {
-        _board[pos] = pos;
-        MakeUnion(pos);
-    } else if (Switches::DetectWins()) {
-        _board[pos] = -pos;
+        _board[pos] = ToFirst(pos);
         MakeUnion(pos);
     } else {
-        _board[pos] = -1;
+        _board[pos] = ToSecond(pos);
+        if (Switches::DetectWins())
+            MakeUnion(pos);
     }
 
     uint fast_map_pos = _reverse_fast_field_map[pos];
@@ -769,7 +789,6 @@ void Board::PlayLegal (const Move& move) {
     _reverse_fast_field_map[replace_pos] = fast_map_pos;
     _current = _current.Opponent();
 
-    ASSERT(Switches::IsAvoidingBridges() || Switches::IsDefendingBridges());
     if(Switches::IsAvoidingBridges() || Switches::IsDefendingBridges())
         UpdateBridgeData(pos,replace_pos);
 
@@ -788,39 +807,30 @@ void Board::UpdateBridgeData (uint pos, uint replace_pos) {
 void Board::MakeUnion(uint pos) {
     uint rep = MakeUnion(pos, pos + 1);
     rep = MakeUnion(rep, pos - 1);
-    rep = MakeUnion(rep, pos - kBoardSizeAligned);
-    rep = MakeUnion(rep, pos - kBoardSizeAligned + 1);
-    rep = MakeUnion(rep, pos + kBoardSizeAligned);
-    MakeUnion(rep, pos + kBoardSizeAligned - 1);
-}
-
-uint Board::Get(uint pos) {
-    if (Switches::DetectWins()) {
-        uint r = _board[pos];
-        return r ^ ((r > 0) << sizeof(short) * 4);
-    } else {
-        return _board[pos];
-    }
+    rep = MakeUnion(rep, pos - actual_board_size );
+    rep = MakeUnion(rep, pos - actual_board_size  + 1);
+    rep = MakeUnion(rep, pos + actual_board_size );
+    MakeUnion(rep, pos + actual_board_size  - 1);
 }
 
 uint Board::MakeUnion(uint pos1, uint pos2) {
     if (Switches::DetectWins()) {
-        return _board[pos2] == 0 ? pos1 : _board[pos1] = Find(pos2);
+        return (IsEmpty(_board[pos2]) || IsSecond(_board[pos1]) != IsSecond(_board[pos2])) ? pos1 : ToPos(_board[pos1] = Find(pos2));
     } else {
-        return _board[pos2] <= 0 ? pos1 : _board[pos1] = Find(pos2);
+        return !IsFirst(_board[pos2]) ? pos1 : ToPos(_board[pos1] = Find(pos2));
     }
 }
 
 uint Board::Find(uint pos) {
-    while (static_cast<uint>(_board[pos]) != pos)
-        pos = _board[pos] = Get(Get(Get(pos)));
-    return pos;
+    while (static_cast<uint>(ToPos(_board[pos])) != pos)
+        pos = ToPos(_board[pos] = _board[ToPos(_board[ToPos(_board[pos])])]);
+    return _board[pos];
 }
 
 uint Board::ConstFind(uint pos) const {
-    while (static_cast<uint>(_board[pos]) != pos)
-        pos = _board[pos];
-    return pos;
+    while (static_cast<uint>(ToPos(_board[pos])) != pos)
+        pos = ToPos(_board[pos]);
+    return _board[pos];
 }
 
 bool Board::IsFull() const {
@@ -832,19 +842,19 @@ bool Board::IsWon() const {
 }
 
 Player Board::Winner() const {
-    if (ConstFind(kBoardSizeAligned + 2) ==
-        ConstFind((guarded_board_size - 2) * kBoardSizeAligned + 2)) {
-            return Player::First();
+    if (ConstFind(root_up) == ConstFind(root_down)) {
+        return Player::First();
+    } else {
+        return Player::Second();
     }
-    else return Player::Second();
 }
 
 void Board::Load (const Board& board) {
     memcpy(this, &board, sizeof(*this));
 }
 
-Board::Board() : _moves_left(kBoardSize * kBoardSize),
-        _field_map_bound(kBoardSize * kBoardSize - 1), _current(Player::First()) {
+Board::Board() : _moves_left(board_size * board_size),
+        _field_map_bound(board_size * board_size - 1), _current(Player::First()) {
     Rand::init(time(NULL));
 }
 
@@ -860,10 +870,10 @@ void Board::UpdateBridges(uint pos) {
 /*     _field_bridge_connections[pos].Clear();
     _field_bridge_connections[pos + 1].Remove(pos);
     _field_bridge_connections[pos - 1].Remove(pos);
-    _field_bridge_connections[pos - kBoardSizeAligned].Remove(pos);
-    _field_bridge_connections[pos - kBoardSizeAligned + 1].Remove(pos);
-    _field_bridge_connections[pos + kBoardSizeAligned].Remove(pos);
-    _field_bridge_connections[pos + kBoardSizeAligned - 1].Remove(pos);
+    _field_bridge_connections[pos - actual_board_size ].Remove(pos);
+    _field_bridge_connections[pos - actual_board_size  + 1].Remove(pos);
+    _field_bridge_connections[pos + actual_board_size ].Remove(pos);
+    _field_bridge_connections[pos + actual_board_size  - 1].Remove(pos);
 */
 
 /*instead of those seven lines above developed by krzysiocrash
@@ -884,56 +894,56 @@ void Board::UpdateBridges(uint pos) {
 
 /*updating bridge structures - six cases*/
 
-    short second = _board[pos - 2 * kBoardSizeAligned + 1];
+    short second = _board[pos - 2 * actual_board_size  + 1];
     if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos - kBoardSizeAligned] == 0 &&
-            _board[pos - kBoardSizeAligned + 1] == 0) {
-        _field_bridge_connections[pos - kBoardSizeAligned].Insert(
-                pair<ushort,bool>(pos - kBoardSizeAligned + 1,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos - kBoardSizeAligned + 1].Insert(
-                pair<ushort,bool>(pos - kBoardSizeAligned,!(val >> SHORT_BIT_SIZE)));
+            && _board[pos - actual_board_size ] == 0 &&
+            _board[pos - actual_board_size  + 1] == 0) {
+        _field_bridge_connections[pos - actual_board_size ].Insert(
+                pair<ushort,bool>(pos - actual_board_size  + 1,!(val >> SHORT_BIT_SIZE)));
+        _field_bridge_connections[pos - actual_board_size  + 1].Insert(
+                pair<ushort,bool>(pos - actual_board_size ,!(val >> SHORT_BIT_SIZE)));
     }
-    second = _board[pos - kBoardSizeAligned + 2];
+    second = _board[pos - actual_board_size  + 2];
     if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos - kBoardSizeAligned + 1] == 0 && _board[pos + 1] == 0) {
-        _field_bridge_connections[pos - kBoardSizeAligned + 1].Insert(pair<ushort,bool>(pos + 1,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos + 1].Insert(pair<ushort,bool>(pos - kBoardSizeAligned + 1,!(val >> SHORT_BIT_SIZE)));
+            && _board[pos - actual_board_size  + 1] == 0 && _board[pos + 1] == 0) {
+        _field_bridge_connections[pos - actual_board_size  + 1].Insert(pair<ushort,bool>(pos + 1,!(val >> SHORT_BIT_SIZE)));
+        _field_bridge_connections[pos + 1].Insert(pair<ushort,bool>(pos - actual_board_size  + 1,!(val >> SHORT_BIT_SIZE)));
     }
-    second = _board[pos + kBoardSizeAligned + 1];
+    second = _board[pos + actual_board_size  + 1];
     if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos + 1] == 0 && _board[pos + kBoardSizeAligned] == 0) {
-        _field_bridge_connections[pos + 1].Insert(pair<ushort,bool>(pos + kBoardSizeAligned,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos + kBoardSizeAligned].Insert(pair<ushort,bool>(pos + 1,!(val >> SHORT_BIT_SIZE)));
+            && _board[pos + 1] == 0 && _board[pos + actual_board_size ] == 0) {
+        _field_bridge_connections[pos + 1].Insert(pair<ushort,bool>(pos + actual_board_size ,!(val >> SHORT_BIT_SIZE)));
+        _field_bridge_connections[pos + actual_board_size ].Insert(pair<ushort,bool>(pos + 1,!(val >> SHORT_BIT_SIZE)));
     }
-    second = _board[pos + 2 * kBoardSizeAligned - 1];
+    second = _board[pos + 2 * actual_board_size  - 1];
     if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos + kBoardSizeAligned] == 0 &&
-            _board[pos + kBoardSizeAligned - 1] == 0) {
-        _field_bridge_connections[pos + kBoardSizeAligned].Insert(
-                pair<ushort,bool>(pos + kBoardSizeAligned - 1,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos + kBoardSizeAligned - 1].Insert(
-                pair<ushort,bool>(pos + kBoardSizeAligned,!(val >> SHORT_BIT_SIZE)));
+            && _board[pos + actual_board_size ] == 0 &&
+            _board[pos + actual_board_size  - 1] == 0) {
+        _field_bridge_connections[pos + actual_board_size ].Insert(
+                pair<ushort,bool>(pos + actual_board_size  - 1,!(val >> SHORT_BIT_SIZE)));
+        _field_bridge_connections[pos + actual_board_size  - 1].Insert(
+                pair<ushort,bool>(pos + actual_board_size ,!(val >> SHORT_BIT_SIZE)));
     }
-    second = _board[pos + kBoardSizeAligned - 2];
+    second = _board[pos + actual_board_size  - 2];
     if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos + kBoardSizeAligned - 1] == 0 && _board[pos - 1] == 0) {
-        _field_bridge_connections[pos + kBoardSizeAligned - 1].Insert(pair<ushort,bool>(pos - 1,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos - 1].Insert(pair<ushort,bool>(pos + kBoardSizeAligned - 1,!(val >> SHORT_BIT_SIZE)));
+            && _board[pos + actual_board_size  - 1] == 0 && _board[pos - 1] == 0) {
+        _field_bridge_connections[pos + actual_board_size  - 1].Insert(pair<ushort,bool>(pos - 1,!(val >> SHORT_BIT_SIZE)));
+        _field_bridge_connections[pos - 1].Insert(pair<ushort,bool>(pos + actual_board_size  - 1,!(val >> SHORT_BIT_SIZE)));
     }
-    second = _board[pos - kBoardSizeAligned - 1];
+    second = _board[pos - actual_board_size  - 1];
     if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
             && _board[pos - 1] == 0 &&
-            _board[pos - kBoardSizeAligned] == 0) {
-        _field_bridge_connections[pos - 1].Insert(pair<ushort,bool>(pos - kBoardSizeAligned,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos - kBoardSizeAligned].Insert(pair<ushort,bool>(pos - 1,!(val >> SHORT_BIT_SIZE)));
+            _board[pos - actual_board_size ] == 0) {
+        _field_bridge_connections[pos - 1].Insert(pair<ushort,bool>(pos - actual_board_size ,!(val >> SHORT_BIT_SIZE)));
+        _field_bridge_connections[pos - actual_board_size ].Insert(pair<ushort,bool>(pos - 1,!(val >> SHORT_BIT_SIZE)));
     }
 
     UpdateBridgeBound(pos + 1);
     UpdateBridgeBound(pos - 1);
-    UpdateBridgeBound(pos - kBoardSizeAligned);
-    UpdateBridgeBound(pos - kBoardSizeAligned + 1);
-    UpdateBridgeBound(pos + kBoardSizeAligned);
-    UpdateBridgeBound(pos + kBoardSizeAligned - 1);
+    UpdateBridgeBound(pos - actual_board_size );
+    UpdateBridgeBound(pos - actual_board_size  + 1);
+    UpdateBridgeBound(pos + actual_board_size );
+    UpdateBridgeBound(pos + actual_board_size  - 1);
 
 /*crucial line from theolol:*/
 
@@ -963,38 +973,43 @@ void Board::UpdateBridgeBound(uint pos) { /*I assume It's OK*/
     }
 }
 
+void Board::Show() const {
+    std::cerr << ToAsciiArt(Location(1, 1));
+}
+
 std::string Board::ToAsciiArt(Location last_move) const {
 
     std::stringstream s;
 
-    for (unsigned char x = 'a'; x < 'a' + kBoardSize; ++x)
+    for (unsigned char x = 'a'; x < 'a' + board_size; ++x)
         s << " " << x;
     s << std::endl;
-    for (uint i = 2; i <= kBoardSize + 1; ++i) {
-        for (uint j = 2; j < (i <= 10 ? i : i - 1); ++j)
+    for (uint i = 1; i <= board_size; ++i) {
+        for (uint j = 1; j < (i < 10 ? i : i - 1); ++j)
             s << " ";
-        s << i - 1;
-        if (i * kBoardSizeAligned + 1 == last_move.GetPos())
+        s << i;
+        if (ToPos(1, i) == last_move.GetPos())
             s << "(";
         else s << " ";
-        for (uint j = 2; j <= kBoardSize + 1; ++j) {
-            uint pos = i * kBoardSizeAligned + j;
-            if (_board[pos] == 0)
+        for (uint j = 1; j <= board_size; ++j) {
+            uint pos = ToPos(j, i);
+            if (IsEmpty(_board[pos]))
                 s << ".";
-            else if (_board[pos] < 0)
+            else if (IsFirst(_board[pos]))
                 s << "#";
-            else s << "O";
+            else
+                s << "O";
             if (pos == last_move.GetPos())
                 s << ")";
             else if (pos + 1 == last_move.GetPos())
                 s << "(";
             else s << " ";
         }
-        s << i - 1 << std::endl;
+        s << i << std::endl;
     }
-    for (uint j = 0; j <= kBoardSize; ++j)
+    for (uint j = 0; j <= board_size; ++j)
         s << " ";
-    for (unsigned char x = 'a'; x < 'a' + kBoardSize; ++x)
+    for (unsigned char x = 'a'; x < 'a' + board_size; ++x)
         s << " " << x;
 
     s << std::endl << "Bridges:";
@@ -1007,9 +1022,9 @@ std::string Board::ToAsciiArt(Location last_move) const {
 bool Board::IsValidMove(const Move& move) {
     if (!Location::ValidPosition(move.GetLocation().GetPos()))
         return false;
-    return _board[move.GetLocation().GetPos()] == 0;
+    return _moves_left % 2 == move.GetPlayer().Opponent().GetVal() &&
+           IsEmpty(_board[move.GetLocation().GetPos()]);
 }
-
 
 Move Board::GenerateMoveUsingKnowledge(const Player& player) const {
     if(Switches::IsDefendingBridges())

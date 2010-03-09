@@ -59,6 +59,16 @@ public:
     static uint ToTablePos(uint x, uint y);
 
 private:
+    /**
+     * The size of the board as it is kept in memory.
+     */
+    static const uint board_size = kBoardSize;
+
+    /**
+     * The size of the board as it is kept in memory.
+     */
+    static const uint actual_board_size = kBoardSizeAligned;
+
     Location();
 
 private:
@@ -103,10 +113,17 @@ public:
     uint MovesLeft() const;
     void GetPossiblePositions(ushort_ptr& locations);
     std::string ToAsciiArt(Location last_move) const;
+    void Show() const;
     bool IsValidMove(const Move& move);
 
 private:
-    uint Get(uint pos);
+    static uint ToPos(int x, int y);
+    static uint ToPos(ushort val);
+    static ushort ToFirst(ushort pos);
+    static ushort ToSecond(ushort pos);
+    static bool IsFirst(ushort val);
+    static bool IsSecond(ushort val);
+    static bool IsEmpty(ushort val);
 
     void MakeUnion(uint pos);
     uint MakeUnion(uint pos1, uint pos2);
@@ -124,19 +141,56 @@ private:
 
 private:
     /**
-     * The number of fields in the board.
-     */
-    static const uint table_size;
-
-    /**
      * The number of guarding rows and columns around the board.
      */
-    static const uint guard_count;
+    static const uint guard_count = 2;
 
     /**
-     * The actual size of the board (including guarding fields).
+     * The size of the board
      */
-    static const uint guarded_board_size;
+    static const uint board_size = kBoardSize;
+
+    /**
+     * The size of the board increased by the guarding margins on both sides.
+     */
+    static const uint guarded_board_size = board_size + guard_count * 2;
+
+    /**
+     * The size of the board as it is kept in memory.
+     */
+    static const uint actual_board_size = kBoardSizeAligned;
+
+    /**
+     * The number of fields in the board.
+     */
+    static const uint field_count = board_size * board_size;
+
+    /**
+     * The number of fields in the board as it is kept in memory.
+     */
+    static const uint actual_field_count = actual_board_size * actual_board_size;
+
+    /**
+     * Special values used for F&U roots for each side of the map.
+     */
+    static const ushort root_up = 1;
+    static const ushort root_down = 2;
+    static const ushort root_left = 3;
+    static const ushort root_right = 4;
+
+    /**
+     * Magic value used for fields that are empty
+     */
+    static const ushort board_empty = 0;
+
+    /**
+     * Magic value used for aquiring actual positions from values kept in the
+     * board for the second player. Specifically: if x is a value kept in a
+     * field with position y, than value of x & board_second can be used for
+     * testing wheather the field is posessed by the second player. The value
+     * is the link in the F&U tree for the second player.
+     */
+    static const ushort board_second = 0x8000;
 
     /**
      * The structure holds F&U structures. If Switches::DetectWins() is set
@@ -146,7 +200,7 @@ private:
      * The root for the first player tree is field TODO The root for the tree
      * for the second player is TODO.
      */
-    short _board[kBoardSizeAligned * kBoardSizeAligned];
+    ushort _board[actual_field_count];
 
     /**
      * A custom optimization used in a fashion similar to AMAF. The structure

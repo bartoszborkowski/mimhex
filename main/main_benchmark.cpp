@@ -1,3 +1,5 @@
+#define INSERT_ASSERTIONS
+
 #include "switches.cpp"
 #include "board.h"
 #include "board.cpp"

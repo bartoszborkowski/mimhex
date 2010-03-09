@@ -10,6 +10,6 @@ benchmark:
 
 main:
 	$(CXX) $(OPTIONS) $(INCLUDE_DIR) -o $(DEST_DIR)/hex main.cpp
-	
+
 clean:
 	rm -f hex hex_benchmark
