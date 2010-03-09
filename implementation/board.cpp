@@ -847,7 +847,11 @@ bool Board::IsFull() const {
 }
 
 bool Board::IsWon() const {
-    return IsFull();
+    if (Switches::DetectWins()) {
+        return ConstFind(root_up) == ConstFind(root_down) ||
+               ConstFind(root_left) == ConstFind(root_right);
+    } else
+        return IsFull();
 }
 
 Player Board::Winner() const {

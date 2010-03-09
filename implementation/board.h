@@ -117,20 +117,87 @@ public:
     bool IsValidMove(const Move& move);
 
 private:
+    /**
+     * @in @param x Field coordinant, where 1 describes leftmost column
+     * @in @param y Field coordinant, where 1 describes uppermost row
+     * @return The internal representation of position (x, y).
+     */
     static uint ToPos(int x, int y);
+
+    /**
+     * @in @param val A value in the format as used in the internal table.
+     * @return The internal representation of the position retrieved from the
+     * given value.
+     */
     static uint ToPos(ushort val);
+
+    /**
+     * @in @param pos The internal representation of a position.
+     * @return The value to store in the internal table representing the given
+     * position and the first player.
+     */
     static ushort ToFirst(ushort pos);
+
+    /**
+     * @in @param pos The internal representation of a position.
+     * @return The value to store in the internal table representing the given
+     * position and the second player.
+     */
     static ushort ToSecond(ushort pos);
+
+    /**
+     * @in @param val A value in the format as used in the internal table.
+     * @return true iff value represents the first player.
+     */
     static bool IsFirst(ushort val);
+
+    /**
+     * @in @param val A value in the format as used in the internal table.
+     * @return true iff value represents the second player.
+     * @note false is returned for empty fields.
+     */
     static bool IsSecond(ushort val);
+
+    /**
+     * @in @param val A value in the format as used in the internal table.
+     * @return true iff value represents an empty field.
+     */
     static bool IsEmpty(ushort val);
 
+    /**
+     * Unifies pawn at position pos with its neighbours with the same colour.
+     * @in @param pos An internal representation of a position.
+     */
     void MakeUnion(uint pos);
+
+    /**
+     * Unifies pawns at positions pos1 and pos2 (if present and their colour
+     * matches).
+     * @return A value stored at pos1 in the internal table.
+     */
     uint MakeUnion(uint pos1, uint pos2);
+
+    /**
+     * @in @param pos An internal representation of a position.
+     * @return A value at the root of a F&U tree containing position pos.
+     */
     uint Find(uint pos);
+
+    /**
+     * A version of Find() making no modifications to the F&U trees.
+     * @in @param pos An internal representation of a position.
+     * @return A value at the root of a F&U tree containing position pos.
+     */
     uint ConstFind(uint pos) const;
 
+    /**
+     * FIXME: Internal table representation changed.
+     */
     void UpdateBridges(uint pos);
+
+    /**
+     * FIXME: Internal table representation changed.
+     */
     void UpdateBridgeBound(uint pos);
 
     void clearShortestPathsStats();
