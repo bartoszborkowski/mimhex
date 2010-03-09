@@ -125,7 +125,10 @@ uint Board::ToPos(int x, int y) {
 }
 
 uint Board::ToPos(ushort val) {
-    return val & (~board_second);
+    if (Switches::DetectWins())
+        return val & (~board_second);
+    else
+        return val;
 }
 
 ushort Board::ToFirst(ushort pos) {
@@ -133,7 +136,10 @@ ushort Board::ToFirst(ushort pos) {
 }
 
 ushort Board::ToSecond(ushort pos) {
-    return pos | board_second;
+    if (Switches::DetectWins())
+        return pos | board_second;
+    else
+        return static_cast<ushort>(-1);
 }
 
 bool Board::IsFirst(ushort val) {
@@ -141,7 +147,10 @@ bool Board::IsFirst(ushort val) {
 }
 
 bool Board::IsSecond(ushort val) {
-    return val & board_second;
+    if (Switches::DetectWins())
+        return val & board_second;
+    else
+        return val == static_cast<ushort>(-1);
 }
 
 bool Board::IsEmpty(ushort val) {
