@@ -7,6 +7,8 @@
 
 namespace Hex {
 
+/*finds child that should be chosen by UCT*/
+
 MCTSNode* MCTSNode::FindChildToSelect(uint children_number) {
 	ASSERT(children_number > 0);
 	MCTSNode* best = &(children[0]);
@@ -23,9 +25,10 @@ MCTSNode* MCTSNode::FindChildToSelect(uint children_number) {
 
 
 float MCTSNode::Eval() {
-	float ucb_weight = GetUCBWeight();
-	return GetUCB() * ucb_weight + GetRAVE() * (1.0 - ucb_weight);
+	return GetUCB() * GetUCBWeight() + GetRAVE() * GetRAVEWeight() + GetPATHSAMAF() * GetPATHSAMAFWeight();
 }
+
+/*finds child that should be played*/
 
 MCTSNode* MCTSNode::FindBestChild(uint children_number) {
 	ASSERT(children_number > 0);
@@ -51,27 +54,27 @@ inline float MCTSNode::GetRAVEMu() {
 	return static_cast<float>(rave_stats.won) / static_cast<float>(rave_stats.played);
 }
 
+inline float MCTSNode::GetPATHSAMAFMu() {
+	ASSERT(pathsamaf_stats.played > 0);
+	return static_cast<float>(pathsamaf_stats.won) / static_cast<float>(pathsamaf_stats.played);
+}
+
 inline float MCTSNode::GetUCB() {
 	ComputeUCBStats();
 	return ucb;
 }
 
 inline float MCTSNode::GetRAVE() {
-	if (valid_rave) return rave;
-	valid_rave = true;
-	return rave = GetRAVEMu() + (Params::alpha * InverseSqrt(rave_stats.played));
+	ComputeRAVEStats();
+	return rave;
+// 	if (valid_rave) return rave;
+// 	valid_rave = true;
+// 	return rave = GetRAVEMu() + (Params::alpha * InverseSqrt(rave_stats.played));
 }
 
-inline void MCTSNode::Expand(Board& board) {
-	ASSERT(board.MovesLeft() > 0);
-	unsigned short* locations;
-	children = new MCTSNode[board.MovesLeft()];
-	board.GetPossiblePositions(locations);
-	pos_to_children_mapping = new MCTSNode*[kBoardSizeAligned * kBoardSizeAligned];
-	for (uint i = 0; i < board.MovesLeft(); ++i) {
-		children[i].loc = locations[i];
-		pos_to_children_mapping[locations[i]] = &(children[i]);
-	}
+inline float MCTSNode::GetPATHSAMAF() {
+	ComputePATHSAMAFStats();
+	return pathsamaf;
 }
 
 float MCTSNode::GetUCBWeight() {
@@ -84,6 +87,40 @@ inline void MCTSNode::ComputeUCBStats() {
 	ucb_weight = static_cast<float>(uct_stats.played) /
 				(Params::beta + static_cast<float>(uct_stats.played));
 	ucb = GetMu() + (Params::alpha * InverseSqrt(uct_stats.played));
+}
+
+float MCTSNode::GetRAVEWeight() {
+	ComputeRAVEStats();
+	return rave_weight;
+}
+
+inline void MCTSNode::ComputeRAVEStats() {
+	if (valid_rave) return;
+	rave_weight = (1.0 - ucb_weight)/2.0;
+	rave = GetRAVEMu() + (Params::alpha * InverseSqrt(rave_stats.played));
+}
+
+float MCTSNode::GetPATHSAMAFWeight() {
+	ComputePATHSAMAFStats();
+	return pathsamaf_weight;
+}
+
+inline void MCTSNode::ComputePATHSAMAFStats() {
+	if (valid_pathsamaf) return;
+	pathsamaf_weight = (1.0 - ucb_weight)/2.0;
+	pathsamaf = GetPATHSAMAFMu() + (Params::alpha * InverseSqrt(uct_stats.played));
+}
+
+inline void MCTSNode::Expand(Board& board) {
+	ASSERT(board.MovesLeft() > 0);
+	unsigned short* locations;
+	children = new MCTSNode[board.MovesLeft()];
+	board.GetPossiblePositions(locations);
+	pos_to_children_mapping = new MCTSNode*[kBoardSizeAligned * kBoardSizeAligned];
+	for (uint i = 0; i < board.MovesLeft(); ++i) {
+		children[i].loc = locations[i];
+		pos_to_children_mapping[locations[i]] = &(children[i]);
+	}
 }
 
 void MCTSNode::RecursivePrint(std::ostream& stream, uint max_children,
