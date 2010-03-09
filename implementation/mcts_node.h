@@ -20,9 +20,11 @@ class MCTSNode {
 public:
 	MCTSNode() : uct_stats(Params::initialization, 2 * Params::initialization),
 		rave_stats(Params::initialization, 2 * Params::initialization),
+		pathsamaf_stats(Params::initialization, 2 * Params::initialization),
 		loc(0), valid_ucb(false), valid_rave(false) { }
 	MCTSNode(Location location) : uct_stats(Params::initialization, 2 * Params::initialization),
-			rave_stats(Params::initialization, 2 * Params::initialization), loc(location),
+			rave_stats(Params::initialization, 2 * Params::initialization),
+			pathsamaf_stats(Params::initialization, 2 * Params::initialization), loc(location),
 			valid_ucb(false), valid_rave(false) { }
 	MCTSNode* FindBestChild(uint children_number);
 	MCTSNode* FindChildToSelect(uint children_number);

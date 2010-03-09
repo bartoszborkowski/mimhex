@@ -201,10 +201,10 @@ private:
     void UpdateBridgeBound(uint pos);
 
     void clearShortestPathsStats();
-    void UpdatePathsStatsFloodFillFU(const Player& winner);
-    void UpdatePathsStatsFloodFillBFS(const Player& winner);
-    void UpdatePathsStatsAllShortestPathsBFS(const Player& winner);
-    void UpdatePathsStatsOneShortestPathBFS(const Player& winner);
+    void UpdatePathsStatsFloodFillFU(Board& aBoard, const Player& winner);
+    void UpdatePathsStatsFloodFillBFS(Board& aBoard, const Player& winner);
+    void UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& winner);
+    void UpdatePathsStatsOneShortestPathBFS(Board& aBoard, const Player& winner);
 
 private:
     /**

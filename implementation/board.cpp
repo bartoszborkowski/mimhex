@@ -536,7 +536,7 @@ void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, const Player& winn
 
 /* this method assumes symetric FU! */
 //FIXME test it after implementing symetric FU!
-void Board::UpdatePathsStatsFloodFillFU(Board aBoard, const Player& winner){
+void Board::UpdatePathsStatsFloodFillFU(Board& aBoard, const Player& winner){
     /* first uses positive numbers, second -1s */
     /* _board[(guarded_board_size - 2) * actual_board_size  + 2] is always a guard of a first type */
     /* _board[2 * actual_board_size  + 1] is always a guard of a second type */
@@ -559,7 +559,7 @@ void Board::UpdatePathsStatsFloodFillFU(Board aBoard, const Player& winner){
 }
 
 /* this method assumes asymetric FU! */
-void Board::UpdatePathsStatsFloodFillBFS(Board aBoard, const Player& winner){
+void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, const Player& winner){
 
     if (Player::First() == winner){
         int startingPoint;
