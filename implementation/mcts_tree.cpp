@@ -7,6 +7,7 @@ const uint MCTSTree::default_max_depth = -1;
 const uint MCTSTree::default_playouts_per_move = 100000;
 const uint MCTSTree::ultimate_depth = kBoardSize * kBoardSize;
 const uint MCTSTree::visits_to_expand = 10;
+const uint MCTSTree::amaf_paths_palyouts = 1000;
 
 inline MCTSTree::MCTSTree() : current_player(Player::First()) {
 	Reset();
@@ -37,6 +38,17 @@ Move MCTSTree::BestMove(Player player, Board& board) {
 	uint full_path[ultimate_depth + 1];
 	path[0] = root.GetPointer();
 	Board brd;
+
+	/*fragment for amaf_paths*/
+
+	for(uint i=0; i<amaf_paths_palyouts; i++){
+		brd.Load(board);
+		Player winner = RandomFinishWithoutPath(brd);
+		brd.UpdatePathsStatsAllShortestPathsBFS(board,winner);
+//		board.ShowPathsStats();
+	}
+
+	/*/ fragment for amaf paths*/
 
 	if (root->children == NULL) {
 		root->Expand(board);
@@ -105,13 +117,23 @@ Move MCTSTree::BestMove(Player player, Board& board) {
 	return Move(player, best->loc);
 }
 
-Player MCTSTree::RandomFinish(Board& board, uint* path,
-		uint current_level) {
+Player MCTSTree::RandomFinish(Board& board, uint* path, uint current_level) {
 
 	while (!board.IsFull()) {
 	  Player pl = board.CurrentPlayer();
 	  Move move = board.GenerateMoveUsingKnowledge(pl);
 	  path[++current_level] = move.GetLocation().GetPos();
+	  board.PlayLegal(move);
+	}
+
+	return board.Winner();
+}
+
+Player MCTSTree::RandomFinishWithoutPath(Board& board) {
+
+	while (!board.IsFull()) {
+	  Player pl = board.CurrentPlayer();
+	  Move move = board.GenerateMoveUsingKnowledge(pl);
 	  board.PlayLegal(move);
 	}
 

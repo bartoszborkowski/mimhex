@@ -1,4 +1,5 @@
 #include "mcts_node.h"
+#include "mcts_tree.h"
 #include "inverse_sqrt.h"
 #include "conditional_assert.h"
 #include <cmath>
@@ -108,7 +109,7 @@ float MCTSNode::GetPATHSAMAFWeight() {
 inline void MCTSNode::ComputePATHSAMAFStats() {
 	if (valid_pathsamaf) return;
 	pathsamaf_weight = (1.0 - ucb_weight)/2.0;
-	pathsamaf = GetPATHSAMAFMu() + (Params::alpha * InverseSqrt(uct_stats.played));
+	pathsamaf = GetPATHSAMAFMu(); //?? + (Params::alpha * InverseSqrt(pathsamaf_stats.played));
 }
 
 inline void MCTSNode::Expand(Board& board) {
@@ -120,6 +121,10 @@ inline void MCTSNode::Expand(Board& board) {
 	for (uint i = 0; i < board.MovesLeft(); ++i) {
 		children[i].loc = locations[i];
 		pos_to_children_mapping[locations[i]] = &(children[i]);
+		/*amaf_paths:*/
+		children[i].pathsamaf_stats.won = board.timesOfBeingOnShortestPath[locations[i]];
+		children[i].pathsamaf_stats.played = MCTSTree::amaf_paths_palyouts;
+		children[i].valid_pathsamaf=false;
 	}
 }
 

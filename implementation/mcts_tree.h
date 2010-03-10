@@ -11,11 +11,13 @@ public:
 	void ClearTree();
 	void Reset();
 	Move BestMove(Player player, Board& board);
-	Player RandomFinish(Board& board, uint* path,
-			uint current_level);
+	Player RandomFinish(Board& board, uint* path, uint current_level);
+	Player RandomFinishWithoutPath(Board& board);
 	void SetMaxDepth(uint depth);
 	void SetPlayoutsPerMove(uint playouts);
 	std::string ToAsciiArt(uint children);
+
+friend class MCTSNode;
 
 private:
 	AutoPointer<MCTSNode> root;
@@ -27,6 +29,7 @@ private:
 	static const uint default_playouts_per_move;
 	static const uint ultimate_depth;
 	static const uint visits_to_expand;
+	static const uint amaf_paths_palyouts;
 };
 
 } // namespace Hex

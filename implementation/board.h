@@ -201,10 +201,14 @@ private:
     void UpdateBridgeBound(uint pos);
 
     void clearShortestPathsStats();
+
+public:
+
     void UpdatePathsStatsFloodFillFU(Board& aBoard, const Player& winner);
     void UpdatePathsStatsFloodFillBFS(Board& aBoard, const Player& winner);
     void UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& winner);
     void UpdatePathsStatsOneShortestPathBFS(Board& aBoard, const Player& winner);
+    void ShowPathsStats();
 
 private:
     /**
@@ -239,11 +243,12 @@ private:
 
     /**
      * Special values used for F&U roots for each side of the map.
+     * RADEK: They should be proper guards from the row closer to board!
      */
-    static const ushort root_up = 1;
-    static const ushort root_down = 2;
-    static const ushort root_left = 3;
-    static const ushort root_right = 4;
+    static const ushort root_up = kBoardSizeAligned*(guard_count-1)+guard_count;
+    static const ushort root_down = kBoardSizeAligned*(kBoardSize+guard_count)+guard_count;
+    static const ushort root_left = kBoardSizeAligned*guard_count+guard_count-1;
+    static const ushort root_right = kBoardSizeAligned*guard_count+guard_count+kBoardSize;
 
     /**
      * Special value used for fields that are empty
@@ -280,6 +285,7 @@ private:
      */
     ushort _board[actual_field_count];
 
+public:
     /**
      * A custom optimization used in a fashion similar to AMAF. The structure
      * holds the number paths crossing through the field that caused a player
@@ -289,6 +295,7 @@ private:
      */
     short timesOfBeingOnShortestPath[kBoardSizeAligned * kBoardSizeAligned];
 
+private:
     /**
      * The table holds positions of all free fields in the board. The following
      * invariant always holds: fields associated with other fields through
