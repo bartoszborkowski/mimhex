@@ -21,11 +21,11 @@ public:
 	MCTSNode() : uct_stats(Params::initialization, 2 * Params::initialization),
 		rave_stats(Params::initialization, 2 * Params::initialization),
 		pathsamaf_stats(Params::initialization, 2 * Params::initialization),
-		loc(0), valid_ucb(false), valid_rave(false) { }
+		loc(0), valid_ucb(false), valid_rave(false), valid_pathsamaf(false) { }
 	MCTSNode(Location location) : uct_stats(Params::initialization, 2 * Params::initialization),
 			rave_stats(Params::initialization, 2 * Params::initialization),
 			pathsamaf_stats(Params::initialization, 2 * Params::initialization), loc(location),
-			valid_ucb(false), valid_rave(false) { }
+			valid_ucb(false), valid_rave(false), valid_pathsamaf(false) { }
 	MCTSNode* FindBestChild(uint children_number);
 	MCTSNode* FindChildToSelect(uint children_number);
 	float GetUCB();
@@ -41,6 +41,11 @@ public:
 	void Expand(Board& board);
 	void RecursivePrint(std::ostream& stream, uint max_children,
 			uint current_level, uint children_count, Player player);
+    void SetInvalid() {
+        valid_ucb = false;
+        valid_rave = false;
+        valid_pathsamaf = false;
+    }
 	void SetInvalidUCB() { valid_ucb = false; }
 	void SetInvalidRAVE() { valid_rave = false; }
 	void SetInvalidPATHSAMAF() { valid_pathsamaf = false; }

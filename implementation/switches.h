@@ -32,6 +32,14 @@ class Switches {
             return detectWins;
         }
 
+        static bool PathAmaf() {
+            return pathAmafOn;
+        }
+
+        static bool Rave() {
+            return raveOn;
+        }
+
         static void SetAvoidingBridges(bool b) {
             SetSwitch("avoidBridges", avoidingBridgesOn, b);
         }
@@ -48,11 +56,21 @@ class Switches {
             SetSwitch("detectWins", detectWins, b);
         }
 
+        static void SetRave(bool b) {
+            SetSwitch("RaveOn", raveOn, b);
+        }
+
+        static void SetPathAmaf(bool b) {
+            SetSwitch("pathAmafOn", pathAmafOn, b);
+        }
+
     private:
         static SWITCH_TYPE avoidingBridgesOn;
         static SWITCH_TYPE defendingBridgesOn;
         static SWITCH_TYPE patternsOn;
         static SWITCH_TYPE detectWins;
+        static SWITCH_TYPE raveOn;
+        static SWITCH_TYPE pathAmafOn;
 
         static void SetSwitch(const std::string& name, bool& value, bool newValue) {
 #ifdef DYNAMIC_SWITCHES

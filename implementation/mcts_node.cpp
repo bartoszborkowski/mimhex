@@ -26,7 +26,12 @@ MCTSNode* MCTSNode::FindChildToSelect(uint children_number) {
 
 
 float MCTSNode::Eval() {
-	return GetUCB() * GetUCBWeight() + GetRAVE() * GetRAVEWeight() + GetPATHSAMAF() * GetPATHSAMAFWeight();
+	float r = GetUCB() * GetUCBWeight();
+    if (Switches::Rave())
+        r += GetRAVE() * GetRAVEWeight();
+    if (Switches::PathAmaf())
+        r += GetPATHSAMAF() * GetPATHSAMAFWeight();
+    return r;
 }
 
 /*finds child that should be played*/
@@ -68,9 +73,6 @@ inline float MCTSNode::GetUCB() {
 inline float MCTSNode::GetRAVE() {
 	ComputeRAVEStats();
 	return rave;
-// 	if (valid_rave) return rave;
-// 	valid_rave = true;
-// 	return rave = GetRAVEMu() + (Params::alpha * InverseSqrt(rave_stats.played));
 }
 
 inline float MCTSNode::GetPATHSAMAF() {
@@ -85,8 +87,12 @@ float MCTSNode::GetUCBWeight() {
 
 inline void MCTSNode::ComputeUCBStats() {
 	if (valid_ucb) return;
-	ucb_weight = static_cast<float>(uct_stats.played) /
-				(Params::beta + static_cast<float>(uct_stats.played));
+    valid_ucb = true;
+    if (Switches::Rave() || Switches::PathAmaf())
+        ucb_weight = static_cast<float>(uct_stats.played) /
+                    (Params::beta + static_cast<float>(uct_stats.played));
+    else
+        ucb_weight = 1.0f;
 	ucb = GetMu() + (Params::alpha * InverseSqrt(uct_stats.played));
 }
 
@@ -96,8 +102,13 @@ float MCTSNode::GetRAVEWeight() {
 }
 
 inline void MCTSNode::ComputeRAVEStats() {
+    ASSERT(Switches::Rave());
 	if (valid_rave) return;
-	rave_weight = (1.0 - ucb_weight)/2.0;
+    valid_rave = true;
+    if (Switches::PathAmaf() && Switches::Rave())
+        rave_weight = (1.0 - ucb_weight)/2.0;
+    else
+        rave_weight = 1.0 - ucb_weight;
 	rave = GetRAVEMu() + (Params::alpha * InverseSqrt(rave_stats.played));
 }
 
@@ -107,8 +118,13 @@ float MCTSNode::GetPATHSAMAFWeight() {
 }
 
 inline void MCTSNode::ComputePATHSAMAFStats() {
+    ASSERT(Switches::PathAmaf());
 	if (valid_pathsamaf) return;
-	pathsamaf_weight = (1.0 - ucb_weight)/2.0;
+    valid_pathsamaf = true;
+    if (Switches::PathAmaf() && Switches::Rave())
+        pathsamaf_weight = (1.0 - ucb_weight)/2.0;
+    else
+        pathsamaf_weight = 1.0 - ucb_weight;
 	pathsamaf = GetPATHSAMAFMu(); //?? + (Params::alpha * InverseSqrt(pathsamaf_stats.played));
 }
 

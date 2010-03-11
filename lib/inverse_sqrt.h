@@ -8,14 +8,14 @@
 float InverseSqrt (float x) {
 /*nowy kod z wikipedii:*/
 
-	union {
+	/*union {
 		float f;
 		int i;
 	} tmp;
 	tmp.f = x;
 	tmp.i = 0x5f3759df - (tmp.i >> 1);
 	float y = tmp.f;
-	return y * (1.5f - 0.5f * x * y * y);
+	return y * (1.5f - 0.5f * x * y * y);*/
 
 
 
@@ -26,7 +26,7 @@ float InverseSqrt (float x) {
 //     return x * (1.5f - xhalf * x * x);
 
 
-//      return 1.0/std::sqrt(x);
+      return 1.0/std::sqrt(x);
 }
 
 
