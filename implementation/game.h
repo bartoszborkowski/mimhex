@@ -19,6 +19,8 @@ public:
 	bool IsFinished();
 	void setDefendingBridges(bool v);
 	void setAvoidingBridges(bool v);
+    Player CurrentPlayer();
+    Player nowWinner();
 
 private:
 	Board current_board;

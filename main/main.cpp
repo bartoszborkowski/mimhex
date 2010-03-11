@@ -9,7 +9,8 @@
 #include "game.cpp"
 #include "protocol.h"
 #include "protocol.cpp"
-#include "params.h"
+#include "random.cpp"
+#include "params.cpp"
 
 #include <iostream>
 #include <cstdlib>

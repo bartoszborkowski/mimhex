@@ -60,4 +60,15 @@ void Game::setAvoidingBridges(bool v){
 	Switches::SetAvoidingBridges(v);
 }
 
+Player Game::CurrentPlayer() {
+    return current_board.CurrentPlayer();
+}
+
+Player Game::nowWinner() {
+    if (!current_board.IsWon())
+        return current_board.Winner();
+    else
+        return Player::None();
+}
+
 } // namespace Hex

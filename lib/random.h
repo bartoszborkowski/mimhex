@@ -21,6 +21,4 @@ private:
 	static unsigned _seed;
 };
 
-unsigned Rand::_seed;
-
 #endif /* RANDOM_H_ */

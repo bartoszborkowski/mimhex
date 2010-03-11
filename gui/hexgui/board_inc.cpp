@@ -10,5 +10,7 @@
 //#include "protocol.h"
 //#include "protocol.cpp"
 #include "params.cpp"
+#include "random.cpp"
+#include "switches.cpp"
 
 #endif /* GUI_BOARD_INC_H */

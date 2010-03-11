@@ -22,14 +22,17 @@ class Player {
 public:
     static Player First();
     static Player Second();
+    static Player None();
     static Player OfString (std::string);
 
     Player Opponent() const;
 
-    bool operator== (const Player&);
-    bool operator!= (const Player&);
+    bool operator== (const Player&) const;
+    bool operator!= (const Player&) const;
 
     uint GetVal();
+
+    string ToString() const;
 
     static bool ValidPlayer(const std::string& player);
 
@@ -49,6 +52,8 @@ public:
     Location (uint pos);
     Location (uint x, uint y);
     uint GetPos() const;
+    uint GetX() const;
+    uint GetY() const;
     std::string ToCoords() const;
     bool operator==(Location loc) const;
     bool operator!=(Location loc) const;

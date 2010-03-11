@@ -13,9 +13,11 @@ namespace Hex {
 
 // -----------------------------------------------------------------------------
 
-Player Player::First() { return Player(0); }
+Player Player::First() { return Player(1); }
 
-Player Player::Second() { return Player(1); }
+Player Player::Second() { return Player(2); }
+
+Player Player::None() { return Player(0); }
 
 Player Player::OfString (std::string player) {
     ASSERT(ValidPlayer(player));
@@ -28,11 +30,11 @@ Player Player::Opponent() const {
     return Player(_val ^ 1);
 }
 
-bool Player::operator== (const Player& player) {
+bool Player::operator== (const Player& player) const {
     return player._val == _val;
 }
 
-bool Player::operator!= (const Player& player) {
+bool Player::operator!= (const Player& player) const {
     return player._val != _val;
 }
 
@@ -42,6 +44,15 @@ uint Player::GetVal() { return _val; }
 
 bool Player::ValidPlayer(const std::string& player) {
     return player == "black" || player == "white";
+}
+
+string Player::ToString() const {
+    if (*this == First())
+        return "black";
+    else if (*this == Second())
+        return "white";
+    else
+        return "none";
 }
 
 // -----------------------------------------------------------------------------
@@ -61,6 +72,10 @@ Location::Location(uint pos) : _pos(pos) {}
 Location::Location() {}
 
 uint Location::GetPos() const { return _pos; }
+
+uint Location::GetX() const { return _pos % actual_board_size - 1; }
+
+uint Location::GetY() const { return _pos / actual_board_size - 1; }
 
 std::string Location::ToCoords() const {
     std::stringstream coords;
