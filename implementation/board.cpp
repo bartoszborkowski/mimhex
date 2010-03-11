@@ -15,7 +15,7 @@ namespace Hex {
 
 Player Player::First() { return Player(1); }
 
-Player Player::Second() { return Player(2); }
+Player Player::Second() { return Player(3); }
 
 Player Player::None() { return Player(0); }
 
@@ -23,11 +23,12 @@ Player Player::OfString (std::string player) {
     ASSERT(ValidPlayer(player));
     if (player == "black")
         return Player::First();
-    else return Player::Second();
+    else
+        return Player::Second();
 }
 
 Player Player::Opponent() const {
-    return Player(_val ^ 1);
+    return Player(_val ^ 2);
 }
 
 bool Player::operator== (const Player& player) const {
@@ -1091,10 +1092,9 @@ std::string Board::ToAsciiArt(Location last_move) const {
 }
 
 bool Board::IsValidMove(const Move& move) {
-    if (!Location::ValidPosition(move.GetLocation().GetPos()))
-        return false;
-    return _moves_left % 2 == move.GetPlayer().Opponent().GetVal() &&
-           IsEmpty(_board[move.GetLocation().GetPos()]);
+    return (Location::ValidPosition(move.GetLocation().GetPos())) &&
+          ((_moves_left % 2 == 0 && move.GetPlayer() == Player::Second()) ||
+           (_moves_left % 2 == 1 && move.GetPlayer() == Player::First()));
 }
 
 Move Board::GenerateMoveUsingKnowledge(const Player& player) const {

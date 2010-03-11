@@ -1,5 +1,5 @@
 CXX = g++
-OPTIONS = -Wall -W -fomit-frame-pointer -O3
+OPTIONS = -Wall -W -fomit-frame-pointer -O3 -g
 INCLUDE_DIR = -I ../lib -I ../implementation -I ../../../Downloads/boost_1_38_0
 DEST_DIR = .
 

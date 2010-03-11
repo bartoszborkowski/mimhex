@@ -65,7 +65,7 @@ Player Game::CurrentPlayer() {
 }
 
 Player Game::nowWinner() {
-    if (!current_board.IsWon())
+    if (current_board.IsWon())
         return current_board.Winner();
     else
         return Player::None();
