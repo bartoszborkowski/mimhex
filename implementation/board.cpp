@@ -937,6 +937,7 @@ std::string Board::ToAsciiArt(Location last_move) const {
 
 bool Board::IsValidMove(const Move& move) {
     return (Location::ValidPosition(move.GetLocation().GetPos())) &&
+            IsEmpty(_board[move.GetLocation().GetPos()]) &&
           ((_moves_left % 2 == 0 && move.GetPlayer() == Player::Second()) ||
            (_moves_left % 2 == 1 && move.GetPlayer() == Player::First()));
 }

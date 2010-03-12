@@ -117,8 +117,8 @@ bool manager::putStone(const Move& m) {
 }
 
 void manager::clearLabels() {
-    for (uint x=1; x<=kBoardSize; x++)
-        for (uint y=1; y<=kBoardSize; y++)
+    for (uint x=1; x<=Dim::board_size; x++)
+        for (uint y=1; y<=Dim::board_size; y++)
             m_boardScene->removeLabel(x, y);
     generated.clear();
 }
@@ -137,8 +137,8 @@ void manager::showLabels() {
 }
 
 void manager::clearMarkers() {
-    for (uint x=1; x<=kBoardSize; x++)
-        for (uint y=1; y<=kBoardSize; y++)
+    for (uint x=1; x<=Dim::board_size; x++)
+        for (uint y=1; y<=Dim::board_size; y++)
             m_boardScene->removeTriangle(x, y);
     marked.clear();
 }

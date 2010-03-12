@@ -16,7 +16,7 @@
 HexGui::HexGui(QWidget *parent) :
   QDialog(parent) {
   //BoardScene *boardScene = BoardScene::createGoScene(13);
-  BoardScene *boardScene = BoardScene::createHexScene(kBoardSize);
+  BoardScene *boardScene = BoardScene::createHexScene(Dim::board_size);
   BoardView *boardView = new BoardView(boardScene, this);
   m = new manager(boardScene, this);
 
@@ -107,7 +107,7 @@ HexGui::HexGui(QWidget *parent) :
   QVBoxLayout *all_ = new QVBoxLayout;
   all_->addLayout(mainLayout);
   all_->addWidget(statebar);
-  
+
   setLayout(all_);
 }
 
@@ -127,7 +127,7 @@ void HexGui::setTreeDepth() {
     bool ok;
     uint tree_depth = QInputDialog::getInt(
             this, "Set max UTC tree depth", "Enter unsigned integer:",
-            -1, -1, kBoardSize*kBoardSize, 1, &ok);
+            -1, -1, Dim::field_count, 1, &ok);
     if (ok)
         m->setTreeDepth(tree_depth);
 }
