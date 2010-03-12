@@ -13,71 +13,122 @@ typedef unsigned short ushort;
 
 namespace Hex {
 
-const uint kBoardSize = 11;
-const uint kBoardSizeAligned = 16;	// kBoardSize aligned to nearest higher power of 2
-
 // -----------------------------------------------------------------------------
 
+class Dim {
+    public:
+        /**
+         * The number of guarding rows and columns around the board.
+         */
+        static const uint guard_count = 2;
+
+        /**
+         * The size of the board
+         */
+        static const uint board_size = 11;
+
+        /**
+         * The size of the board increased by the guarding margins on both sides.
+         */
+        static const uint guarded_board_size = board_size + guard_count * 2;
+
+        /**
+         * The size of the board as it is kept in memory.
+         */
+        static const uint actual_board_size = 16;
+
+        static const int down = 16;
+
+        static const int up = -16;
+
+        /**
+         * Special values that can be added to a positions in order to get another,
+         * relatively shifted positions.
+         */
+        static const int upper_left = -actual_board_size;
+        static const int upper_right = -actual_board_size + 1;
+        static const int left = -1;
+        static const int right = +1;
+        static const int lower_left = actual_board_size - 1;
+        static const int lower_right = actual_board_size;
+
+        static const int dirs[6];
+
+        /**
+         * The number of fields in the board.
+         */
+        static const uint field_count = board_size * board_size;
+
+        /**
+         * The number of fields in the board as it is kept in memory.
+         */
+        static const uint actual_field_count = actual_board_size * actual_board_size;
+
+        /**
+        * @in @param x Field coordinant, where 1 describes leftmost column
+        * @in @param y Field coordinant, where 1 describes uppermost row
+        * @return The internal representation of position (x, y).
+        */
+        static uint ToPos(int x, int y);
+
+        static int ToX(uint pos);
+
+        static int ToY(uint pos);
+
+        static void ToCoords(uint pos, int& x, int& y);
+
+    private:
+        Dim();
+};
+
 class Player {
-public:
-    static Player First();
-    static Player Second();
-    static Player None();
-    static Player OfString (std::string);
+    public:
+        static Player First();
+        static Player Second();
+        static Player None();
+        static Player OfString (std::string);
 
-    Player Opponent() const;
+        Player Opponent() const;
 
-    bool operator== (const Player&) const;
-    bool operator!= (const Player&) const;
+        bool operator== (const Player&) const;
+        bool operator!= (const Player&) const;
 
-    uint GetVal();
+        uint GetVal();
 
-    string ToString() const;
+        string ToString() const;
 
-    static bool ValidPlayer(const std::string& player);
+        static bool ValidPlayer(const std::string& player);
 
-private:
-    Player();
-    Player(uint val);
+    private:
+        Player();
+        Player(uint val);
 
-private:
-    uint _val;
+    private:
+        uint _val;
 };
 
 // -----------------------------------------------------------------------------
 
 class Location {
-public:
-    static Location OfCoords (std::string);
-    Location (uint pos);
-    Location (uint x, uint y);
-    uint GetPos() const;
-    uint GetX() const;
-    uint GetY() const;
-    std::string ToCoords() const;
-    bool operator==(Location loc) const;
-    bool operator!=(Location loc) const;
-    static bool ValidLocation(const std::string& location);
-    static bool ValidLocation(uint x, uint y);
-    static bool ValidPosition(uint pos);
-    static void ToCoords(uint pos, uint& x, uint& y);
-    static uint ToTablePos(uint x, uint y);
+    public:
+        static Location OfCoords (std::string);
+        Location (uint pos);
+        Location (uint x, uint y);
+        uint GetPos() const;
+        uint GetX() const;
+        uint GetY() const;
+        std::string ToCoords() const;
+        bool operator==(Location loc) const;
+        bool operator!=(Location loc) const;
+        static bool ValidLocation(const std::string& location);
+        static bool ValidLocation(uint x, uint y);
+        static bool ValidPosition(uint pos);
 
-private:
-    /**
-     * The size of the board as it is kept in memory.
-     */
-    static const uint board_size = kBoardSize;
+    private:
+        Location();
 
-    /**
-     * The size of the board as it is kept in memory.
-     */
-    static const uint actual_board_size = kBoardSizeAligned;
-
-    Location();
-
-private:
-    uint _pos;
+    private:
+        uint _pos;
 };
 
 // -----------------------------------------------------------------------------
@@ -122,13 +173,6 @@ public:
     bool IsValidMove(const Move& move);
 
 private:
-    /**
-     * @in @param x Field coordinant, where 1 describes leftmost column
-     * @in @param y Field coordinant, where 1 describes uppermost row
-     * @return The internal representation of position (x, y).
-     */
-    static uint ToPos(int x, int y);
-
     /**
      * @in @param val A value in the format as used in the internal table.
      * @return The internal representation of the position retrieved from the
@@ -217,59 +261,22 @@ public:
 
 private:
     /**
-     * The number of guarding rows and columns around the board.
-     */
-    static const uint guard_count = 2;
-
-    /**
-     * The size of the board
-     */
-    static const uint board_size = kBoardSize;
-
-    /**
-     * The size of the board increased by the guarding margins on both sides.
-     */
-    static const uint guarded_board_size = board_size + guard_count * 2;
-
-    /**
-     * The size of the board as it is kept in memory.
-     */
-    static const uint actual_board_size = kBoardSizeAligned;
-
-    /**
-     * The number of fields in the board.
-     */
-    static const uint field_count = board_size * board_size;
-
-    /**
-     * The number of fields in the board as it is kept in memory.
-     */
-    static const uint actual_field_count = actual_board_size * actual_board_size;
-
-    /**
      * Special values used for F&U roots for each side of the map.
      * RADEK: They should be proper guards from the row closer to board!
      */
-    static const ushort root_up = kBoardSizeAligned*(guard_count-1)+guard_count;
-    static const ushort root_down = kBoardSizeAligned*(kBoardSize+guard_count)+guard_count;
-    static const ushort root_left = kBoardSizeAligned*guard_count+guard_count-1;
-    static const ushort root_right = kBoardSizeAligned*guard_count+guard_count+kBoardSize;
+    static const ushort root_up = Dim::down * (Dim::guard_count - 1)
+                                                  + Dim::guard_count;
+    static const ushort root_down = Dim::down * (Dim::board_size + Dim::guard_count)
+                                                   + Dim::guard_count;
+    static const ushort root_left = Dim::down * Dim::guard_count
+                                                   + Dim::guard_count - 1;
+    static const ushort root_right = Dim::down * Dim::guard_count
+                                                    + Dim::guard_count + Dim::board_size;
 
     /**
      * Special value used for fields that are empty
      */
     static const ushort board_empty = 0;
-
-    /**
-     * Special values that can be added to a positions in order to get another,
-     * relatively shifted positions.
-     */
-    static const uint upper_left = -actual_board_size;
-    static const uint upper_right = -actual_board_size + 1;
-    static const uint left = -1;
-    static const uint right = +1;
-    static const uint lower_left = actual_board_size - 1;
-    static const uint lower_right = actual_board_size;
 
     /**
      * Magic value used for aquiring actual positions from values kept in the
@@ -288,7 +295,7 @@ private:
      * The root for the first player tree is field TODO The root for the tree
      * for the second player is TODO.
      */
-    ushort _board[actual_field_count];
+    ushort _board[Dim::actual_field_count];
 
 public:
     /**
@@ -298,7 +305,7 @@ public:
      * otherwise - flooded areas containing the field.
      * TODO: Add the remaining variants.
      */
-    short timesOfBeingOnShortestPath[kBoardSizeAligned * kBoardSizeAligned];
+    short timesOfBeingOnShortestPath[Dim::actual_field_count];
 
 private:
     /**
@@ -306,17 +313,17 @@ private:
      * invariant always holds: fields associated with other fields through
      * bridges are always kept first.
      */
-    ushort _fast_field_map[kBoardSizeAligned * kBoardSizeAligned];
+    ushort _fast_field_map[Dim::actual_field_count];
 
     /**
      * The table holds _fast_field_map indices of all free
      */
-    ushort _reverse_fast_field_map[kBoardSizeAligned * kBoardSizeAligned];
+    ushort _reverse_fast_field_map[Dim::actual_field_count];
 
 /*These ones are used in bridges.
     First in the pair is an index of second free field in bridge. Second guy from pair
     says if bridge is built by first player.*/
-    SmallSet<pair<ushort,bool> > _field_bridge_connections[kBoardSizeAligned * kBoardSizeAligned];
+    SmallSet<pair<ushort,bool> > _field_bridge_connections[Dim::actual_field_count];
     SmallSet<ushort, 50> attacked_bridges;
 
     uint _moves_left;

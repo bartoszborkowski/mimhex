@@ -3,6 +3,7 @@
 #include "board.h"
 #include "random.h"
 #include "conditional_assert.h"
+#include "boost/foreach.hpp"
 #include <cstring>
 #include <sstream>
 #include <iostream>
@@ -10,6 +11,29 @@
 #define SHORT_BIT_SIZE (sizeof(short) * 8)
 
 namespace Hex {
+
+// -----------------------------------------------------------------------------
+
+const int Dim::dirs[6] = { upper_left, upper_right, left, right, lower_left, lower_right };
+
+uint Dim::ToPos(int x, int y) {
+    return (x + Dim::guard_count - 1) + (y + Dim::guard_count - 1) * Dim::down;
+}
+
+int Dim::ToX(uint pos) {
+    return pos % Dim::actual_board_size - 1;
+}
+
+int Dim::ToY(uint pos) {
+    return pos / Dim::actual_board_size - 1;
+}
+
+void Dim::ToCoords(uint pos, int& x, int& y) {
+    x = ToX(pos);
+    y = ToY(pos);
+}
+
+#define FOR_SIX(x)      BOOST_FOREACH(x, Dim::dirs)
 
 // -----------------------------------------------------------------------------
 
@@ -67,27 +91,25 @@ Location Location::OfCoords (std::string coords) {
     return Location(++x, y);
 }
 
-Location::Location(uint x, uint y) : _pos(ToTablePos(x, y)) { }
-Location::Location(uint pos) : _pos(pos) {}
+Location::Location(uint x, uint y):
+    _pos(Dim::ToPos(x, y)) {}
+
+Location::Location(uint pos):
+    _pos(pos) {}
 
 Location::Location() {}
 
 uint Location::GetPos() const { return _pos; }
 
-uint Location::GetX() const { return _pos % actual_board_size - 1; }
+uint Location::GetX() const { return _pos % Dim::actual_board_size - 1; }
 
-uint Location::GetY() const { return _pos / actual_board_size - 1; }
+uint Location::GetY() const { return _pos / Dim::actual_board_size - 1; }
 
 std::string Location::ToCoords() const {
     std::stringstream coords;
-    coords << static_cast<char>(_pos % actual_board_size + 'a' - 2);
-    coords << _pos / actual_board_size - 1;
+    coords << static_cast<char>(Dim::ToY(_pos) + 'a' - 1);
+    coords << Dim::ToX(_pos);
     return coords.str();
-}
-
-uint Location::ToTablePos(uint x, uint y) {
-    ASSERT (ValidLocation(x, y));
-    return (++y) * actual_board_size + x + 1;
 }
 
 bool Location::operator==(Location loc) const {
@@ -109,18 +131,13 @@ bool Location::ValidLocation(const std::string& location) {
 }
 
 bool Location::ValidPosition(uint pos) {
-    uint x, y;
-    ToCoords(pos, x, y);
+    int x, y;
+    Dim::ToCoords(pos, x, y);
     return ValidLocation(x, y);
 }
 
 bool Location::ValidLocation(uint x, uint y) {
-    return x > 0 && y > 0 && x <= board_size && y <= board_size;
-}
-
-void Location::ToCoords(uint pos, uint& x, uint& y) {
-    x = pos % actual_board_size  - 1;
-    y = pos / actual_board_size  - 1;
+    return x > 0 && y > 0 && x <= Dim::board_size && y <= Dim::board_size;
 }
 
 // -----------------------------------------------------------------------------
@@ -135,10 +152,6 @@ Location Move::GetLocation() const { return _location; }
 Player Move::GetPlayer() const { return _player; }
 
 // -----------------------------------------------------------------------------
-
-uint Board::ToPos(int x, int y) {
-    return (x + guard_count - 1) + (y + guard_count - 1) * actual_board_size;
-}
 
 uint Board::ToPos(ushort val) {
     if (Switches::DetectWins())
@@ -178,23 +191,23 @@ const Board Board::Empty() {
     Board board;
 
     uint counter = 0;
-    for (uint i = 0; i < actual_field_count; ++i)
+    for (uint i = 0; i < Dim::actual_field_count; ++i)
         board._reverse_fast_field_map[i] = -1;
-    for (uint i = 1; i <= board_size; ++i) {
-        for (uint j = 1; j <= board_size; ++j) {
-            signed int field = ToPos(i, j);
+    for (uint i = 1; i <= Dim::board_size; ++i) {
+        for (uint j = 1; j <= Dim::board_size; ++j) {
+            signed int field = Dim::ToPos(i, j);
             board._fast_field_map[counter] = field;
             board._reverse_fast_field_map[field] = counter++;
         }
     }
 
-    for (uint i = 0; i < actual_field_count; ++i)
+    for (uint i = 0; i < Dim::actual_field_count; ++i)
         board._board[i] = board_empty;
-    for (uint i = 1; i <= board_size; ++i) {
-        board._board[ToPos(i, 0)] = ToFirst(root_up);
-        board._board[ToPos(i, board_size + 1)] = ToFirst(root_down);
-        board._board[ToPos(0, i)] = ToSecond(root_left);
-        board._board[ToPos(board_size + 1, i)] = ToSecond(root_right);
+    for (uint i = 1; i <= Dim::board_size; ++i) {
+        board._board[Dim::ToPos(i, 0)] = ToFirst(root_up);
+        board._board[Dim::ToPos(i, Dim::board_size + 1)] = ToFirst(root_down);
+        board._board[Dim::ToPos(0, i)] = ToSecond(root_left);
+        board._board[Dim::ToPos(Dim::board_size + 1, i)] = ToSecond(root_right);
     }
 
     board.clearShortestPathsStats();
@@ -204,214 +217,141 @@ const Board Board::Empty() {
 
 void Board::clearShortestPathsStats() {
 
-    for(uint i=0; i<actual_field_count; i++)
+    for(uint i = 0; i < Dim::actual_field_count; i++)
         timesOfBeingOnShortestPath[i]=0;
 }
 
 void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& winner) {
 
-    short queue[actual_field_count / 2 + 1];    //bfs queue
-    unsigned short visited[actual_field_count];    //marks in which step node was visited
-    short beg=0, end=-1;        //queue markings
+    //bfs queue
+    short queue[Dim::actual_field_count / 2 + 1];
+    //marks in which step node was visited
+    unsigned short visited[Dim::actual_field_count];
+    //queue markings
+    short beg = 0, end = -1;
 
-    memset(visited, 0, actual_field_count * sizeof(visited[0]));
+    memset(visited, 0, Dim::actual_field_count * sizeof(visited[0]));
 
     if (Player::First() == winner) {
-        for (uint i = guard_count * actual_board_size + guard_count; i < guard_count * actual_board_size + board_size + guard_count; i++)
+        // FIXME: Use ToPos() in order to aquire appropriate iteration range.
+        for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
+                  i < Dim::guard_count * Dim::down + Dim::board_size + Dim::guard_count;
+                  i = i + Dim::right)
             if (IsFirst(_board[i])){
-                queue[++end]=i;        //I put to queue every node by the edge
-                visited[i]=1;        //and mark it as visited in first step
-            }
-        for (; beg<=end; beg++){            //bfs
-            if ((visited[queue[beg]+1] == 0) && IsFirst(_board[queue[beg]+1])>0){
-                queue[++end]=queue[beg]+1;
-                visited[queue[end]] = visited[queue[beg]]+1;
-            }
-            if ((visited[queue[beg]-1] == 0) && IsFirst(_board[queue[beg]-1])>0){
-                queue[++end]=queue[beg]-1;
-                visited[queue[end]] = visited[queue[beg]]+1;
-            }
-            if ((visited[queue[beg]-actual_board_size +1] == 0) && IsFirst(_board[queue[beg]-actual_board_size+1])){
-                queue[++end]=queue[beg]-actual_board_size +1;
-                visited[queue[end]] = visited[queue[beg]]+1;
-            }
-            if ((visited[queue[beg]+actual_board_size -1] == 0) && IsFirst(_board[queue[beg]+actual_board_size-1])){
-                queue[++end]=queue[beg]+actual_board_size -1;
-                visited[queue[end]] = visited[queue[beg]]+1;
-            }
-            if ((visited[queue[beg]+actual_board_size ] == 0) && IsFirst(_board[queue[beg]+actual_board_size])){
-                queue[++end]=queue[beg]+actual_board_size ;
-                visited[queue[end]] = visited[queue[beg]]+1;
-            }
-            if ((visited[queue[beg]-actual_board_size ] == 0) && IsFirst(_board[queue[beg]-actual_board_size])){
-                queue[++end]=queue[beg]-actual_board_size ;
-                visited[queue[end]] = visited[queue[beg]]+1;
-            }
-        }
-
-        /*Now I have to find the shortest paths.
-          I find out which nodes by the other edge were visited as first ones*/
-        uint min = (uint) -1;
-        for (uint i = (board_size + guard_count - 1) * actual_board_size  + guard_count;
-                i < (board_size + guard_count - 1) * actual_board_size  + guard_count + board_size; ++i) {
-            if(visited[i] > 0 && visited[i] < min)
-                min = visited[i];
-        }
-        beg=0;    //cleaning queue
-        end=-1;
-	int actual_mins=0;
-	int next_mins=0;
-        for (uint i = (board_size + guard_count - 1) * actual_board_size  + guard_count;
-                i < (board_size + guard_count - 1) * actual_board_size  + guard_count + board_size; ++i)
-            if(visited[i]==min){
+                // I put to queue every node by the edge
                 queue[++end]=i;
-                aBoard.timesOfBeingOnShortestPath[i]++;
-                visited[i]=0;
-		actual_mins++;
-            }
-
-        for(; beg<=end; beg++){        //second bfs done backwards
-            if(visited[queue[beg]+1] == min-1 && visited[queue[beg]+1]){
-		next_mins++;
-                queue[++end]=queue[beg]+1;
-                visited[queue[end]] = 0;
-                aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-            }
-            if(visited[queue[beg]-1] == min-1 && visited[queue[beg]-1]){
-		next_mins++;
-                queue[++end]=queue[beg]-1;
-                visited[queue[end]] = 0;
-                aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-            }
-            if(visited[queue[beg]-actual_board_size+1] == min-1 && visited[queue[beg]-actual_board_size+1]){
-		next_mins++;
-                queue[++end]=queue[beg]-actual_board_size +1;
-                visited[queue[end]] = 0;
-                aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-            }
-            if(visited[queue[beg]+actual_board_size-1] == min-1 && visited[queue[beg]+actual_board_size-1]){
-		next_mins++;
-                queue[++end]=queue[beg]+actual_board_size -1;
-                visited[queue[end]] = 0;
-                aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-            }
-            if(visited[queue[beg]+actual_board_size] == min-1 && visited[queue[beg]+actual_board_size]){
-		next_mins++;
-                queue[++end]=queue[beg]+actual_board_size ;
-                visited[queue[end]] = 0;
-                aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-            }
-            if(visited[queue[beg]-actual_board_size] == min-1 && visited[queue[beg]-actual_board_size]){
-		next_mins++;
-                queue[++end]=queue[beg]-actual_board_size ;
-                visited[queue[end]] = 0;
-                aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-            }
-		if(--actual_mins==0){
-			actual_mins=next_mins;
-			next_mins=0;
-			min--;
-		}
-        }
-    }else{    //analogically for the other player marked with values < 0
-        //there are changes in 'for' statements (vertically, not horizontally)
-        //and in comparisions to 0 (lesser, not greater)
-        for(uint i=guard_count * actual_board_size + guard_count;
-		i<(board_size+guard_count)*actual_board_size + guard_count; i=i+actual_board_size )
-            if(IsSecond(_board[i])){
-                queue[++end]=i;
+                //and mark it as visited in first step
                 visited[i]=1;
             }
-        for(; beg<=end; beg++){
-            if((visited[queue[beg]+1] == 0) && IsSecond(_board[queue[beg]+1])){
-                queue[++end]=queue[beg]+1;
-                visited[queue[end]] = visited[queue[beg]]+1;
+
+        //bfs
+        for (; beg <= end; ++beg)
+            FOR_SIX(int dir)
+                if ((visited[queue[beg] + dir] == 0) && IsFirst(_board[queue[beg] + dir])){
+                    queue[++end] = queue[beg] + dir;
+                    visited[queue[end]] = visited[queue[beg]] + 1;
+                }
+
+        /*
+         * Now I have to find the shortest paths.
+         * I find out which nodes by the other edge were visited as first ones
+         */
+        uint min = (uint) - 1;
+        // FIXME: Use ToPos() in order to aquire appropriate iteration range.
+        for (uint i = (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count;
+                  i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size;
+                  i = i + Dim::right)
+            if(visited[i] > 0 && visited[i] < min)
+                min = visited[i];
+        beg = 0;                                          //cleaning queue
+        end = -1;
+        int actual_mins = 0;
+        int next_mins = 0;
+        // FIXME: Use ToPos() in order to aquire appropriate iteration range.
+        for (uint i = (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count;
+                  i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size;
+                  i = i + Dim::right)
+            if (visited[i] == min){
+                queue[++end] = i;
+                aBoard.timesOfBeingOnShortestPath[i]++;
+                visited[i] = 0;
+                actual_mins++;
             }
-            if((visited[queue[beg]-1] == 0) && IsSecond(_board[queue[beg]-1])){
-                queue[++end]=queue[beg]-1;
-                visited[queue[end]] = visited[queue[beg]]+1;
-            }
-            if((visited[queue[beg]-actual_board_size +1] == 0) && IsSecond(_board[queue[beg]-actual_board_size +1])){
-                queue[++end]=queue[beg]-actual_board_size +1;
-                visited[queue[end]] = visited[queue[beg]]+1;
-            }
-            if((visited[queue[beg]+actual_board_size -1] == 0) && IsSecond(_board[queue[beg]+actual_board_size -1])){
-                queue[++end]=queue[beg]+actual_board_size -1;
-                visited[queue[end]] = visited[queue[beg]]+1;
-            }
-            if((visited[queue[beg]+actual_board_size ] == 0) && IsSecond(_board[queue[beg]+actual_board_size])){
-                queue[++end]=queue[beg]+actual_board_size ;
-                visited[queue[end]] = visited[queue[beg]]+1;
-            }
-            if((visited[queue[beg]-actual_board_size ] == 0) && IsSecond(_board[queue[beg]-actual_board_size])){
-                queue[++end]=queue[beg]-actual_board_size ;
-                visited[queue[end]] = visited[queue[beg]]+1;
+
+        //second bfs done backwards
+        for(; beg <= end; beg++) {
+            FOR_SIX(int dir)
+                if (visited[queue[beg] + dir] == min - 1 && visited[queue[beg] + 1]) {
+                    next_mins++;
+                    queue[++end]=queue[beg] + dir;
+                    visited[queue[end]] = 0;
+                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+                }
+            if (--actual_mins == 0){
+                actual_mins =next_mins;
+                next_mins = 0;
+                min--;
             }
         }
+    } else {
+        // Analogically for the other player marked with values < 0
+        // there are changes in 'for' statements (vertically, not horizontally)
+        // and in comparisions to 0 (lesser, not greater)
+
+        // FIXME: Use ToPos() in order to aquire appropriate iteration range.
+        for (uint i = Dim::guard_count * Dim::actual_board_size + Dim::guard_count;
+                 i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count;
+                 i = i + Dim::down)
+            if (IsSecond(_board[i])) {
+                queue[++end] = i;
+                visited[i] = 1;
+            }
+
+        for(; beg <= end; beg++)
+            FOR_SIX(int dir)
+                if ((visited[queue[beg] + dir] == 0) && IsSecond(_board[queue[beg] + dir])){
+                    queue[++end] = queue[beg] + dir;
+                    visited[queue[end]] = visited[queue[beg]] + dir;
+                }
 
         uint min = (uint) -1;
-        for (uint i = guard_count * actual_board_size + guard_count + board_size - 1;
-                i < (board_size + guard_count - 1) * actual_board_size + guard_count + board_size - 1; i=i+actual_board_size )
-            if(visited[i]>0 && visited[i]<min)
+        // FIXME: Use ToPos() in order to aquire appropriate iteration range.
+        for (uint i = Dim::guard_count * Dim::down + Dim::guard_count + Dim::board_size - 1;
+                  i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size - 1;
+                  i = i + Dim::down)
+            if (visited[i] > 0 && visited[i] < min)
                 min = visited[i];
 
-        beg=0;
-        end=-1;
-	int actual_mins=0;
-	int next_mins=0;
-        for (uint i = guard_count * actual_board_size + guard_count + board_size - 1;
-                i < (board_size + guard_count - 1) * actual_board_size + guard_count + board_size - 1; i=i+actual_board_size ) {
-            if(visited[i]==min){
-                queue[++end]=i;
+        beg = 0;
+        end = -1;
+        int actual_mins = 0;
+        int next_mins = 0;
+        // FIXME: Use ToPos() in order to aquire appropriate iteration range.
+        for (uint i = Dim::guard_count * Dim::down + Dim::guard_count + Dim::board_size - 1;
+                  i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size - 1;
+                  i = i + Dim::down) {
+            if (visited[i] == min) {
+                queue[++end] = i;
                 aBoard.timesOfBeingOnShortestPath[i]++;
-                visited[i]=0;
-		actual_mins++;
-	    }
+                visited[i] = 0;
+                actual_mins++;
+            }
         }
 
-        for(; beg<=end; beg++){
-            if(visited[queue[beg]+1] == min-1 && visited[queue[beg]+1]){
-		next_mins++;
-                queue[++end]=queue[beg]+1;
-                visited[queue[end]] = 0;
-                aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-            }
-            if(visited[queue[beg]-1] == min-1 && visited[queue[beg]-1]){
-		next_mins++;
-                queue[++end]=queue[beg]-1;
-                visited[queue[end]] = 0;
-                aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-            }
-            if(visited[queue[beg]-actual_board_size+1] == min-1 && visited[queue[beg]-actual_board_size+1]){
-		next_mins++;
-                queue[++end]=queue[beg]-actual_board_size+1;
-                visited[queue[end]] = 0;
-                aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-            }
-            if(visited[queue[beg]+actual_board_size-1] == min-1 && visited[queue[beg]+actual_board_size-1]){
-		next_mins++;
-                queue[++end]=queue[beg]+actual_board_size-1;
-                visited[queue[end]] = 0;
-                aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-            }
-            if(visited[queue[beg]+actual_board_size] == min-1 && visited[queue[beg]+actual_board_size]){
-		next_mins++;
-                queue[++end]=queue[beg]+actual_board_size;
-                visited[queue[end]] = 0;
-                aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-            }
-            if(visited[queue[beg]-actual_board_size] == min-1 && visited[queue[beg]-actual_board_size]){
-		next_mins++;
-                queue[++end]=queue[beg]-actual_board_size;
-                visited[queue[end]] = 0;
-                aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-            }
+        for (; beg <= end; beg++) {
+            FOR_SIX(int dir)
+                if (visited[queue[beg] + dir] == min - 1 && visited[queue[beg] + dir]) {
+                    next_mins++;
+                    queue[++end]=queue[beg] + dir;
+                    visited[queue[end]] = 0;
+                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+                }
 
-		if(--actual_mins==0){
-			actual_mins=next_mins;
-			next_mins=0;
-			min--;
-		}
+            if (--actual_mins == 0) {
+                actual_mins = next_mins;
+                next_mins = 0;
+                min--;
+            }
         }
     }
 }
@@ -419,161 +359,87 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
 
 void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, const Player& winner) {
 
-    short queue[actual_field_count/2+1];
-    unsigned short visited[actual_field_count];
-    short beg=0, end=-1;
+    short queue[Dim::actual_field_count / 2 + 1];
+    unsigned short visited[Dim::actual_field_count];
+    short beg = 0, end = -1;
 
-    memset(visited,0,actual_field_count*sizeof(visited[0]));
+    memset(visited, 0, Dim::actual_field_count * sizeof(visited[0]));
 
-    if (Player::First() == winner){
-        for(uint i=2*actual_board_size +2; i<2*actual_board_size +board_size+2; i++)
-            if(IsFirst(_board[i])){
-                queue[++end]=i;
-                visited[i]=1;
+    if (Player::First() == winner) {
+        // FIXME: Use ToPos() in order to aquire appropriate iteration range.
+        for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
+                  i < Dim::guard_count * Dim::down + Dim::board_size + Dim::guard_count;
+                  i += Dim::right)
+            if (IsFirst(_board[i])) {
+                queue[++end] = i;
+                visited[i] = 1;
             }
-        for(; beg<=end; beg++){
-            if((visited[queue[beg]+1] == 0) && IsFirst(_board[queue[beg]+1])){
-                queue[++end]=queue[beg]+1;
-                visited[queue[end]] = visited[beg]+1;
-            }
-            if((visited[queue[beg]-1] == 0) && IsFirst(_board[queue[beg]-1])){
-                queue[++end]=queue[beg]-1;
-                visited[queue[end]] = visited[beg]+1;
-            }
-            if((visited[queue[beg]-actual_board_size +1] == 0) && IsFirst(_board[queue[beg]-actual_board_size +1])){
-                queue[++end]=queue[beg]-actual_board_size +1;
-                visited[queue[end]] = visited[beg]+1;
-            }
-            if((visited[queue[beg]+actual_board_size -1] == 0) && IsFirst(_board[queue[beg]+actual_board_size -1])){
-                queue[++end]=queue[beg]+actual_board_size -1;
-                visited[queue[end]] = visited[beg]+1;
-            }
-            if((visited[queue[beg]+actual_board_size ] == 0) && IsFirst(_board[queue[beg]+actual_board_size])){
-                queue[++end]=queue[beg]+actual_board_size ;
-                visited[queue[end]] = visited[beg]+1;
-            }
-            if((visited[queue[beg]-actual_board_size ] == 0) && IsFirst(_board[queue[beg]-actual_board_size])){
-                queue[++end]=queue[beg]-actual_board_size ;
-                visited[queue[end]] = visited[beg]+1;
-            }
-        }
-        uint current=0; //avoiding warnings
+
+        for (; beg<=end; beg++)
+            FOR_SIX(int dir)
+                if ((visited[queue[beg] + dir] == 0) && IsFirst(_board[queue[beg] + dir])){
+                    queue[++end] = queue[beg] + dir;
+                    visited[queue[end]] = visited[beg] + 1;
+                }
+
+        // avoiding warnings
+        uint current = 0;
         uint min = (uint) -1;
-        for (uint i = (board_size+1) * actual_board_size  + 2;
-                i < (board_size+1) * actual_board_size  + 2 + board_size; ++i) {
-            if(visited[i] > 0 && visited[i] < min){
+        for (uint i = (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count;
+                  i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size;
+                  i += Dim::right) {
+            if (visited[i] > 0 && visited[i] < min) {
                 min = visited[i];
                 current = i;
             }
         }
         aBoard.timesOfBeingOnShortestPath[current]++;
 
-        for(;;){
-            if(visited[current+1] == visited[current]-1){
-                current = current + 1;
-                aBoard.timesOfBeingOnShortestPath[current]++;
-                continue;
-            }
-            if(visited[current-1] == visited[current]-1){
-                current = current - 1;
-                aBoard.timesOfBeingOnShortestPath[current]++;
-                continue;
-            }
-            if(visited[current-actual_board_size +1] == visited[current]-1){
-                current = current-actual_board_size +1;
-                aBoard.timesOfBeingOnShortestPath[current]++;
-                continue;
-            }
-            if(visited[current+actual_board_size -1] == visited[current]-1){
-                current = current+actual_board_size -1;
-                aBoard.timesOfBeingOnShortestPath[current]++;
-                continue;
-            }
-            if(visited[current+actual_board_size ] == visited[current]-1){
-                current = current+actual_board_size ;
-                aBoard.timesOfBeingOnShortestPath[current]++;
-                continue;
-            }
-            if(visited[current-actual_board_size ] == visited[current]-1){
-                current = current-actual_board_size ;
-                aBoard.timesOfBeingOnShortestPath[current]++;
-                continue;
-            }
+        for (;;) {
+            loop: FOR_SIX (int dir)
+                if (visited[current + dir] == visited[current] - 1){
+                    current = current + dir;
+                    aBoard.timesOfBeingOnShortestPath[current]++;
+                    goto loop;
+                }
             break;
         }
-    }else{
-        for(uint i=2*actual_board_size +2; i<(board_size+2)*actual_board_size +2; i=i+actual_board_size )
-            if(IsSecond(_board[i])){
-                queue[++end]=i;
-                visited[i]=1;
+    } else {
+        for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
+                  i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count;
+                  i = i + Dim::down)
+            if (IsSecond(_board[i])) {
+                queue[++end] = i;
+                visited[i] = 1;
             }
-        for(; beg<=end; beg++){
-            if((visited[queue[beg]+1] == 0) && IsSecond(_board[queue[beg]+1])){
-                queue[++end]=queue[beg]+1;
-                visited[queue[end]] = visited[beg]+1;
-            }
-            if((visited[queue[beg]-1] == 0) && IsSecond(_board[queue[beg]-1])){
-                queue[++end]=queue[beg]-1;
-                visited[queue[end]] = visited[beg]+1;
-            }
-            if((visited[queue[beg]-actual_board_size +1] == 0) && IsSecond(_board[queue[beg]-actual_board_size +1])){
-                queue[++end]=queue[beg]-actual_board_size +1;
-                visited[queue[end]] = visited[beg]+1;
-            }
-            if((visited[queue[beg]+actual_board_size -1] == 0) && IsSecond(_board[queue[beg]+actual_board_size -1])){
-                queue[++end]=queue[beg]+actual_board_size -1;
-                visited[queue[end]] = visited[beg]+1;
-            }
-            if((visited[queue[beg]+actual_board_size ] == 0) && IsSecond(_board[queue[beg]+actual_board_size])){
-                queue[++end]=queue[beg]+actual_board_size ;
-                visited[queue[end]] = visited[beg]+1;
-            }
-            if((visited[queue[beg]-actual_board_size ] == 0) && IsSecond(_board[queue[beg]-actual_board_size])){
-                queue[++end]=queue[beg]-actual_board_size ;
-                visited[queue[end]] = visited[beg]+1;
-            }
-        }
-        uint current=0; //avoiding warnings
+
+        for(; beg <= end; beg++)
+            FOR_SIX(int dir)
+                if ((visited[queue[beg] + dir] == 0) && IsSecond(_board[queue[beg] + dir])) {
+                    queue[++end]=queue[beg] + dir;
+                    visited[queue[end]] = visited[beg] + 1;
+                }
+
+        //avoiding warnings
+        uint current = 0;
         uint min = (uint) -1;
-        for (uint i = 2 * actual_board_size  + 1 + board_size;
-                i < (board_size+1) * actual_board_size + 2 + board_size; i=i+actual_board_size ) {
-            if(visited[i]>0 && visited[i]<min){
+        for (uint i = Dim::guard_count * Dim::down + Dim::guard_count - 1 + Dim::board_size;
+                  i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size;
+                  i = i + Dim::down) {
+            if (visited[i] > 0 && visited[i] < min) {
                 min = visited[i];
                 current = i;
             }
         }
+
         aBoard.timesOfBeingOnShortestPath[current]++;
-        for(;;){
-            if(visited[current+1] == visited[current]-1){
-                current = current + 1;
-                aBoard.timesOfBeingOnShortestPath[current]++;
-                continue;
-            }
-            if(visited[current-1] == visited[current]-1){
-                current = current - 1;
-                aBoard.timesOfBeingOnShortestPath[current]++;
-                continue;
-            }
-            if(visited[current-actual_board_size +1] == visited[current]-1){
-                current = current-actual_board_size +1;
-                aBoard.timesOfBeingOnShortestPath[current]++;
-                continue;
-            }
-            if(visited[current+actual_board_size -1] == visited[current]-1){
-                current = current+actual_board_size -1;
-                aBoard.timesOfBeingOnShortestPath[current]++;
-                continue;
-            }
-            if(visited[current+actual_board_size ] == visited[current]-1){
-                current = current+actual_board_size ;
-                aBoard.timesOfBeingOnShortestPath[current]++;
-                continue;
-            }
-            if(visited[current-actual_board_size ] == visited[current]-1){
-                current = current-actual_board_size ;
-                aBoard.timesOfBeingOnShortestPath[current]++;
-                continue;
-            }
+        for (;;) {
+            loop2: FOR_SIX (int dir)
+                if (visited[current + dir] == visited[current] - 1){
+                    current = current + dir;
+                    aBoard.timesOfBeingOnShortestPath[current]++;
+                    goto loop2;
+                }
             break;
         }
     }
@@ -584,40 +450,35 @@ void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, const Player& winn
 //FIXME test it after implementing symetric FU!
 void Board::UpdatePathsStatsFloodFillFU(Board& aBoard, const Player& winner){
     /* first uses positive numbers, second -1s */
-    /* _board[(guarded_board_size - 2) * actual_board_size  + 2] is always a guard of a first type */
-    /* _board[2 * actual_board_size  + 1] is always a guard of a second type */
+    /* _board[(guarded_board_size - 2) * Dim::actual_board_size  + 2] is always a guard of a first type */
+    /* _board[2 * Dim::actual_board_size  + 1] is always a guard of a second type */
 
     int startingPoint;
     uint parent;
 
-    if (Player::First() == winner){
-        startingPoint = (guarded_board_size - 2) * actual_board_size  + 2;
-    }
-    else{
-        startingPoint = 2 * actual_board_size  + 1;
-    }
+    if (Player::First() == winner)
+        startingPoint = (Dim::guarded_board_size - 2) * Dim::down  + 2;
+    else
+        startingPoint = 2 * Dim::down + 1;
 
     parent = Find(startingPoint);
 
-    for(uint i=0; i<actual_field_count; i++){
-        aBoard.timesOfBeingOnShortestPath[i] += (short)(Find(_board[i]) == parent);
+    for(uint i = 0; i < Dim::actual_field_count; i++){
+        aBoard.timesOfBeingOnShortestPath[i] += (short) (Find(_board[i]) == parent);
     }
 }
 
-void Board::ShowPathsStats()
-{
+void Board::ShowPathsStats() {
 
-	cerr<<"SHOREST PATHS STATS:\n";
+    cerr << "SHOREST PATHS STATS:\n";
 
-	for(uint i=0; i<kBoardSizeAligned; i++){
-		for(uint j=0; j<kBoardSizeAligned; j++)
-			cerr<<" "<<timesOfBeingOnShortestPath[i*kBoardSizeAligned+j]<<" ";
-		cerr<<"\n";
-	}
+    for (uint i = 0; i < Dim::actual_board_size; i++){
+        for (uint j = 0; j < Dim::actual_board_size; j++)
+            cerr << " " << timesOfBeingOnShortestPath[i * Dim::down + j] << " ";
+        cerr << "\n";
+    }
 
-	cerr<<"END OF SHOREST PATHS STATS\n";
-
-
+    cerr<<"END OF SHOREST PATHS STATS\n";
 }
 
 /* this method assumes asymetric FU! */
@@ -627,184 +488,103 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, const Player& winner){
         int startingPoint;
         uint parent;
 
-        startingPoint = (guarded_board_size - 2) * actual_board_size  + 2;
+        startingPoint = (Dim::guarded_board_size - 2) * Dim::actual_board_size + 2;
 
         parent = Find(startingPoint);
 
-        for(uint i=0; i<actual_field_count; i++){
+        for (uint i = 0; i < Dim::actual_field_count; i++) {
             /* this check is necessary due to asymetric FU */
-            if(IsFirst(_board[i]))
+            if (IsFirst(_board[i]))
                 aBoard.timesOfBeingOnShortestPath[i] += (short)(Find(_board[i]) == parent);
         }
     }
     /* FU is not performed for this player, BFS necessary */
     else{
 
-        short queue[actual_field_count/2+1];
-        unsigned short visited[actual_field_count];
-        short beg=0, end=-1;
+        short queue[Dim::actual_field_count / 2 + 1];
+        unsigned short visited[Dim::actual_field_count];
+        short beg = 0, end = -1;
 
-        memset(visited,0,actual_field_count*sizeof(visited[0]));
+        memset(visited, 0, Dim::actual_field_count * sizeof(visited[0]));
 
         if (Player::First() == winner){
-            for(uint i=2*actual_board_size +2; i<2*actual_board_size +board_size+2; i++)
-                if(IsFirst(_board[i])){
-                    queue[++end]=i;
-                    visited[i]=actual_board_size ;
+            for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
+                      i < Dim::guard_count * Dim::down + Dim::board_size + Dim::guard_count;
+                      i += Dim::right)
+                if (IsFirst(_board[i])) {
+                    queue[++end] = i;
+                    visited[i] = Dim::actual_board_size;
                 }
-            for(; beg<=end; beg++){
-                if((visited[queue[beg]+1] == 0) && IsFirst(_board[queue[beg]+1])){
-                    queue[++end]=queue[beg]+1;
-                    visited[queue[end]] = visited[beg];
-                }
-                if((visited[queue[beg]-1] == 0) && IsFirst(_board[queue[beg]-1])){
-                    queue[++end]=queue[beg]-1;
-                    visited[queue[end]] = visited[beg];
-                }
-                if((visited[queue[beg]-actual_board_size +1] == 0) && IsFirst(_board[queue[beg]-actual_board_size +1])){
-                    queue[++end]=queue[beg]-actual_board_size +1;
-                    visited[queue[end]] = visited[beg]-1;
-                }
-                if((visited[queue[beg]+actual_board_size -1] == 0) && IsFirst(_board[queue[beg]+actual_board_size -1])){
-                    queue[++end]=queue[beg]+actual_board_size -1;
-                    visited[queue[end]] = visited[beg]+1;
-                }
-                if((visited[queue[beg]+actual_board_size ] == 0) && IsFirst(_board[queue[beg]+actual_board_size])){
-                    queue[++end]=queue[beg]+actual_board_size ;
-                    visited[queue[end]] = visited[beg]+1;
-                }
-                if((visited[queue[beg]-actual_board_size ] == 0) && IsFirst(_board[queue[beg]-actual_board_size])){
-                    queue[++end]=queue[beg]-actual_board_size ;
-                    visited[queue[end]] = visited[beg]-1;
-                }
-            }
-            for(uint i=actual_board_size +2; i<actual_board_size +board_size+2; i++)
-                visited[i]=0;
-            beg=0;
-            end=-1;
-            for (uint i = (board_size+1) * actual_board_size  + 2;
-                    i < (board_size+1) * actual_board_size  + 2 + board_size; ++i)
-                if(visited[i]>0){
-                    queue[++end]=i;
+
+            for (; beg<=end; beg++)
+                FOR_SIX (int dir)
+                    if ((visited[queue[beg] + dir] == 0) && IsFirst(_board[queue[beg] + dir])){
+                        queue[++end] = queue[beg] + dir;
+                        visited[queue[end]] = visited[beg];
+                    }
+
+            for(uint i = Dim::down + Dim::guard_count;
+                     i < Dim::down + Dim::board_size + Dim::guard_count;
+                     i += Dim::right)
+                visited[i] = 0;
+
+            beg = 0;
+            end = -1;
+            for (uint i = (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count;
+                      i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size;
+                      i += Dim::right)
+                if (visited[i] > 0) {
+                    queue[++end] = i;
                     aBoard.timesOfBeingOnShortestPath[i]++;
-                    visited[i]=0;
+                    visited[i] = 0;
                 }
-            for(; beg<=end; beg++){
-                if(visited[queue[beg]+1] > 0 && visited[queue[beg]+1] < actual_board_size +board_size){
-                    queue[++end]=queue[beg]+1;
-                    visited[queue[end]] = 0;
-                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-                }
-                if(visited[queue[beg]-1] > 0 && visited[queue[beg]-1] < actual_board_size +board_size){
-                    queue[++end]=queue[beg]-1;
-                    visited[queue[end]] = 0;
-                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-                }
-                if(visited[queue[beg]-actual_board_size +1] > 0 &&
-                            visited[queue[beg]-actual_board_size +1] < actual_board_size +board_size){
-                    queue[++end]=queue[beg]-actual_board_size +1;
-                    visited[queue[end]] = 0;
-                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-                }
-                if(visited[queue[beg]+actual_board_size -1] > 0 &&
-                            visited[queue[beg]+actual_board_size -1] < actual_board_size +board_size){
-                    queue[++end]=queue[beg]+actual_board_size -1;
-                    visited[queue[end]] = 0;
-                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-                }
-                if(visited[queue[beg]+actual_board_size ] > 0 &&
-                            visited[queue[beg]+actual_board_size ] < actual_board_size +board_size){
-                    queue[++end]=queue[beg]+actual_board_size ;
-                    visited[queue[end]] = 0;
-                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-                }
-                if(visited[queue[beg]-actual_board_size ] > 0 &&
-                            visited[queue[beg]-actual_board_size ] < actual_board_size +board_size){
-                    queue[++end]=queue[beg]-actual_board_size ;
-                    visited[queue[end]] = 0;
-                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-                }
-            }
-        }else{
-            for(uint i=2*actual_board_size +2; i<(board_size+2)*actual_board_size +2; i=i+actual_board_size )
-                if(IsSecond(_board[i])){
+
+            for(; beg <= end; beg++)
+                FOR_SIX(int dir)
+                    if (visited[queue[beg] + dir] > 0 && visited[queue[beg] + dir] < Dim::actual_board_size + Dim::board_size) {
+                        queue[++end]=queue[beg] + dir;
+                        visited[queue[end]] = 0;
+                        aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+                    }
+        } else {
+            for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
+                      i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count;
+                      i = i + Dim::down)
+                if (IsSecond(_board[i])) {
                     queue[++end]=i;
                     visited[i]=1;
                 }
-            for(; beg<=end; beg++){
-                if((visited[queue[beg]+1] == 0) && IsSecond(_board[queue[beg]+1])){
-                    queue[++end]=queue[beg]+1;
-                    visited[queue[end]] = visited[beg]+1;
-                }
-                if((visited[queue[beg]-1] == 0) && IsSecond(_board[queue[beg]-1])){
-                    queue[++end]=queue[beg]-1;
-                    visited[queue[end]] = visited[beg]-1;
-                }
-                if((visited[queue[beg]-actual_board_size +1] == 0) && IsSecond(_board[queue[beg]-actual_board_size +1])){
-                    queue[++end]=queue[beg]-actual_board_size +1;
-                    visited[queue[end]] = visited[beg]+1;
-                }
-                if((visited[queue[beg]+actual_board_size -1] == 0) && IsSecond(_board[queue[beg]+actual_board_size -1])){
-                    queue[++end]=queue[beg]+actual_board_size -1;
-                    visited[queue[end]] = visited[beg]-1;
-                }
-                if((visited[queue[beg]+actual_board_size ] == 0) && IsSecond(_board[queue[beg]+actual_board_size])){
-                    queue[++end]=queue[beg]+actual_board_size ;
-                    visited[queue[end]] = visited[beg];
-                }
-                if((visited[queue[beg]-actual_board_size ] == 0) && IsSecond(_board[queue[beg]-actual_board_size])){
-                    queue[++end]=queue[beg]-actual_board_size ;
-                    visited[queue[end]] = visited[beg];
-                }
-            }
-            for(uint i=2*actual_board_size +1;
-                        i<(board_size+2)*actual_board_size +1; i=i+actual_board_size )
-                visited[i]=0;
+
+            for (; beg <= end; beg++)
+                FOR_SIX(int dir)
+                    if((visited[queue[beg] + dir] == 0) && IsSecond(_board[queue[beg] + dir])){
+                        queue[++end]=queue[beg] + dir;
+                        visited[queue[end]] = visited[beg] + 1;
+                    }
+
+            for (uint i = Dim::guard_count * Dim::down + Dim::guard_count - 1;
+                      i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count - 1;
+                      i = i + Dim::down)
+                visited[i] = 0;
+
             beg=0;
             end=-1;
-            for(uint i=2*actual_board_size +1+board_size;
-                        i<(board_size+2)*actual_board_size +1+board_size; i=i+actual_board_size )
-                if(visited[i]>0){
-                    queue[++end]=i;
+            for (uint i = Dim::guard_count * Dim::down + Dim::guard_count - 1 + Dim::board_size;
+                      i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count - 1 + Dim::board_size;
+                      i = i + Dim::down)
+                if (visited[i] > 0) {
+                    queue[++end] = i;
                     aBoard.timesOfBeingOnShortestPath[i]++;
-                    visited[i]=0;
+                    visited[i] = 0;
                 }
-            for(; beg<=end; beg++){
-                if(visited[queue[beg]+1] > 0 && visited[queue[beg]+1] < actual_board_size +board_size){
-                    queue[++end]=queue[beg]+1;
-                    visited[queue[end]] = 0;
-                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-                }
-                if(visited[queue[beg]-1] > 0 && visited[queue[beg]-1] < actual_board_size +board_size){
-                    queue[++end]=queue[beg]-1;
-                    visited[queue[end]] = 0;
-                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-                }
-                if(visited[queue[beg]-actual_board_size +1] > 0 &&
-                            visited[queue[beg]-actual_board_size +1] < actual_board_size +board_size){
-                    queue[++end]=queue[beg]-actual_board_size +1;
-                    visited[queue[end]] = 0;
-                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-                }
-                if(visited[queue[beg]+actual_board_size -1] > 0 &&
-                            visited[queue[beg]+actual_board_size -1] < actual_board_size +board_size){
-                    queue[++end]=queue[beg]+actual_board_size -1;
-                    visited[queue[end]] = 0;
-                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-                }
-                if(visited[queue[beg]+actual_board_size ] > 0 &&
-                            visited[queue[beg]+actual_board_size ] < actual_board_size +board_size){
-                    queue[++end]=queue[beg]+actual_board_size ;
-                    visited[queue[end]] = 0;
-                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-                }
-                if(visited[queue[beg]-actual_board_size ] > 0 &&
-                            visited[queue[beg]-actual_board_size ] < actual_board_size +board_size){
-                    queue[++end]=queue[beg]-actual_board_size ;
-                    visited[queue[end]] = 0;
-                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
-                }
-            }
+
+            for(; beg <= end; beg++)
+                FOR_SIX (int dir)
+                    if (visited[queue[beg] + dir] > 0 && visited[queue[beg] + dir] < Dim::actual_board_size + Dim::board_size){
+                        queue[++end] = queue[beg] + dir;
+                        visited[queue[end]] = 0;
+                        aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+                    }
         }
     }
 }
@@ -873,12 +653,12 @@ void Board::UpdateBridgeData (uint pos, uint replace_pos) {
 }
 
 void Board::MakeUnion(uint pos) {
-    uint rep = MakeUnion(pos, pos + 1);
-    rep = MakeUnion(rep, pos - 1);
-    rep = MakeUnion(rep, pos - actual_board_size );
-    rep = MakeUnion(rep, pos - actual_board_size  + 1);
-    rep = MakeUnion(rep, pos + actual_board_size );
-    MakeUnion(rep, pos + actual_board_size  - 1);
+    uint rep = MakeUnion(pos, pos + Dim::right);
+    rep = MakeUnion(rep, pos + Dim::left);
+    rep = MakeUnion(rep, pos + Dim::upper_left);
+    rep = MakeUnion(rep, pos + Dim::upper_right);
+    rep = MakeUnion(rep, pos + Dim::lower_left);
+    MakeUnion(rep, pos + Dim::lower_right);
 }
 
 uint Board::MakeUnion(uint pos1, uint pos2) {
@@ -925,8 +705,10 @@ void Board::Load (const Board& board) {
     memcpy(this, &board, sizeof(*this));
 }
 
-Board::Board() : _moves_left(board_size * board_size),
-        _field_map_bound(board_size * board_size - 1), _current(Player::First()) {
+Board::Board():
+        _moves_left(Dim::field_count),
+        _field_map_bound(Dim::field_count - 1),
+        _current(Player::First()) {
     Rand::init(time(NULL));
 }
 
@@ -942,10 +724,10 @@ void Board::UpdateBridges(uint pos) {
 /*     _field_bridge_connections[pos].Clear();
     _field_bridge_connections[pos + 1].Remove(pos);
     _field_bridge_connections[pos - 1].Remove(pos);
-    _field_bridge_connections[pos - actual_board_size ].Remove(pos);
-    _field_bridge_connections[pos - actual_board_size  + 1].Remove(pos);
-    _field_bridge_connections[pos + actual_board_size ].Remove(pos);
-    _field_bridge_connections[pos + actual_board_size  - 1].Remove(pos);
+    _field_bridge_connections[pos - Dim::actual_board_size ].Remove(pos);
+    _field_bridge_connections[pos - Dim::actual_board_size  + 1].Remove(pos);
+    _field_bridge_connections[pos + Dim::actual_board_size ].Remove(pos);
+    _field_bridge_connections[pos + Dim::actual_board_size  - 1].Remove(pos);
 */
 
 /*instead of those seven lines above developed by krzysiocrash
@@ -966,56 +748,56 @@ void Board::UpdateBridges(uint pos) {
 
 /*updating bridge structures - six cases*/
 
-    short second = _board[pos - 2 * actual_board_size  + 1];
+    short second = _board[pos - 2 * Dim::actual_board_size + 1];
     if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos - actual_board_size ] == 0 &&
-            _board[pos - actual_board_size  + 1] == 0) {
-        _field_bridge_connections[pos - actual_board_size ].Insert(
-                pair<ushort,bool>(pos - actual_board_size  + 1,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos - actual_board_size  + 1].Insert(
-                pair<ushort,bool>(pos - actual_board_size ,!(val >> SHORT_BIT_SIZE)));
+                    && _board[pos - Dim::actual_board_size ] == 0
+                    && _board[pos - Dim::actual_board_size + 1] == 0) {
+        _field_bridge_connections[pos - Dim::actual_board_size ].Insert(
+                pair<ushort,bool>(pos - Dim::actual_board_size + 1,!(val >> SHORT_BIT_SIZE)));
+        _field_bridge_connections[pos - Dim::actual_board_size + 1].Insert(
+                pair<ushort,bool>(pos - Dim::actual_board_size ,!(val >> SHORT_BIT_SIZE)));
     }
-    second = _board[pos - actual_board_size  + 2];
+    second = _board[pos - Dim::actual_board_size  + 2];
     if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos - actual_board_size  + 1] == 0 && _board[pos + 1] == 0) {
-        _field_bridge_connections[pos - actual_board_size  + 1].Insert(pair<ushort,bool>(pos + 1,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos + 1].Insert(pair<ushort,bool>(pos - actual_board_size  + 1,!(val >> SHORT_BIT_SIZE)));
+            && _board[pos - Dim::actual_board_size  + 1] == 0 && _board[pos + 1] == 0) {
+        _field_bridge_connections[pos - Dim::actual_board_size  + 1].Insert(pair<ushort,bool> (pos + 1,!(val >> SHORT_BIT_SIZE)));
+        _field_bridge_connections[pos + 1].Insert(pair<ushort,bool>(pos - Dim::actual_board_size  + 1,!(val >> SHORT_BIT_SIZE)));
     }
-    second = _board[pos + actual_board_size  + 1];
+    second = _board[pos + Dim::actual_board_size  + 1];
     if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos + 1] == 0 && _board[pos + actual_board_size ] == 0) {
-        _field_bridge_connections[pos + 1].Insert(pair<ushort,bool>(pos + actual_board_size ,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos + actual_board_size ].Insert(pair<ushort,bool>(pos + 1,!(val >> SHORT_BIT_SIZE)));
+            && _board[pos + 1] == 0 && _board[pos + Dim::actual_board_size ] == 0) {
+        _field_bridge_connections[pos + 1].Insert(pair<ushort,bool>(pos + Dim::actual_board_size ,!(val >> SHORT_BIT_SIZE)));
+        _field_bridge_connections[pos + Dim::actual_board_size ].Insert(pair<ushort,bool>(pos + 1,!(val >> SHORT_BIT_SIZE)));
     }
-    second = _board[pos + 2 * actual_board_size  - 1];
+    second = _board[pos + 2 * Dim::actual_board_size  - 1];
     if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos + actual_board_size ] == 0 &&
-            _board[pos + actual_board_size  - 1] == 0) {
-        _field_bridge_connections[pos + actual_board_size ].Insert(
-                pair<ushort,bool>(pos + actual_board_size  - 1,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos + actual_board_size  - 1].Insert(
-                pair<ushort,bool>(pos + actual_board_size ,!(val >> SHORT_BIT_SIZE)));
+            && _board[pos + Dim::actual_board_size ] == 0 &&
+            _board[pos + Dim::actual_board_size  - 1] == 0) {
+        _field_bridge_connections[pos + Dim::actual_board_size ].Insert(
+                pair<ushort,bool>(pos + Dim::actual_board_size  - 1,!(val >> SHORT_BIT_SIZE)));
+        _field_bridge_connections[pos + Dim::actual_board_size  - 1].Insert(
+                pair<ushort,bool>(pos + Dim::actual_board_size ,!(val >> SHORT_BIT_SIZE)));
     }
-    second = _board[pos + actual_board_size  - 2];
+    second = _board[pos + Dim::actual_board_size  - 2];
     if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos + actual_board_size  - 1] == 0 && _board[pos - 1] == 0) {
-        _field_bridge_connections[pos + actual_board_size  - 1].Insert(pair<ushort,bool>(pos - 1,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos - 1].Insert(pair<ushort,bool>(pos + actual_board_size  - 1,!(val >> SHORT_BIT_SIZE)));
+            && _board[pos + Dim::actual_board_size  - 1] == 0 && _board[pos - 1] == 0) {
+        _field_bridge_connections[pos + Dim::actual_board_size  - 1].Insert(pair<ushort,bool>(pos - 1,!(val >> SHORT_BIT_SIZE)));
+        _field_bridge_connections[pos - 1].Insert(pair<ushort,bool>(pos + Dim::actual_board_size  - 1,!(val >> SHORT_BIT_SIZE)));
     }
-    second = _board[pos - actual_board_size  - 1];
+    second = _board[pos - Dim::actual_board_size  - 1];
     if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
             && _board[pos - 1] == 0 &&
-            _board[pos - actual_board_size ] == 0) {
-        _field_bridge_connections[pos - 1].Insert(pair<ushort,bool>(pos - actual_board_size ,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos - actual_board_size ].Insert(pair<ushort,bool>(pos - 1,!(val >> SHORT_BIT_SIZE)));
+            _board[pos - Dim::actual_board_size ] == 0) {
+        _field_bridge_connections[pos - 1].Insert(pair<ushort,bool>(pos - Dim::actual_board_size ,!(val >> SHORT_BIT_SIZE)));
+        _field_bridge_connections[pos - Dim::actual_board_size ].Insert(pair<ushort,bool>(pos - 1,!(val >> SHORT_BIT_SIZE)));
     }
 
     UpdateBridgeBound(pos + 1);
     UpdateBridgeBound(pos - 1);
-    UpdateBridgeBound(pos - actual_board_size );
-    UpdateBridgeBound(pos - actual_board_size  + 1);
-    UpdateBridgeBound(pos + actual_board_size );
-    UpdateBridgeBound(pos + actual_board_size  - 1);
+    UpdateBridgeBound(pos - Dim::actual_board_size );
+    UpdateBridgeBound(pos - Dim::actual_board_size  + 1);
+    UpdateBridgeBound(pos + Dim::actual_board_size );
+    UpdateBridgeBound(pos + Dim::actual_board_size  - 1);
 
 /*crucial line from theolol:*/
 
@@ -1053,18 +835,18 @@ std::string Board::ToAsciiArt(Location last_move) const {
 
     std::stringstream s;
 
-    for (unsigned char x = 'a'; x < 'a' + board_size; ++x)
+    for (unsigned char x = 'a'; x < 'a' + Dim::board_size; ++x)
         s << " " << x;
     s << std::endl;
-    for (uint i = 1; i <= board_size; ++i) {
+    for (uint i = 1; i <= Dim::board_size; ++i) {
         for (uint j = 1; j < (i < 10 ? i : i - 1); ++j)
             s << " ";
         s << i;
-        if (ToPos(1, i) == last_move.GetPos())
+        if (Dim::ToPos(1, i) == last_move.GetPos())
             s << "(";
         else s << " ";
-        for (uint j = 1; j <= board_size; ++j) {
-            uint pos = ToPos(j, i);
+        for (uint j = 1; j <= Dim::board_size; ++j) {
+            uint pos = Dim::ToPos(j, i);
             if (IsEmpty(_board[pos]))
                 s << ".";
             else if (IsFirst(_board[pos]))
@@ -1079,9 +861,9 @@ std::string Board::ToAsciiArt(Location last_move) const {
         }
         s << i << std::endl;
     }
-    for (uint j = 0; j <= board_size; ++j)
+    for (uint j = 0; j <= Dim::board_size; ++j)
         s << " ";
-    for (unsigned char x = 'a'; x < 'a' + board_size; ++x)
+    for (unsigned char x = 'a'; x < 'a' + Dim::board_size; ++x)
         s << " " << x;
 
     s << std::endl << "Bridges:";

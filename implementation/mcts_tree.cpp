@@ -5,7 +5,7 @@ namespace Hex {
 
 const uint MCTSTree::default_max_depth = -1;
 const uint MCTSTree::default_playouts_per_move = 100000;
-const uint MCTSTree::ultimate_depth = kBoardSize * kBoardSize;
+const uint MCTSTree::ultimate_depth = Dim::field_count;
 const uint MCTSTree::visits_to_expand = 10;
 const uint MCTSTree::amaf_paths_palyouts = 1000;
 

@@ -30,9 +30,9 @@ void Protocol::Run(std::istream& in, std::ostream& out) {
 void Protocol::CBoardSize(Gtp::Io& inout) {
 	uint boardSize = inout.Read<uint>();
 	inout.CheckEmpty();
-	if (boardSize != kBoardSize) {
+	if (boardSize != Dim::board_size) {
 		std::stringstream err;
-		err << "the only supported board size is " << kBoardSize;
+		err << "the only supported board size is " << Dim::board_size;
 		inout.SetError(err.str());
 	}
 }
@@ -112,7 +112,7 @@ void Protocol::CShowTree(Gtp::Io& inout) {
 void Protocol::CGenMoveNoPlay(Gtp::Io& inout) {
 	std::string player = inout.Read<std::string>();
 	inout.CheckEmpty();
-	
+
 	if (game.IsFinished()) {
 		inout.SetError("game is finished");
 		return;

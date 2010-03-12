@@ -133,7 +133,7 @@ inline void MCTSNode::Expand(Board& board) {
 	unsigned short* locations;
 	children = new MCTSNode[board.MovesLeft()];
 	board.GetPossiblePositions(locations);
-	pos_to_children_mapping = new MCTSNode*[kBoardSizeAligned * kBoardSizeAligned];
+	pos_to_children_mapping = new MCTSNode* [Dim::actual_field_count];
 	for (uint i = 0; i < board.MovesLeft(); ++i) {
 		children[i].loc = locations[i];
 		pos_to_children_mapping[locations[i]] = &(children[i]);
