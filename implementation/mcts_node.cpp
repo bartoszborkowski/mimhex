@@ -161,15 +161,17 @@ void MCTSNode::RecursivePrint(std::ostream& stream, uint max_children,
 		stream << "root ";
 	}
 
-	stream << "EVAL: "<<Eval()<<" GETMU "<<GetMu()<<" ";
+	stream << "ev: " << Eval() << " mu: " << GetMu();
+    if (Switches::Rave())
+        stream << " rave: " << GetRAVE();
+    if (Switches::PathAmaf())
+        stream << " pamaf: " << GetPATHSAMAF();
 
-	if ((current_level & 1) == 0) {
-		stream << static_cast<double>(uct_stats.played - uct_stats.won)
-				* 100 / uct_stats.played<<' '<<uct_stats.played<<' '<<uct_stats.won;
-	} else {
-		stream << static_cast<double>(uct_stats.won) * 100 / uct_stats.played;
-	}
-	stream << " " << uct_stats.played;
+	if ((current_level & 1) == 0)
+		stream << " won: " << static_cast<double> (uct_stats.played - uct_stats.won) * 100 / uct_stats.played << "%";
+	else
+		stream << " won: " << static_cast<double> (uct_stats.won) * 100 / uct_stats.played << "%";\
+	stream << " all: " << uct_stats.played;
 	stream << std::endl;
 
 	if (children != NULL) {

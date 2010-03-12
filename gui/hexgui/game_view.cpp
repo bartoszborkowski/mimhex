@@ -20,7 +20,7 @@ void GameNode::Collapse() {
 
 GameNodePtr GameNode::AppendMove(const Move& m) {
     GameNodePtr node(new GameNode(m, this));
-    
+
     GameNode::Children::iterator it = children.find(node);
     if (it!=children.end())
         return *it;
@@ -77,7 +77,7 @@ void GameNode::Print(std::ostream& os, int level) const {
     if (!level) {
         os << "Empty" << std::endl;
     }
-    else {   
+    else {
         for (int i=0; i<level; i++)
             os << "  ";
         os
@@ -235,12 +235,12 @@ GAME_View::GAME_View(GameTree& t, QWidget *parent) :
         tree_(t)
 {
 
-    treeView = new QTreeView(this);
+    treeView = new gTreeView(this);
     model = new GameTreeModel(tree_.GetRoot());
     treeView->setModel(model);
     treeView->setHeaderHidden(true);
 
-//    connect(treeView, SIGNAL(selectionChanged()), this, selectCurrent());
+    connect(treeView, SIGNAL(activated(const QModelIndex&)), treeView, SLOT(selectionChanged(const QModelIndex&)));
 
     QPushButton *expButton = new QPushButton("Expand all");
     QPushButton *collButton = new QPushButton("Collapse all");
@@ -260,7 +260,7 @@ GAME_View::GAME_View(GameTree& t, QWidget *parent) :
     all_->addWidget(treeView);
 
     setLayout(all_);
- 
+
 }
 
 
@@ -274,8 +274,8 @@ void GAME_View::updateTree()
     std::cout << "updateTree()" << std::endl;
 }
 
-void gTreeView::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
+void gTreeView::selectionChanged(const QModelIndex & index)
 {
-
+    std::cout << "selectionChanged()" << std::endl;
 }
-    
+

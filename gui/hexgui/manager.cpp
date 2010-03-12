@@ -40,7 +40,7 @@ void manager::handleLeftClick(int x, int y) {
     if (game_.nowWinner()==Player::None()) {
         Move m(game_.CurrentPlayer(), Location(x, y));
         bool ok = putStone(m);
-        
+
         if (ok && auto_reply && auto_player!=Player::None())
             playMove();
     }
@@ -93,7 +93,7 @@ bool manager::putStone(const Move& m) {
             m_boardScene->addBlackStone(m.GetLocation().GetX(), m.GetLocation().GetY());
         else
             m_boardScene->addWhiteStone(m.GetLocation().GetX(), m.GetLocation().GetY());
-        
+
         last_move = tree_.GetLastMove();
         if (last_move.get()) {
             m_boardScene->addBGMark(
@@ -153,7 +153,7 @@ void manager::newGame() {
 
 void manager::genMove() {
     std::cout << "genMove()" << std::endl;
-    
+
     if (game_.nowWinner()==Player::None()) {
         clearLabels();
 
@@ -168,7 +168,7 @@ void manager::genMove() {
 
 void manager::searchMove() {
     std::cout << "searchMove()" << std::endl;
-    
+
     if (game_.nowWinner()==Player::None()) {
         clearLabels();
 
@@ -244,7 +244,7 @@ void manager::showTreeMcts() {
     std::cout << "showTreeMcts()" << std::endl;
 
     std::string out;
-    game_.PrintTree(out, 4);
+    game_.PrintTree(out, 10);
 
     MCTS_View *view = new MCTS_View(out);
     view->show();

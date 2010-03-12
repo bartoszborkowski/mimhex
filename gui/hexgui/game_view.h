@@ -31,7 +31,7 @@ struct GameNode
     int ChildrenCount() const;
     GameNode *GetParent() const;
     int GetRow() const;
-        int GetMyRow(GameNodePtr) const;
+    int GetMyRow(GameNodePtr) const;
     GameNode *GetChild(int row) const;
 
 
@@ -108,8 +108,12 @@ class gTreeView : public QTreeView
 {
     Q_OBJECT
 
+public:
+    gTreeView(QWidget* owner):
+        QTreeView(owner) {}
+
 protected slots:
-    virtual void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+    virtual void selectionChanged(const QModelIndex & index);
 
 };
 
@@ -124,7 +128,6 @@ public:
 
 public slots:
     void updateTree();
-
 
 signals:
     void moveChanged();
