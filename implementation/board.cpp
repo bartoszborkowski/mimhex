@@ -310,8 +310,8 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
 
         // FIXME: Use ToPos() in order to aquire appropriate iteration range.
         for (uint i = Dim::guard_count * Dim::actual_board_size + Dim::guard_count;
-                 i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count;
-                 i = i + Dim::down)
+                  i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count;
+                  i = i + Dim::down)
             if (IsSecond(_board[i])) {
                 queue[++end] = i;
                 visited[i] = 1;
