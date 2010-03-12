@@ -215,6 +215,7 @@ class Board {
         /**
          * @in @param val A value in the format as used in the internal table.
          * @return true iff value represents the first player.
+         * @note false is returned for empty fields.
          */
         static bool IsFirst(ushort val);
 
@@ -238,8 +239,8 @@ class Board {
         void MakeUnion(uint pos);
 
         /**
-         * Unifies pawns at positions pos1 and pos2 (if present and their colour
-         * matches).
+         * Unifies groups of pawns at positions pos1 and pos2 (if present and
+         * their colours match).
          * @return A value stored at pos1 in the internal table.
          */
         uint MakeUnion(uint pos1, uint pos2);
@@ -279,6 +280,9 @@ class Board {
     private:
         /**
          * Special values used for F&U roots for each side of the map.
+         * FIXME: Preferably the functioning of all UpdatePathsStats...()
+         * should be independant from the guarding used. visible[] table may be
+         * initialized appropriately to achieve this.
          */
         static const ushort root_up = (Dim::guard_count - 1) * Dim::down
                                      + Dim::guard_count;
