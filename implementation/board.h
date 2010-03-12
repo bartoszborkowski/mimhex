@@ -107,6 +107,12 @@ class Dim {
         static uint ToPos(int x, int y);
 
         /**
+         * @in @param x The horizontal shift.
+         * @in @param y The vertical shift.
+         */
+        static int ByPos(int x, int y);
+
+        /**
          * @in @param pos A field position
          * @return A field coordinant X, where 1 describes leftmost column.
          */
@@ -263,6 +269,26 @@ class Board {
         static bool IsEmpty(ushort val);
 
         /**
+         * @in @param val The first value in the format as used in the interal
+         * table.
+         * @in @param val2 The second value in the format as used in the interal
+         * table.
+         * @return true iff val and val2 represent the same player.
+         * @note val and val2 shouldn't be empty.
+         */
+        static bool SamePlayer(ushort val, ushort val2);
+
+        /**
+         * @in @param val The first value in the format as used in the interal
+         * table.
+         * @in @param val2 The second value in the format as used in the interal
+         * table.
+         * @return true iff val and val2 represent opposite players.
+         * @note val and val2 shouldn't be empty.
+         */
+        static bool OppPlayer(ushort val, ushort val2);
+
+        /**
          * Unifies pawn at position pos with its neighbours with the same colour.
          * @in @param pos An internal representation of a position.
          */
@@ -314,14 +340,14 @@ class Board {
          * should be independant from the guarding used. visible[] table may be
          * initialized appropriately to achieve this.
          */
-        static const ushort root_up = (Dim::guard_count - 1) * Dim::down
-                                     + Dim::guard_count;
-        static const ushort root_down = (Dim::board_size + Dim::guard_count) * Dim::down
-                                       + Dim::guard_count;
-        static const ushort root_left = Dim::guard_count * Dim::down
-                                      + Dim::guard_count - 1;
-        static const ushort root_right = Dim::guard_count * Dim::down
-                                       + Dim::guard_count + Dim::board_size;
+        static const uint root_up = (Dim::guard_count - 1) * Dim::down
+                                  + Dim::guard_count;
+        static const uint root_down = (Dim::board_size + Dim::guard_count) * Dim::down
+                                    + Dim::guard_count;
+        static const uint root_left = Dim::guard_count * Dim::down
+                                    + Dim::guard_count - 1;
+        static const uint root_right = Dim::guard_count * Dim::down
+                                     + Dim::guard_count + Dim::board_size;
 
         /**
          * Special value used for fields that are empty

@@ -20,6 +20,10 @@ uint Dim::ToPos(int x, int y) {
     return (x + Dim::guard_count - 1) + (y + Dim::guard_count - 1) * Dim::down;
 }
 
+int Dim::ByPos(int x, int y) {
+    return x + y * Dim::down;
+}
+
 int Dim::ToX(uint pos) {
     return pos % Dim::actual_board_size - 1;
 }
@@ -184,6 +188,14 @@ bool Board::IsSecond(ushort val) {
 
 bool Board::IsEmpty(ushort val) {
     return val == 0;
+}
+
+bool Board::SamePlayer(ushort val, ushort val2) {
+    return (val & board_second) == (val2 & board_second);
+}
+
+bool Board::OppPlayer(ushort val, ushort val2) {
+    return (val & board_second) ^ (val2 & board_second);
 }
 
 const Board Board::Empty() {
@@ -773,10 +785,10 @@ void Board::UpdateBridges(uint pos) {
 
     // TODO: Add comments here.
     SmallSetIterator<pair<ushort,bool>, 3> it = _field_bridge_connections[pos].GetIterator();
-    while (!it.IsEnd()){
+    while (!it.IsEnd()) {
         uint elem = (*it).first;
 
-        if((*it).second ^ (_current!=Player::First())) /*I check owner of the bridge and if it fits*/
+        if ((*it).second ^ (_current != Player::First())) /*I check owner of the bridge and if it fits*/
             attacked_bridges.Insert(elem);             /*I insert this bridge to attacked ones*/
 
         _field_bridge_connections[elem].Remove(pair<ushort,bool>(pos,(*it).second));
@@ -790,15 +802,20 @@ void Board::UpdateBridges(uint pos) {
     // FIXME: This most likely does not work.
     // FIXME: Use IsFirst(), IsSecond() to find out about colours kept in fields.
     // TODO: It's absolutely essential to add some comments to this snippet.
-    short second = _board[pos - 2 * Dim::actual_board_size + 1];
-    if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-                    && _board[pos - Dim::actual_board_size ] == 0
-                    && _board[pos - Dim::actual_board_size + 1] == 0) {
-        _field_bridge_connections[pos - Dim::actual_board_size ].Insert(
-                pair<ushort,bool>(pos - Dim::actual_board_size + 1,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos - Dim::actual_board_size + 1].Insert(
-                pair<ushort,bool>(pos - Dim::actual_board_size ,!(val >> SHORT_BIT_SIZE)));
+
+    short second = _board[pos + Dim::ByPos(-2, 1)];
+    if (!IsEmpty(0) && SamePlayer(val, second)
+                    && IsEmpty(_board[pos + Dim::ByPos(0, -1)])
+                    && IsEmpty(_board[pos + Dim::ByPos(1, -1)])) {
+        _field_bridge_connections[pos + Dim::ByPos(0, -1)].Insert(
+                pair<ushort,bool>(pos + Dim::ByPos(1, -1), IsFirst(val))
+        );
+        _field_bridge_connections[pos + Dim::ByPos(1, -1)].Insert(
+                pair<ushort,bool>(pos + Dim::ByPos(0, -1), IsFirst(val))
+        );
     }
+
+    // TODO: Fix the rest in a similar manner; Use FOR_SIX() macro.
     second = _board[pos - Dim::actual_board_size  + 2];
     if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
             && _board[pos - Dim::actual_board_size  + 1] == 0 && _board[pos + 1] == 0) {
