@@ -19,7 +19,7 @@ namespace HexPatterns
             static uint InitialisePatterns(const char *pattern_file = PATTERNS_FILE);
 
             Pattern();
-            Pattern(uint id, uint template_id, int position);
+            Pattern(uint id, uint template_id, int row, int column);
             Pattern(const Pattern &pattern);
             Pattern & operator =(const Pattern &pattern);
 
@@ -32,7 +32,7 @@ namespace HexPatterns
             uint id;
             uint template_id;
             uint central_position;
-            Hash fields_base_hash[Hex::kFieldsAlignedAmount][FIELD_STATES];
+            Hash fields_base_hashes[Hex::kFieldsAlignedAmount][FIELD_STATES];
     };
 
     Pattern patterns[PATTERNS_AMOUNT];

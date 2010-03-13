@@ -15,7 +15,7 @@ inline uint Pattern::GetPosition() const
 
 inline uint Pattern::HashChange(uint position, uint player) const
 {
-    return fields_base_hash[position][player];
+    return fields_base_hashes[position][player];
 }
 
 #endif

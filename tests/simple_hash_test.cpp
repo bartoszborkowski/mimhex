@@ -1,5 +1,3 @@
-#include <algorithm>
-#include <iostream>
 /*******************************************************************************
  *                              Bartosz Borkowski                              *
  *              Faculty of Mathematics, Informatics and Mechanics              *
@@ -7,6 +5,8 @@
  *                             9th March 2010                                  *
  *******************************************************************************/
 
+#include <algorithm>
+#include <iostream>
 #include <vector>
 
 #include "board.cpp"
@@ -27,12 +27,12 @@ int main()
     std::vector<uint> xors;
 
     rep(i, FIELD_STATES) {
-        h[0][i] = templates[0].GetHash(-16, i);
-        h[1][i] = templates[0].GetHash(-15, i);
-        h[2][i] = templates[0].GetHash(-1, i);
-        h[3][i] = templates[0].GetHash(1, i);
-        h[4][i] = templates[0].GetHash(15, i);
-        h[5][i] = templates[0].GetHash(16, i);
+        h[0][i] = templates[0].GetHash(-1, 0, i);
+        h[1][i] = templates[0].GetHash(-1, 1, i);
+        h[2][i] = templates[0].GetHash(0, -1, i);
+        h[3][i] = templates[0].GetHash(0, 1, i);
+        h[4][i] = templates[0].GetHash(1, -1, i);
+        h[5][i] = templates[0].GetHash(1, 0, i);
     }
 
     rep(f0, FIELD_STATES)
@@ -45,6 +45,9 @@ int main()
             (h[0][f0] ^ h[1][f1] ^ h[2][f2] ^ h[3][f3] ^ h[4][f4] ^ h[5][f5]);
 
     sort(xors.begin(), xors.end());
+
+    for(std::vector<uint>::iterator i = xors.begin(); i != xors.end(); ++i)
+        std::cout << *i << " " << std::endl;
 
     rep(i, xors.size() - 1)
         if (xors[i] == xors[i + 1])

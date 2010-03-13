@@ -23,14 +23,10 @@ inline uint Template::GetSize() const
     return size;
 }
 
-inline Hash Template::GetHash(int relative_position, uint player) const
+inline Hash Template::GetHash(int relative_row, int relative_column, uint state) const
 {
-    int position = relative_position - min_relative;
-
-    if (position < 0 || static_cast<uint>(position) > Hex::kFieldsAlignedAmount)
-        return 0;
-    else
-        return fields_base_hash[position][player];
+    return fields_base_hashes[relative_row + Hex::kBoardSizeAligned - 1]
+        [relative_column + Hex::kBoardSizeAligned - 1][state];
 }
 
 #endif

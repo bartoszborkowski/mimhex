@@ -15,7 +15,7 @@ namespace HexPatterns
     #define rep(iterator, upper_bound)                                              \
         for (uint iterator = 0; iterator < upper_bound; ++iterator)
 
-    #define rep2(iterator, lower_bound, upper_bound)                                \
+    #define rep_bound(iterator, lower_bound, upper_bound)                           \
         for (uint iterator = lower_bound; iterator < upper_bound; ++iterator)
 
     #define GUARDED_POSITION(row, column)                                           \
@@ -32,7 +32,9 @@ namespace HexPatterns
 
     #define MAX_PATTERNS            8
 
+    #define DIMENSIONS              2
     #define FIELD_STATES            4
+    #define FIELD_STATES_SIZE       (FIELD_STATES * sizeof(uint))
 
     #define PLAYER_0_STATE          0
     #define PLAYER_1_STATE          1
@@ -41,7 +43,11 @@ namespace HexPatterns
 
     typedef uint Hash;
 
-    const uint kHashMemory = Hex::kFieldsAlignedAmount * FIELD_STATES * sizeof(Hash);
+    const uint kTemplateHashMemory =
+        (2 * Hex::kBoardSizeAligned - 1) * (2 * Hex::kBoardSizeAligned - 1) *
+        FIELD_STATES * sizeof(Hash);
+    const uint kPatternHashMemory =
+        Hex::kFieldsAlignedAmount * FIELD_STATES * sizeof(Hash);
 } // namespace HexPatterns
 
 #endif
