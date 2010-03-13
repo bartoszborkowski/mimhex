@@ -42,6 +42,7 @@ namespace HexPatterns
     #define EMPTY_STATE             3
 
     typedef uint Hash;
+    typedef unsigned long ulong;
 
     const uint kTemplateHashMemory =
         (2 * Hex::kBoardSizeAligned - 1) * (2 * Hex::kBoardSizeAligned - 1) *

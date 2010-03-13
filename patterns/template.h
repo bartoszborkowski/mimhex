@@ -1,16 +1,16 @@
-/*******************************************************************************
- *                              Bartosz Borkowski                              *
- *              Faculty of Mathematics, Informatics and Mechanics              *
- *                              Warsaw University                              *
- *                             9th March 2010                                  *
- *******************************************************************************/
+/********************************************************************************
+ *                              Bartosz Borkowski                               *
+ *              Faculty of Mathematics, Informatics and Mechanics               *
+ *                             University of Warsaw                             *
+ *                               13th March 2010                                *
+ ********************************************************************************/
 
 #ifndef MIMHEX_TEMPLATE_H_
 #define MIMHEX_TEMPLATE_H_
 
 #include <string>
+#include <vector>
 
-#include "conditional_assert.h"
 #include "macro_definitions.h"
 
 namespace HexPatterns
@@ -27,8 +27,8 @@ namespace HexPatterns
      * Fields' positions are kept relative to the "centre" of the template.     *
      * As of now a template has one centre.                                     *
      * Fields' hashes are kept in the following format:                         *
-     * [row_relative_to_center + Hex::kBoardSizeAligned]                        *
-     * [column_relative_to_center + Hex::kBoardSizeAligned][field_state]        *
+     * [row_relative_to_center + Hex::kBoardSizeAligned - 1]                    *
+     * [column_relative_to_center + Hex::kBoardSizeAligned - 1][field_state]    *
      */
         public:
             static uint InitialiseTemplates(const char *template_file = TEMPLATES_FILE);
@@ -36,7 +36,7 @@ namespace HexPatterns
             Template();
             Template(uint id, Hash base_hash, uint size,
                 int relative_positions[][DIMENSIONS],
-                Hash fields_base_hashes[][FIELD_STATES]);
+                Hash field_hashes[][FIELD_STATES]);
             Template(const Template &t);
             Template & operator =(const Template &t);
 
@@ -49,13 +49,14 @@ namespace HexPatterns
             Template GetMirrorY() const;
             Template GetMirrorXY() const;
 
+            std::vector<Hash> GetAllHashes() const;
             std::string ToAsciiArt() const;
 
         private:
             uint id;
             Hash base_hash;
             uint size;
-            Hash fields_base_hashes[2 * Hex::kBoardSizeAligned - 1]
+            Hash field_hashes[2 * Hex::kBoardSizeAligned - 1]
                 [2 * Hex::kBoardSizeAligned - 1][FIELD_STATES];
     };
 
