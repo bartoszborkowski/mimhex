@@ -2,8 +2,8 @@
 
 namespace Hex{
 
-const int Dim::dirs[6] = { upper_left, upper_right, left, right, lower_left, lower_right };
-const int Dim::dirs2[6] = { up2, left_up2, left_down2, down2, right_down2, right_up2 };
+const int Dim::neighbours[6] = { upper_left, upper_right, left, right, lower_left, lower_right };
+const int Dim::other_bridge_ends[6] = { up2, left_up2, left_down2, down2, right_down2, right_up2 };
 
 const int Dim::clockwise[Dim::down * 2 + 1] = {
     upper_right, // upper_left -> upper_right

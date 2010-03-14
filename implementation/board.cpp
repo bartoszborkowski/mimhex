@@ -9,8 +9,8 @@
 
 namespace Hex {
 
-#define FOR_SIX(x)  BOOST_FOREACH(x, Dim::dirs)
-#define FOR_SIX2(x)  BOOST_FOREACH(x, Dim::dirs2)
+#define FOR_SIX(x)  BOOST_FOREACH(x, Dim::neighbours)
+#define FOR_SIX2(x)  BOOST_FOREACH(x, Dim::other_bridge_ends)
 
 
 uint Board::ToPos(ushort val) {

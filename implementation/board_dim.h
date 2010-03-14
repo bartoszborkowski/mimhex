@@ -50,7 +50,7 @@ class Dim {
         /**
          * An array containing all the directions. Used by FOR_SIX() macro.
          */
-        static const int dirs[6];
+        static const int neighbours[6];
 
         /**
          * Special values that can be added to positions in order to get another,
@@ -66,7 +66,7 @@ class Dim {
         /**
          * An array containing all the directions. Used by FOR_SIX2() macro.
          */
-        static const int dirs2[6];
+        static const int other_bridge_ends[6];
 
         static const int clockwise[down * 2 + 1];
         static const int cclockwise[down * 2 + 1];
