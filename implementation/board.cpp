@@ -841,36 +841,22 @@ void Board::UpdateBridges(uint pos) {
 
     ASSERT(!IsEmpty(_board[pos]));
 
-    // TODO: Possible Switches:: use here.
-    /*
-    _field_bridge_connections[pos].Clear();
-    _field_bridge_connections[pos + 1].Remove(pos);
-    _field_bridge_connections[pos - 1].Remove(pos);
-    _field_bridge_connections[pos - Dim::actual_board_size ].Remove(pos);
-    _field_bridge_connections[pos - Dim::actual_board_size  + 1].Remove(pos);
-    _field_bridge_connections[pos + Dim::actual_board_size ].Remove(pos);
-    _field_bridge_connections[pos + Dim::actual_board_size  - 1].Remove(pos);
-     */
+    bool owner = _board[pos];
 
-    /*
-     * instead of those seven lines above developed by krzysiocrash
-     * 'while' by theolol is used.
-     */
-
-    // TODO: Add comments here.
-
+    // Remove known bridges with position pos.
+    // Iterate over all such bridged positions kept in a set.
     SmallSetIterator<pair<ushort,bool>, 3> it = _field_bridge_connections[pos].GetIterator();
-    while (!it.IsEnd()) {
+    for (; !it.IsEnd(); ++it) {
         uint elem = (*it).first;
 
-        if ((*it).second ^ (_current != Player::First())) // I check owner of the bridge and if it fits
-            attacked_bridges.Insert(elem);             // I insert this bridge to attacked ones
+        // Check if the bridge owner and the new pawn owner are different.
+        if ((*it).second != owner)
+            // An attacked bridge has been detected.
+            attacked_bridges.Insert(elem);
 
-        _field_bridge_connections[elem].Remove(pair<ushort, bool> (pos,(*it).second));
-        it++;
+        // Remove the bridge from the neighbouring field.
+        _field_bridge_connections[elem].Remove(pair<ushort, bool>(pos, (*it).second));
     }
-
-    bool owner = _board[pos];
 
     FOR_SIX(int dir) {
         uint pos2 = pos + dir + Dim::Clockwise(dir);
