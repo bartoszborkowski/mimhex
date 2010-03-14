@@ -94,13 +94,7 @@ void Board::ClearShortestPathsStats() {
         timesOfBeingOnShortestPath[i]=0;
 }
 
-// TODO:
-// from juleg: Improve comments - certain loops are uncommented. For the rest
-// comments are very brief. For example single "bfs" comment before a loop does
-// not really explain a lot. What is kept in visited[] in each loop? What is this
-// loop intended to do: fill in predecessor table, discover the actual paths.
-// From which position(s) does it start. What kind of initialization of the
-// visited[] table is performed?
+
 void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& winner) {
 
     // bfs queue
@@ -113,10 +107,7 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
     memset(visited, 0, Dim::actual_field_count * sizeof(visited[0]));
 
     if (Player::First() == winner) {
-        // FIXME: Use OfPos() in order to aquire appropriate iteration range.
-        for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
-                  i < Dim::guard_count * Dim::down + Dim::board_size + Dim::guard_count;
-                  i = i + Dim::right)
+        for (uint i = OfPos(1,1); i <= OfPos(Dim::board_size,1); i = i + Dim::right)
             if (IsFirst(board[i])) {
                 // I put to queue every node by the edge
                 queue[++end]=i;
@@ -124,7 +115,13 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
                 visited[i]=1;
             }
 
-        // bfs
+        /*
+         * Standard BFS:
+         * I try to reach the other edge of the board using nodes
+         * that belong to the first player. I know that is possible because
+         * first player is the winner. For each visited guy I count length of
+         * a shotrest path leading from first edge to him.
+         */
         for (; beg <= end; ++beg)
             FOR_SIX(int dir)
                 if ((visited[queue[beg] + dir] == 0) && IsFirst(board[queue[beg] + dir])){
@@ -137,22 +134,27 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
          * I find out which nodes by the other edge were visited as first ones
          */
         uint min = (uint) - 1;
-        // FIXME: Use OfPos() in order to aquire appropriate iteration range.
-        for (uint i = (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count;
-                  i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size;
-                  i = i + Dim::right)
+        for (uint i = OfPos(1,Dim::board_size); i <= OfPos(Dim::board_size,Dim::board_size); i = i + Dim::right)
             if(visited[i] > 0 && visited[i] < min)
                 min = visited[i];
 
         // cleaning queue
         beg = 0;
         end = -1;
+        /*
+         * Have to be prepared for second BFS. It shall start from the other edge
+         * and shall be done backwards. We add to the queue neighbor(actual) if
+         * player(actual)==player(neighbor(actual)) and if visited(actual)==visited(neighbor(actual))+1.
+         * It guarantee that we visit only those nodes that are placed on a shortest path.
+         * actual_mins says "how much nodes are waiting in queue to be expand and visited(those nodes)
+         * was equal to min before it has been zeroed"
+         * next_mins says "how much nodes are waiting in queue to be expand and visited(those nodes)
+         * was equal to (min-1) before it has been zeroed"
+         * I need those two variables to get know when decrease min.
+         */
         int actual_mins = 0;
         int next_mins = 0;
-        // FIXME: Use OfPos() in order to aquire appropriate iteration range.
-        for (uint i = (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count;
-                  i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size;
-                  i = i + Dim::right)
+        for (uint i = OfPos(1,Dim::board_size); i <= OfPos(Dim::board_size,Dim::board_size); i = i + Dim::right)
             if (visited[i] == min){
                 queue[++end] = i;
                 aBoard.timesOfBeingOnShortestPath[i]++;
@@ -160,7 +162,6 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
                 actual_mins++;
             }
 
-        // second bfs done backwards
         for(; beg <= end; beg++) {
             FOR_SIX(int dir)
                 if (visited[queue[beg] + dir] == min - 1 && visited[queue[beg] + 1]) {
@@ -177,14 +178,13 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
         }
 
     } else {
-        // Analogically for the other player marked with values < 0
-        // there are changes in 'for' statements (vertically, not horizontally)
-        // and in comparisions to 0 (lesser, not greater)
+        /*
+         * Analogically for the other player marked with values < 0
+         * there are changes in 'for' statements (vertically, not horizontally)
+         * and in checking if player is second, not first
+         */
 
-        // FIXME: Use OfPos() in order to aquire appropriate iteration range.
-        for (uint i = Dim::guard_count * Dim::actualboard_size + Dim::guard_count;
-                  i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count;
-                  i = i + Dim::down)
+        for (uint i = OfPos(1,1); i <= OfPos(1,Dim::board_size); i = i + Dim::down)
             if (IsSecond(board[i])) {
                 queue[++end] = i;
                 visited[i] = 1;
@@ -198,10 +198,7 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
                 }
 
         uint min = (uint) -1;
-        // FIXME: Use OfPos() in order to aquire appropriate iteration range.
-        for (uint i = Dim::guard_count * Dim::down + Dim::guard_count + Dim::board_size - 1;
-                  i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size - 1;
-                  i = i + Dim::down)
+        for (uint i = OfPos(Dim::board_size,1); i <= OfPos(Dim::board_size,Dim::board_size); i = i + Dim::down)
             if (visited[i] > 0 && visited[i] < min)
                 min = visited[i];
 
@@ -209,17 +206,13 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
         end = -1;
         int actual_mins = 0;
         int next_mins = 0;
-        // FIXME: Use OfPos() in order to aquire appropriate iteration range.
-        for (uint i = Dim::guard_count * Dim::down + Dim::guard_count + Dim::board_size - 1;
-                  i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size - 1;
-                  i = i + Dim::down) {
+        for (uint i = OfPos(Dim::board_size,1); i <= OfPos(Dim::board_size,Dim::board_size); i = i + Dim::down)
             if (visited[i] == min) {
                 queue[++end] = i;
                 aBoard.timesOfBeingOnShortestPath[i]++;
                 visited[i] = 0;
                 actual_mins++;
             }
-        }
 
         for (; beg <= end; beg++) {
             FOR_SIX(int dir)
