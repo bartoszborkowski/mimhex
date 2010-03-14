@@ -439,7 +439,7 @@ class Board {
         /**
          * The array holds positions of all free fields in the board. It is
          * used for fast iteration over all possible moves. If bridges in any
-         * for are enabled then fields being bridges are kept first in the
+         * form are enabled then nonbridge fields are always kept first in the
          * array.
          */
         ushort _fast_field_map[Dim::actual_field_count];
