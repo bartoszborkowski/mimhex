@@ -15,6 +15,31 @@ namespace Hex {
 // -----------------------------------------------------------------------------
 
 const int Dim::dirs[6] = { upper_left, upper_right, left, right, lower_left, lower_right };
+const int Dim::dirs2[6] = { up2, left_up2, left_down2, down2, right_down2, right_up2 };
+
+const int Dim::clockwise[Dim::down * 2 + 1] = {
+    upper_right, // upper_left -> upper_right
+    right, // upper_right -> right
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 13 times
+    upper_left, // left -> upper_left
+    0,
+    lower_right, // right -> lower_right
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 13 times
+    left, // lower_left -> left
+    lower_left // lower_right -> lower_left
+};
+
+const int Dim::cclockwise[Dim::down * 2 + 1] = {
+    left, // upper_left -> left
+    upper_left, // upper_right -> upper_left
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 13 times
+    lower_left, // left -> lower_left
+    0,
+    upper_right, // right -> lower_right
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 13 times
+    lower_right, // lower_left -> lower_right
+    right // lower_right -> right
+};
 
 uint Dim::ToPos(int x, int y) {
     return (x + Dim::guard_count - 1) + (y + Dim::guard_count - 1) * Dim::down;
@@ -37,7 +62,16 @@ void Dim::ToCoords(uint pos, int& x, int& y) {
     y = ToY(pos);
 }
 
-#define FOR_SIX(x)      BOOST_FOREACH(x, Dim::dirs)
+int Dim::Clockwise(int dir) {
+    return clockwise[down + dir];
+}
+
+int Dim::CClockwise(int dir) {
+    return cclockwise[down + dir];
+}
+
+#define FOR_SIX(x)  BOOST_FOREACH(x, Dim::dirs)
+#define FOR_SIX2(x)  BOOST_FOREACH(x, Dim::dirs2)
 
 // -----------------------------------------------------------------------------
 
@@ -111,8 +145,8 @@ uint Location::GetY() const { return _pos / Dim::actual_board_size - 1; }
 
 std::string Location::ToCoords() const {
     std::stringstream coords;
-    coords << static_cast<char>(Dim::ToY(_pos) + 'a' - 1);
-    coords << Dim::ToX(_pos);
+    coords << static_cast<char>(Dim::ToX(_pos) + 'a' - 1);
+    coords << Dim::ToY(_pos);
     return coords.str();
 }
 
@@ -191,7 +225,7 @@ bool Board::IsEmpty(ushort val) {
 }
 
 bool Board::SamePlayer(ushort val, ushort val2) {
-    return (val & board_second) == (val2 & board_second);
+    return (val & board_second) == (val2 & board_second) && val2 != 0;
 }
 
 bool Board::OppPlayer(ushort val, ushort val2) {
@@ -657,9 +691,44 @@ Move Board::RandomLegalAvoidBridges (const Player& player) const {
 
 }
 
-void Board::PlayLegal (const Move& move) {
+void Board::SwapFree(uint index, uint index2) {
+    uint x = _fast_field_map[index];
+    _fast_field_map[index] = _fast_field_map[index2];
+    _fast_field_map[index2] = x;
+
+    _reverse_fast_field_map[_fast_field_map[index]] = index;
+    _reverse_fast_field_map[_fast_field_map[index2]] = index2;
+}
+
+void Board::MoveFree(uint pos, uint index) {
+
+    // The index in the field map containing pos before the update.
+    uint fast_map_pos = _reverse_fast_field_map[pos];
+    SwapFree(fast_map_pos, index);
+}
+
+uint Board::RemoveFree(uint pos) {
+
+    // The index in the field map containing pos before the update.
+    uint fast_map_pos = _reverse_fast_field_map[pos];
+    // The new position to put instead of pos in the field map. It is the last
+    // position in the array, which enables us to trim the array by one position.
+    uint replace_pos = _fast_field_map[--_moves_left];
+
+    // Replacing pos with replace_pos in the field map.
+    _fast_field_map[fast_map_pos] = replace_pos;
+    // Now, new replace_pos index inside field map has to be updated in the
+    // reverse field map.
+    _reverse_fast_field_map[replace_pos] = fast_map_pos;
+
+    return replace_pos;
+}
+
+void Board::PlayLegal(const Move& move) {
 
     ASSERT(IsValidMove(move));
+
+    _current = _current.Opponent();
     uint pos = move.GetLocation().GetPos();
 
     if (move.GetPlayer() == Player::First()) {
@@ -667,30 +736,31 @@ void Board::PlayLegal (const Move& move) {
         MakeUnion(pos);
     } else {
         _board[pos] = ToSecond(pos);
+        // No F&U is maintained for the second player if win detection is not
+        // required.
         if (Switches::DetectWins())
             MakeUnion(pos);
     }
 
-    // TODO: Add comments here.
-    uint fast_map_pos = _reverse_fast_field_map[pos];
-    uint replace_pos = _fast_field_map[--_moves_left];
-    _fast_field_map[fast_map_pos] = replace_pos;
-    _reverse_fast_field_map[replace_pos] = fast_map_pos;
-    _current = _current.Opponent();
+    uint replace_pos = RemoveFree(pos);
 
     if(Switches::IsAvoidingBridges() || Switches::IsDefendingBridges())
-        UpdateBridgeData(pos,replace_pos);
+        UpdateBridgeData(pos, replace_pos);
 
 }
 
 void Board::UpdateBridgeData (uint pos, uint replace_pos) {
 
-    _reverse_fast_field_map[pos] = _moves_left;            /*WTF?*/
+    // Ensure that _field_map_bound points to some valid free position within
+    // the reverse field map.
     if (_field_map_bound >= static_cast<int>(_moves_left))
-        _field_map_bound--;                                /*serio - WTF?*/
+        _field_map_bound--;
 
     UpdateBridgeBound(replace_pos);
     UpdateBridges(pos);
+
+    // Set the value stored in reverse field map for pos as invalid (?).
+    _reverse_fast_field_map[pos] = _moves_left;
 }
 
 void Board::MakeUnion(uint pos) {
@@ -704,23 +774,26 @@ void Board::MakeUnion(uint pos) {
 
 uint Board::MakeUnion(uint pos1, uint pos2) {
     if (Switches::DetectWins()) {
-        // TODO: Add comments here.
+        // Two F&U trees are maintained. If pos2 is non-empty and pos, pos2 agree in
+        // colour - perform a union.
         return (IsEmpty(_board[pos2]) || IsSecond(_board[pos1]) != IsSecond(_board[pos2])) ? pos1 : ToPos(_board[pos1] = Find(pos2));
     } else {
-        // TODO: Add comments here.
+        // A single F&U tree is maintained for the first player. If pos and pos2
+        // both belong to the first player, perform a union.
         return !IsFirst(_board[pos2]) ? pos1 : ToPos(_board[pos1] = Find(pos2));
     }
 }
 
-uint Board::Find(uint pos) {
-    // TODO: Add comments here.
+uint Board::Find(uint pos) const {
+    // Simplified quasi-F&U implementation. In each step of finding root, link
+    // node's grandfather and the node itself with the same father node.
     while (static_cast<uint>(ToPos(_board[pos])) != pos)
         pos = ToPos(_board[pos] = _board[ToPos(_board[ToPos(_board[pos])])]);
     return _board[pos];
 }
 
 uint Board::ConstFind(uint pos) const {
-    // TODO: Add comments here.
+    // Perform a non modifying F&U search.
     while (static_cast<uint>(ToPos(_board[pos])) != pos)
         pos = ToPos(_board[pos]);
     return _board[pos];
@@ -732,9 +805,8 @@ bool Board::IsFull() const {
 
 bool Board::IsWon() const {
     if (Switches::DetectWins())
-        // TODO: ConstFind() or Find()?
-        return ConstFind(root_up) == ConstFind(root_down) ||
-               ConstFind(root_left) == ConstFind(root_right);
+        return Find(root_up) == Find(root_down) ||
+               Find(root_left) == Find(root_right);
     else
         return IsFull();
 }
@@ -767,6 +839,8 @@ void Board::GetPossiblePositions(Board::ushort_ptr& locations) {
 
 void Board::UpdateBridges(uint pos) {
 
+    ASSERT(!IsEmpty(_board[pos]));
+
     // TODO: Possible Switches:: use here.
     /*
     _field_bridge_connections[pos].Clear();
@@ -784,82 +858,41 @@ void Board::UpdateBridges(uint pos) {
      */
 
     // TODO: Add comments here.
+
     SmallSetIterator<pair<ushort,bool>, 3> it = _field_bridge_connections[pos].GetIterator();
     while (!it.IsEnd()) {
         uint elem = (*it).first;
 
-        if ((*it).second ^ (_current != Player::First())) /*I check owner of the bridge and if it fits*/
-            attacked_bridges.Insert(elem);             /*I insert this bridge to attacked ones*/
+        if ((*it).second ^ (_current != Player::First())) // I check owner of the bridge and if it fits
+            attacked_bridges.Insert(elem);             // I insert this bridge to attacked ones
 
-        _field_bridge_connections[elem].Remove(pair<ushort,bool>(pos,(*it).second));
+        _field_bridge_connections[elem].Remove(pair<ushort, bool> (pos,(*it).second));
         it++;
     }
 
-    short val = _board[pos];
+    bool owner = _board[pos];
 
-    /*updating bridge structures - six cases*/
-
-    // FIXME: This most likely does not work.
-    // FIXME: Use IsFirst(), IsSecond() to find out about colours kept in fields.
-    // TODO: It's absolutely essential to add some comments to this snippet.
-
-    short second = _board[pos + Dim::ByPos(-2, 1)];
-    if (!IsEmpty(0) && SamePlayer(val, second)
-                    && IsEmpty(_board[pos + Dim::ByPos(0, -1)])
-                    && IsEmpty(_board[pos + Dim::ByPos(1, -1)])) {
-        _field_bridge_connections[pos + Dim::ByPos(0, -1)].Insert(
-                pair<ushort,bool>(pos + Dim::ByPos(1, -1), IsFirst(val))
-        );
-        _field_bridge_connections[pos + Dim::ByPos(1, -1)].Insert(
-                pair<ushort,bool>(pos + Dim::ByPos(0, -1), IsFirst(val))
-        );
+    FOR_SIX(int dir) {
+        uint pos2 = pos + dir + Dim::Clockwise(dir);
+        uint br = pos + dir;
+        uint br2 = pos + Dim::Clockwise(dir);
+//         std::cerr << "Testing for bridges at: "
+//                   << Location(br).ToCoords() << "--" << Location(br2).ToCoords() << std::endl;
+//         std::cerr << "  joining: "
+//                   << Location(pos).ToCoords() << " with " << Location(pos2).ToCoords() << std::endl;
+        if (IsEmpty(_board[br]) && IsEmpty(_board[br2]) && SamePlayer(_board[pos], _board[pos2])) {
+//             std::cerr << "Succeeded." << std::endl;
+            _field_bridge_connections[br].Insert(
+                    pair<ushort, bool> (br2, owner)
+            );
+            _field_bridge_connections[br2].Insert(
+                    pair<ushort, bool> (br, owner)
+            );
+        }
     }
 
-    // TODO: Fix the rest in a similar manner; Use FOR_SIX() macro.
-    second = _board[pos - Dim::actual_board_size  + 2];
-    if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos - Dim::actual_board_size  + 1] == 0 && _board[pos + 1] == 0) {
-        _field_bridge_connections[pos - Dim::actual_board_size  + 1].Insert(pair<ushort,bool> (pos + 1,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos + 1].Insert(pair<ushort,bool>(pos - Dim::actual_board_size  + 1,!(val >> SHORT_BIT_SIZE)));
-    }
-    second = _board[pos + Dim::actual_board_size  + 1];
-    if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos + 1] == 0 && _board[pos + Dim::actual_board_size ] == 0) {
-        _field_bridge_connections[pos + 1].Insert(pair<ushort,bool>(pos + Dim::actual_board_size ,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos + Dim::actual_board_size ].Insert(pair<ushort,bool>(pos + 1,!(val >> SHORT_BIT_SIZE)));
-    }
-    second = _board[pos + 2 * Dim::actual_board_size  - 1];
-    if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos + Dim::actual_board_size ] == 0 &&
-            _board[pos + Dim::actual_board_size  - 1] == 0) {
-        _field_bridge_connections[pos + Dim::actual_board_size ].Insert(
-                pair<ushort,bool>(pos + Dim::actual_board_size  - 1,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos + Dim::actual_board_size  - 1].Insert(
-                pair<ushort,bool>(pos + Dim::actual_board_size ,!(val >> SHORT_BIT_SIZE)));
-    }
-    second = _board[pos + Dim::actual_board_size  - 2];
-    if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos + Dim::actual_board_size  - 1] == 0 && _board[pos - 1] == 0) {
-        _field_bridge_connections[pos + Dim::actual_board_size  - 1].Insert(pair<ushort,bool>(pos - 1,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos - 1].Insert(pair<ushort,bool>(pos + Dim::actual_board_size  - 1,!(val >> SHORT_BIT_SIZE)));
-    }
-    second = _board[pos - Dim::actual_board_size  - 1];
-    if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-            && _board[pos - 1] == 0 &&
-            _board[pos - Dim::actual_board_size ] == 0) {
-        _field_bridge_connections[pos - 1].Insert(pair<ushort,bool>(pos - Dim::actual_board_size ,!(val >> SHORT_BIT_SIZE)));
-        _field_bridge_connections[pos - Dim::actual_board_size ].Insert(pair<ushort,bool>(pos - 1,!(val >> SHORT_BIT_SIZE)));
-    }
-
-    // TODO: Use Dim:: constants here.
-    UpdateBridgeBound(pos + 1);
-    UpdateBridgeBound(pos - 1);
-    UpdateBridgeBound(pos - Dim::actual_board_size );
-    UpdateBridgeBound(pos - Dim::actual_board_size  + 1);
-    UpdateBridgeBound(pos + Dim::actual_board_size );
-    UpdateBridgeBound(pos + Dim::actual_board_size  - 1);
-
-    /*crucial line from theolol:*/
+    FOR_SIX(int dir)
+        UpdateBridgeBound(pos + dir);
 
     attacked_bridges.Remove(pos);
 
@@ -868,23 +901,26 @@ void Board::UpdateBridges(uint pos) {
 void Board::UpdateBridgeBound(uint pos) {
     // FIXME: This most likely does not work.
     // TODO: It's absolutely essential to comment this snippet.
+
     if (_field_bridge_connections[pos].Size() > 0) {
         if (_reverse_fast_field_map[pos] <= _field_map_bound) {
-            ushort map_pos = _reverse_fast_field_map[pos];
-            _fast_field_map[map_pos] = _fast_field_map[_field_map_bound];
-            _fast_field_map[_field_map_bound--] = pos;
-
-            _reverse_fast_field_map[pos] = _field_map_bound + 1;
-            _reverse_fast_field_map[_fast_field_map[map_pos]] = map_pos;
+            MoveFree(pos, _field_map_bound--);
+//             ushort map_pos = _reverse_fast_field_map[pos];
+//             _fast_field_map[map_pos] = _fast_field_map[_field_map_bound];
+//             _fast_field_map[_field_map_bound--] = pos;
+//
+//             _reverse_fast_field_map[pos] = _field_map_bound + 1;
+//             _reverse_fast_field_map[_fast_field_map[map_pos]] = map_pos;
         }
     } else if (_reverse_fast_field_map[pos] < _moves_left) {
         if (_reverse_fast_field_map[pos] > _field_map_bound) {
-            ushort map_pos = _reverse_fast_field_map[pos];
-            _fast_field_map[map_pos] = _fast_field_map[++_field_map_bound];
-            _fast_field_map[_field_map_bound] = pos;
-
-            _reverse_fast_field_map[pos] = _field_map_bound;
-            _reverse_fast_field_map[_fast_field_map[map_pos]] = map_pos;
+            MoveFree(pos, ++_field_map_bound);
+//             ushort map_pos = _reverse_fast_field_map[pos];
+//             _fast_field_map[map_pos] = _fast_field_map[++_field_map_bound];
+//             _fast_field_map[_field_map_bound] = pos;
+//
+//             _reverse_fast_field_map[pos] = _field_map_bound;
+//             _reverse_fast_field_map[_fast_field_map[map_pos]] = map_pos;
         }
     }
 }

@@ -1,6 +1,8 @@
 #define INSERT_ASSERTIONS
 
 #include "switches.cpp"
+#include "params.cpp"
+#include "random.cpp"
 #include "board.h"
 #include "board.cpp"
 #include "playout.cpp"

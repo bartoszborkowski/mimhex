@@ -74,20 +74,39 @@ class Dim {
         static const int down = 16;
 
         /**
-         * Special values that can be added to a positions in order to get another,
+         * Special values that can be added to positions in order to get another,
          * relatively shifted positions.
          */
-        static const int upper_left = -actual_board_size;
-        static const int upper_right = -actual_board_size + 1;
+        static const int upper_left = -down;
+        static const int upper_right = -down + 1;
         static const int left = -1;
         static const int right = +1;
-        static const int lower_left = actual_board_size - 1;
-        static const int lower_right = actual_board_size;
+        static const int lower_left = +down - 1;
+        static const int lower_right = +down;
 
         /**
          * An array containing all the directions. Used by FOR_SIX() macro.
          */
         static const int dirs[6];
+
+        /**
+         * Special values that can be added to positions in order to get another,
+         * relatively shifted position useful for bridges.
+         */
+        static const int up2 = -down * 2 + 1;
+        static const int left_up2 = -down - 1;
+        static const int left_down2 = +down - 2;
+        static const int down2 = +down * 2 - 1;
+        static const int right_up2 = -down + 2;
+        static const int right_down2 = +down - 1;
+
+        /**
+         * An array containing all the directions. Used by FOR_SIX2() macro.
+         */
+        static const int dirs2[6];
+
+        static const int clockwise[down * 2 + 1];
+        static const int cclockwise[down * 2 + 1];
 
         /**
          * The number of fields in the board.
@@ -130,6 +149,10 @@ class Dim {
          * @out @param y A field coordinant, where 1 describes uppermost row.
          */
         static void ToCoords(uint pos, int& x, int& y);
+
+        static int Clockwise(int pos);
+
+        static int CClockwise(int pos);
 
     private:
         Dim();
@@ -305,7 +328,7 @@ class Board {
          * @in @param pos An internal representation of a position.
          * @return A value at the root of a F&U tree containing position pos.
          */
-        uint Find(uint pos);
+        uint Find(uint pos) const;
 
         /**
          * A version of Find() making no modifications to the F&U trees.
@@ -369,7 +392,7 @@ class Board {
          * single tree is maintained for the first player and a special constant
          * value is used to mark fields occupied by the second player.
          */
-        ushort _board[Dim::actual_field_count];
+        mutable ushort _board[Dim::actual_field_count];
 
     public:
         /**
@@ -378,19 +401,50 @@ class Board {
          * to win. If the flag TODO is set, actual shortest paths are counted,
          * otherwise - flooded areas containing the field.
          * TODO: Add the switch.
+         * FIXME: Deprecated. Scheduled for removal.
          */
         short timesOfBeingOnShortestPath[Dim::actual_field_count];
 
     private:
         /**
-         * The table holds positions of all free fields in the board. The following
-         * invariant always holds: fields associated with other fields through
-         * bridges are always kept first.
+         * Swaps values kept in the field map at index and index2. Updates the
+         * reverse field map accordingly.
+         * @in @param index The index of the first value to be swaped
+         * @in @param index2 The index of the second value to be swaped.
+         */
+        void SwapFree(uint index, uint index2);
+
+        /**
+         * Moves position pos kept in the field map to the index index. Updates
+         * the reverse field map accordingly.
+         * @in @param pos The position to be moved in the field map.
+         * @in @param index The index for the value pos.
+         */
+        void MoveFree(uint pos, uint index);
+
+        /**
+         * Removes the position pos from the field map. Updates the reverse
+         * field maps accordingly.
+         * @in @param pos The position to be removed from the field map.
+         * @return The new value stored in the field map in place of pos.
+         */
+        uint RemoveFree(uint pos);
+
+        /**
+         * The array holds positions of all free fields in the board. It is
+         * used for fast iteration over all possible moves. If bridges in any
+         * for are enabled then fields being bridges are kept first in the
+         * array.
          */
         ushort _fast_field_map[Dim::actual_field_count];
 
         /**
-         * The table holds _fast_field_map indices of all free
+         * The array holds field map indices for each position. The following
+         * invariant is true:
+         *   _fast_field_map[_reverse_field_map[x]] = x
+         * where x is a valid, free position. Also holds:
+         *   _reverse_field_map[_fast_field_map[x]] = x
+         * for any x within bounds.
          */
         ushort _reverse_fast_field_map[Dim::actual_field_count];
 
@@ -400,7 +454,7 @@ class Board {
          * says if bridge is built by first player.
          */
         SmallSet<pair<ushort,bool> > _field_bridge_connections[Dim::actual_field_count];
-        SmallSet<ushort, 50> attacked_bridges;
+        SmallSet<ushort, Dim::field_count / 2> attacked_bridges;
 
         uint _moves_left;
 
