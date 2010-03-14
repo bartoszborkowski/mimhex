@@ -5,13 +5,10 @@
  *                               13th March 2010                                *
  ********************************************************************************/
 
+#include <algorithm>
 #include <iostream>
-
-#include <inttypes.h>
-#include <time.h>
-
-#include <boost/random/linear_congruential.hpp>
-#include <boost/lexical_cast.hpp>
+#include <map>
+#include <vector>
 
 #include "board.cpp"
 #include "template.cpp"
@@ -21,25 +18,30 @@
 #include "pattern_data.cpp"
 
 int main(int argc, char *argv[])
+/*
+ * A test program that checks whether the sampler works correctly.
+ */
 {
-    uint states = FIELD_STATES;
-    uint fields = 9;
-    boost::rand48 random_generator;
+    Hex::Sampler sampler;
+    uint loops = 1000000;
+    uint pos;
+    Hex::Player player(Hex::Player::First());
 
     if (argc == 2)
         try {
-            fields = boost::lexical_cast<uint>(argv[1]);
+            loops = boost::lexical_cast<uint>(argv[1]);
         } catch (boost::bad_lexical_cast &) {
-            std::cerr << "Error: " << argv[1] << " is not a number" << std::endl;
+            std::cerr << "Error: " << argv[1] << " is not an integer" << std::endl;
             exit(1);
         }
 
-    random_generator.seed(static_cast<int32_t>(time(0)));
-
-    rep(ii, fields) {
-        rep(jj, states)
-            std::cout << random_generator() << " ";
-        std::cout << std::endl;
+    rep(ii, loops) {
+        player = Hex::Player::First();
+        rep(jj, Hex::kBoardSize * Hex::kBoardSize) {
+            pos = sampler.RandomMove();
+            sampler.Play(Hex::Move(player, Hex::Location(pos)));
+            player = player.Opponent();
+        }
     }
 
     return 0;

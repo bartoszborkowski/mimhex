@@ -8,6 +8,9 @@
  *
  */
 
+#include <iostream>
+#include <inttypes.h>
+
 #include "board.cpp"
 #include "gtp.hpp"
 #include "gtp.cpp"
@@ -15,9 +18,7 @@
 #include "pattern.cpp"
 #include "hash_board.cpp"
 #include "sampler.cpp"
-
-#include <iostream>
-#include <inttypes.h>
+#include "pattern_data.cpp"
 
 // prints 7-elem hash
 void printHash(uint hash, std::ostream &o)

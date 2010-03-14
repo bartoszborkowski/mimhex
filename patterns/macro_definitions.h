@@ -30,6 +30,8 @@ namespace HexPatterns
     #define PATTERNS_AMOUNT         (Hex::kFieldsAlignedAmount)
     #define PATTERNS_FILE           "pattern.data"
 
+    #define PATTERN_DATA_FILE       "pattern_strength.data"
+
     #define MAX_PATTERNS            8
 
     #define DIMENSIONS              2

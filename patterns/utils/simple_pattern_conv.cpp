@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+
 #include <boost/lexical_cast.hpp>
 
 #include "board.cpp"
@@ -15,7 +16,7 @@
 #include "pattern.cpp"
 #include "hash_board.cpp"
 #include "sampler.cpp"
-#include "macro_definitions.h"
+#include "pattern_data.cpp"
 
 #define BUFF_SIZE 1024
 

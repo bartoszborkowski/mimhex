@@ -6,10 +6,12 @@
  ********************************************************************************/
 
 #include <sstream>
+
 #include <inttypes.h>
 #include <time.h>
 
 #include "sampler.h"
+#include "conditional_assert.h"
 
 namespace Hex
 {
@@ -25,10 +27,9 @@ namespace Hex
         return 0;
     }
 
-    Sampler::Sampler()
+    Sampler::Sampler() : hash_board(HexPatterns::HashBoard::EmptyHashBoard())
     {
-        hash_board = HexPatterns::HashBoard::EmptyHashBoard();
-
+        //TODO: change all_sum and row_sums to reflect the already on board patterns
         all_sum = 0.0;
 
         memset(gammas, 0, kBoardSizeAligned * kBoardSizeAligned * sizeof(double));
@@ -36,8 +37,7 @@ namespace Hex
 
         for (uint ii = 0; ii < kBoardSizeAligned * kBoardSizeAligned; ++ii) {
             used_fields[ii] = 1;
-            //TODO: implement get_strength
-            //gammas[ii] = get_strength[hash_board[ii]];
+            gammas[ii] = PatternData::GetStrength(hash_board.GetHash(ii));
         }
     }
 
@@ -71,9 +71,6 @@ namespace Hex
         return ret.str();
     }
 
-    /* TODO: implement the following elsewhere */
-    double get_strength(uint) {return 1.0;}
-
     void Sampler::Play(const Move &move)
     {
         uint position = move.GetLocation().GetPos();
@@ -89,16 +86,17 @@ namespace Hex
         changed_positions_amount = hash_board.GetChangedPositionsAmount(position);
         changed_positions = hash_board.GetChangedPositions(position);
 
+        ASSERT(used_fields[position]);
+
         used_fields[position] = 0;
 
         for (uint i = 0; i < changed_positions_amount; ++i) {
             row_sums[changed_positions[i] & modulo] -= gammas[changed_positions[i]];
             all_sum -= gammas[changed_positions[i]];
 
-        /* TODO: implement get_strength */
         /* TODO: make it so that out-of-bounds values are 0; implement it in patterns */
             gammas[changed_positions[i]] =
-                get_strength(hash_board.GetHash(changed_positions[i])) *
+                PatternData::GetStrength(hash_board.GetHash(changed_positions[i])) *
                 used_fields[changed_positions[i]];
 
             row_sums[changed_positions[i] & modulo] += gammas[changed_positions[i]];

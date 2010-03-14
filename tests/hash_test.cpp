@@ -14,7 +14,7 @@
 #include "pattern.cpp"
 #include "hash_board.cpp"
 #include "sampler.cpp"
-#include "macro_definitions.h"
+#include "pattern_data.cpp"
 
 using namespace HexPatterns;
 
@@ -28,7 +28,6 @@ int main()
     rep(ii, TEMPLATES_AMOUNT) {
         aux = templates[ii].GetAllHashes();
         xors.insert(xors.begin(), aux.begin(), aux.end());
-        aux.clear();
     }
 
     sort(xors.begin(), xors.end());

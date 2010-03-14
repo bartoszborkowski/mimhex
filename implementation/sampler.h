@@ -15,6 +15,7 @@
 
 #include "board.h"
 #include "hash_board.h"
+#include "pattern_data.h"
 
 typedef unsigned char uchar;
 
@@ -28,12 +29,12 @@ namespace Hex
             Sampler(const Sampler &sampler);
             Sampler & operator =(const Sampler &sampler);
 
-            std::string ToAsciiArt() const;
-
             void Play(const Move &move);
             uint RandomMove() const;
 
             double GetSum() const;
+
+            std::string ToAsciiArt() const;
 
             static bool use_patterns;
             static boost::rand48 base_generator;

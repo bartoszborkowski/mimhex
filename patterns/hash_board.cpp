@@ -57,10 +57,6 @@ namespace HexPatterns
         }
         /* Adding guardians to two leftmost and rightmost columns */
 
-        board.Play(87, PLAYER_1_STATE);
-
-        std::cout << board.ToAsciiArt() << std::endl;
-
         return board;
     }
 
@@ -68,6 +64,8 @@ namespace HexPatterns
     {
         rep(ii, Hex::kFieldsAlignedAmount)
             pattern_count[ii] = 0;
+
+        memset(position_hash, 0, Hex::kFieldsAlignedAmount * sizeof(Hash));
     }
 
     HashBoard::HashBoard(const HashBoard &board)
