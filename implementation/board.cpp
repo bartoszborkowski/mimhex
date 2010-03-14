@@ -850,38 +850,40 @@ void Board::UpdateBridges(uint pos) {
         uint elem = (*it).first;
 
         // Check if the bridge owner and the new pawn owner are different.
-        if ((*it).second != owner)
-            // An attacked bridge has been detected.
-            attacked_bridges.Insert(elem);
+        if (Switches::IsDefendingBridges()) {
+            if ((*it).second != owner)
+                // An attacked bridge has been detected.
+                attacked_bridges.Insert(elem);
+        }
 
         // Remove the bridge from the neighbouring field.
         _field_bridge_connections[elem].Remove(pair<ushort, bool>(pos, (*it).second));
     }
 
+    if (Switches::IsDefendingBridges()) {
+        // As the bridges inside the pos are no longer valid remove it also from
+        // the attacked bridges list.
+        attacked_bridges.Remove(pos);
+    }
+
+    // Detect bridges around position pos.
     FOR_SIX(int dir) {
+        // A candidate for the other side of a bridge to be detected.
         uint pos2 = pos + dir + Dim::Clockwise(dir);
+        // A candidates for bridged fields
         uint br = pos + dir;
         uint br2 = pos + Dim::Clockwise(dir);
-//         std::cerr << "Testing for bridges at: "
-//                   << Location(br).ToCoords() << "--" << Location(br2).ToCoords() << std::endl;
-//         std::cerr << "  joining: "
-//                   << Location(pos).ToCoords() << " with " << Location(pos2).ToCoords() << std::endl;
+        // Test if the candidates are valid.
         if (IsEmpty(_board[br]) && IsEmpty(_board[br2]) && SamePlayer(_board[pos], _board[pos2])) {
-//             std::cerr << "Succeeded." << std::endl;
-            _field_bridge_connections[br].Insert(
-                    pair<ushort, bool> (br2, owner)
-            );
-            _field_bridge_connections[br2].Insert(
-                    pair<ushort, bool> (br, owner)
-            );
+            // Add both bridged fields to approrpriate sets.
+            _field_bridge_connections[br].Insert(pair<ushort, bool> (br2, owner));
+            _field_bridge_connections[br2].Insert(pair<ushort, bool> (br, owner));
         }
     }
 
+    // Take care of the order in the field maps.
     FOR_SIX(int dir)
         UpdateBridgeBound(pos + dir);
-
-    attacked_bridges.Remove(pos);
-
 }
 
 void Board::UpdateBridgeBound(uint pos) {
