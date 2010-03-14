@@ -21,10 +21,22 @@ typedef unsigned char uchar;
 
 namespace Hex
 {
-    class Sampler {
+    class SamplerRandom
+    {
         public:
-            static uint InitialiseSampler();
+            static void InitialiseSamplerRandom();
 
+            static boost::rand48 base_generator;
+            static boost::uniform_01<boost::rand48> random_generator;
+        private:
+            SamplerRandom();
+            SamplerRandom(const SamplerRandom &);
+            SamplerRandom & operator =(const SamplerRandom &);
+    };
+
+    class Sampler
+    {
+        public:
             Sampler();
             Sampler(const Sampler &sampler);
             Sampler & operator =(const Sampler &sampler);
@@ -33,12 +45,11 @@ namespace Hex
             uint RandomMove() const;
 
             double GetSum() const;
+            HexPatterns::Hash GetHash(uint position) const;
 
             std::string ToAsciiArt() const;
 
             static bool use_patterns;
-            static boost::rand48 base_generator;
-            static boost::uniform_01<boost::rand48> random_generator;
 
         private:
             double gammas[kFieldsAlignedAmount];
@@ -48,8 +59,6 @@ namespace Hex
 
             HexPatterns::HashBoard hash_board;
     };
-
-    uint __sampler_dummy = Sampler::InitialiseSampler();
 
     #include "sampler-inl.h"
 } // namespace Hex

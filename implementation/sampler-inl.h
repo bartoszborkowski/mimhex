@@ -10,7 +10,7 @@
 
 inline uint Sampler::RandomMove() const
 {
-    double r = random_generator() * all_sum;
+    double r = SamplerRandom::random_generator() * all_sum;
     uint i, j;
 
     for (i = 2; i <= kBoardSize; ++i)
@@ -33,6 +33,11 @@ inline uint Sampler::RandomMove() const
 inline double Sampler::GetSum() const
 {
     return all_sum;
+}
+
+inline HexPatterns::Hash Sampler::GetHash(uint position) const
+{
+    return hash_board.GetHash(position);
 }
 
 #endif

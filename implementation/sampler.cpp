@@ -15,30 +15,29 @@
 
 namespace Hex
 {
+    boost::rand48 SamplerRandom::base_generator;
+    boost::uniform_01<boost::rand48>
+        SamplerRandom::random_generator(base_generator);
     bool Sampler::use_patterns = true;
-    boost::rand48 Sampler::base_generator;
-    boost::uniform_01<boost::rand48> Sampler::random_generator(base_generator);
-
-    uint Sampler::InitialiseSampler()
-    {
-        base_generator.seed(static_cast<int32_t>(time(0)));
-        random_generator = boost::uniform_01<boost::rand48>(base_generator);
-
-        return 0;
-    }
 
     Sampler::Sampler() : hash_board(HexPatterns::HashBoard::EmptyHashBoard())
     {
-        //TODO: change all_sum and row_sums to reflect the already on board patterns
+        uint kk;
+
         all_sum = 0.0;
 
-        memset(gammas, 0, kBoardSizeAligned * kBoardSizeAligned * sizeof(double));
+        memset(gammas, 0, kFieldsAlignedAmount * sizeof(double));
         memset(row_sums, 0, kBoardSizeAligned * sizeof(double));
+        memset(used_fields, 0, kFieldsAlignedAmount * sizeof(uchar));
 
-        for (uint ii = 0; ii < kBoardSizeAligned * kBoardSizeAligned; ++ii) {
-            used_fields[ii] = 1;
-            gammas[ii] = PatternData::GetStrength(hash_board.GetHash(ii));
-        }
+        for (uint ii = 0; ii < kBoardSize; ++ii)
+            for (uint jj = 0; jj < kBoardSize; ++jj) {
+                kk = (ii + 2) * kBoardSizeAligned + (jj + 2);
+                used_fields[kk] = 1;
+                gammas[kk] = PatternData::GetStrength(hash_board.GetHash(kk));
+                row_sums[ii + 2] += gammas[kk];
+                all_sum += gammas[kk];
+            }
     }
 
     Sampler::Sampler(const Sampler &sampler)
@@ -60,9 +59,9 @@ namespace Hex
         ret.precision(4);
         ret.width(6);
 
-        for (uint ii = 0; ii < kBoardSize; ++ii) {
-            for (uint jj = 0; jj < kBoardSize; ++jj)
-                ret << gammas[(ii + 2) * kBoardSizeAligned + (jj + 2)] << " ";
+        for (uint ii = 0; ii < kBoardSizeAligned; ++ii) {
+            for (uint jj = 0; jj < kBoardSizeAligned; ++jj)
+                ret << gammas[ii * kBoardSizeAligned + jj] << " ";
             ret << "sum = " << row_sums[ii] << std::endl;
         }
 
@@ -75,10 +74,6 @@ namespace Hex
     {
         uint position = move.GetLocation().GetPos();
         uint player = move.GetPlayer().GetVal();
-        uint modulo = (kBoardSizeAligned << 1) - 1;
-        /* CAUTION!
-         * The above assumes that kBoardSizeAligned is a power of 2.
-         */
         uint changed_positions_amount;
         const uint *changed_positions;
 
@@ -88,37 +83,36 @@ namespace Hex
 
         ASSERT(used_fields[position]);
 
+        /* Removing chosen field from the sampler.                              */
+        row_sums[position >> 4] -= gammas[position];
+        all_sum -= gammas[position];
         used_fields[position] = 0;
+        gammas[position] = 0.0;
+        /* Removing chosen field from the sampler.                              */
 
         for (uint i = 0; i < changed_positions_amount; ++i) {
-            row_sums[changed_positions[i] & modulo] -= gammas[changed_positions[i]];
+            row_sums[changed_positions[i] >> 4] -= gammas[changed_positions[i]];
             all_sum -= gammas[changed_positions[i]];
 
-        /* TODO: make it so that out-of-bounds values are 0; implement it in patterns */
+            /* NOTE: Out of bounds gammas are zeroed by used_fields values.     */
             gammas[changed_positions[i]] =
                 PatternData::GetStrength(hash_board.GetHash(changed_positions[i])) *
                 used_fields[changed_positions[i]];
 
-            row_sums[changed_positions[i] & modulo] += gammas[changed_positions[i]];
+            row_sums[changed_positions[i] >> 4] += gammas[changed_positions[i]];
             all_sum += gammas[changed_positions[i]];
 
             /* Amending double's lack of precision.                             */
             /* TODO: implement min_gamma; mayhaps a minimapl present gamma decreased tenfold */
-            //if (row_sums[changed_positions[i] & modulo < min_gamma)
-                //row_sums[changed_positions[i] & modulo = 0.0;
+            //if (row_sums[changed_positions[i] >> 4] < min_gamma)
+                //row_sums[changed_positions[i] >> 4] = 0.0;
             /* Amending double's lack of precision.                             */
         }
 
-        /* Zeroing out-of-bounds gammas
-        gammas[(row - 1) * kBoardSizeAligned] = gammas[row * kBoardSizeAligned - 1] =
-            gammas[row * kBoardSizeAligned] = gammas[(row + 1) * kBoardSizeAligned - 1] =
-            gammas[(row + 1) * kBoardSizeAligned] = gammas[(row + 2) * kBoardSizeAligned - 1] = 0.0f;
-         Zeroing out-of-bounds gammas */
-
-        /* Zeroing out-of-bounds row sums */
-        row_sums[0] = row_sums[1] = row_sums[kBoardSizeAligned - 2] =
-            row_sums[kBoardSizeAligned - 3] = 0.0;
-        /* Zeroing out-of-bounds row sums */
+        /* Zeroing out of bounds row sums */
+//         row_sums[0] = row_sums[1] = row_sums[kBoardSizeAligned - 1] =
+//             row_sums[kBoardSizeAligned - 2] = row_sums[kBoardSizeAligned - 3] = 0.0;
+        /* Zeroing out of bounds row sums */
 
         return;
     }
