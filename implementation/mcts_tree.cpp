@@ -50,6 +50,8 @@ Move MCTSTree::BestMove(Player player, Board& board) {
 
 	/*/ fragment for amaf paths*/
 
+	/*obfuscated? 'if' always true*/
+
 	if (root->children == NULL) {
 		root->Expand(board);
 		root_children_number = board.MovesLeft();

@@ -5,6 +5,10 @@
 #include "small_set.h"
 #include "params.h"
 #include "switches.h"
+#include "board_location.h"
+#include "board_dim.h"
+#include "board_player.h"
+#include "board_move.h"
 
 using namespace std;
 
@@ -45,184 +49,8 @@ namespace Hex {
 
 // -----------------------------------------------------------------------------
 
-class Dim {
-    public:
-        /**
-         * The number of guarding rows and columns around the board.
-         */
-        static const uint guard_count = 2;
 
-        /**
-         * The size of the board
-         */
-        static const uint board_size = 11;
 
-        /**
-         * The size of the board increased by the guarding margins on both sides.
-         */
-        static const uint guardedboard_size = board_size + guard_count * 2;
-
-        /**
-         * The size of the board as it is kept in memory.
-         */
-        static const uint actualboard_size = 16;
-
-        /**
-         * A special value added to variables in loops in order to iterate over
-         * fields in the same column.
-         */
-        static const int down = 16;
-
-        /**
-         * Special values that can be added to positions in order to get another,
-         * relatively shifted positions.
-         */
-        static const int upper_left = -down;
-        static const int upper_right = -down + 1;
-        static const int left = -1;
-        static const int right = +1;
-        static const int lower_left = +down - 1;
-        static const int lower_right = +down;
-
-        /**
-         * An array containing all the directions. Used by FOR_SIX() macro.
-         */
-        static const int dirs[6];
-
-        /**
-         * Special values that can be added to positions in order to get another,
-         * relatively shifted position useful for bridges.
-         */
-        static const int up2 = -down * 2 + 1;
-        static const int left_up2 = -down - 1;
-        static const int left_down2 = +down - 2;
-        static const int down2 = +down * 2 - 1;
-        static const int right_up2 = -down + 2;
-        static const int right_down2 = +down - 1;
-
-        /**
-         * An array containing all the directions. Used by FOR_SIX2() macro.
-         */
-        static const int dirs2[6];
-
-        static const int clockwise[down * 2 + 1];
-        static const int cclockwise[down * 2 + 1];
-
-        /**
-         * The number of fields in the board.
-         */
-        static const uint field_count = board_size * board_size;
-
-        /**
-         * The number of fields in the board as it is kept in memory.
-         */
-        static const uint actual_field_count = actualboard_size * actualboard_size;
-
-        /**
-         * @in @param x A field coordinant, where 1 describes leftmost column.
-         * @in @param y A field coordinant, where 1 describes uppermost row.
-         * @return The internal representation of position (x, y).
-         */
-        static uint OfPos(int x, int y);
-
-        /**
-         * @in @param x The horizontal shift.
-         * @in @param y The vertical shift.
-         */
-        static int ByPos(int x, int y);
-
-        /**
-         * @in @param pos A field position
-         * @return A field coordinant X, where 1 describes leftmost column.
-         */
-        static int ToX(uint pos);
-
-        /**
-         * @in @param pos A position.
-         * @return A field coordinant Y, where 1 describes uppermost row.
-         */
-        static int ToY(uint pos);
-
-        /**
-         * @in @param pos A position.
-         * @out @param x A field coordinant, where 1 describes leftmost column.
-         * @out @param y A field coordinant, where 1 describes uppermost row.
-         */
-        static void ToCoords(uint pos, int& x, int& y);
-
-        static int Clockwise(int pos);
-
-        static int CClockwise(int pos);
-
-    private:
-        Dim();
-};
-
-class Player {
-    public:
-        static Player First();
-        static Player Second();
-        static Player None();
-        static Player OfString (std::string);
-
-        Player Opponent() const;
-
-        bool operator== (const Player&) const;
-        bool operator!= (const Player&) const;
-
-        uint GetVal();
-
-        string ToString() const;
-
-        static bool ValidPlayer(const std::string& player);
-
-    private:
-        Player();
-        Player(uint val);
-
-    private:
-        uint _val;
-};
-
-// -----------------------------------------------------------------------------
-
-class Location {
-    public:
-        static Location OfCoords (std::string);
-        Location (uint pos);
-        Location (uint x, uint y);
-        uint GetPos() const;
-        uint GetX() const;
-        uint GetY() const;
-        std::string ToCoords() const;
-        bool operator==(Location loc) const;
-        bool operator!=(Location loc) const;
-        static bool ValidLocation(const std::string& location);
-        static bool ValidLocation(uint x, uint y);
-        static bool ValidPosition(uint pos);
-
-    private:
-        Location();
-
-    private:
-        uint _pos;
-};
-
-// -----------------------------------------------------------------------------
-
-class Move {
-    public:
-        Move (const Player&, const Location&);
-        Location GetLocation() const;
-        Player GetPlayer() const;
-
-    private:
-        Move();
-
-    private:
-        Player _player;
-        Location _location;
-};
 
 // -----------------------------------------------------------------------------
 
