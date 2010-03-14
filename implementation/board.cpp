@@ -107,7 +107,7 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
     memset(visited, 0, Dim::actual_field_count * sizeof(visited[0]));
 
     if (Player::First() == winner) {
-        for (uint i = OfPos(1,1); i <= OfPos(Dim::board_size,1); i = i + Dim::right)
+        for (uint i = Dim::OfPos(1,1); i <= Dim::OfPos(Dim::board_size,1); i = i + Dim::right)
             if (IsFirst(board[i])) {
                 // I put to queue every node by the edge
                 queue[++end]=i;
@@ -134,7 +134,7 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
          * I find out which nodes by the other edge were visited as first ones
          */
         uint min = (uint) - 1;
-        for (uint i = OfPos(1,Dim::board_size); i <= OfPos(Dim::board_size,Dim::board_size); i = i + Dim::right)
+        for (uint i = Dim::OfPos(1,Dim::board_size); i <= Dim::OfPos(Dim::board_size,Dim::board_size); i = i + Dim::right)
             if(visited[i] > 0 && visited[i] < min)
                 min = visited[i];
 
@@ -154,7 +154,7 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
          */
         int actual_mins = 0;
         int next_mins = 0;
-        for (uint i = OfPos(1,Dim::board_size); i <= OfPos(Dim::board_size,Dim::board_size); i = i + Dim::right)
+        for (uint i = Dim::OfPos(1,Dim::board_size); i <= Dim::OfPos(Dim::board_size,Dim::board_size); i = i + Dim::right)
             if (visited[i] == min){
                 queue[++end] = i;
                 aBoard.timesOfBeingOnShortestPath[i]++;
@@ -184,7 +184,7 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
          * and in checking if player is second, not first
          */
 
-        for (uint i = OfPos(1,1); i <= OfPos(1,Dim::board_size); i = i + Dim::down)
+        for (uint i = Dim::OfPos(1,1); i <= Dim::OfPos(1,Dim::board_size); i = i + Dim::down)
             if (IsSecond(board[i])) {
                 queue[++end] = i;
                 visited[i] = 1;
@@ -198,7 +198,7 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
                 }
 
         uint min = (uint) -1;
-        for (uint i = OfPos(Dim::board_size,1); i <= OfPos(Dim::board_size,Dim::board_size); i = i + Dim::down)
+        for (uint i = Dim::OfPos(Dim::board_size,1); i <= Dim::OfPos(Dim::board_size,Dim::board_size); i = i + Dim::down)
             if (visited[i] > 0 && visited[i] < min)
                 min = visited[i];
 
@@ -206,7 +206,7 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
         end = -1;
         int actual_mins = 0;
         int next_mins = 0;
-        for (uint i = OfPos(Dim::board_size,1); i <= OfPos(Dim::board_size,Dim::board_size); i = i + Dim::down)
+        for (uint i = Dim::OfPos(Dim::board_size,1); i <= Dim::OfPos(Dim::board_size,Dim::board_size); i = i + Dim::down)
             if (visited[i] == min) {
                 queue[++end] = i;
                 aBoard.timesOfBeingOnShortestPath[i]++;
