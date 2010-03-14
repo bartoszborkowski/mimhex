@@ -27,6 +27,16 @@ inline void HashBoard::Play(uint position, uint player)
     return;
 }
 
+inline uint HashBoard::GetChangedPositionsAmount(uint position) const
+{
+    return pattern_count[position];
+}
+
+inline const uint * HashBoard::GetChangedPositions(uint position) const
+{
+    return patterns_at[position];
+}
+
 inline uint HashBoard::GetBoardSize() const
 {
     return Hex::kFieldsAlignedAmount;

@@ -1,9 +1,9 @@
-/*******************************************************************************
- *                              Bartosz Borkowski                              *
- *              Faculty of Mathematics, Informatics and Mechanics              *
- *                              Warsaw University                              *
- *                             9th March 2010                                  *
- *******************************************************************************/
+/********************************************************************************
+ *                              Bartosz Borkowski                               *
+ *              Faculty of Mathematics, Informatics and Mechanics               *
+ *                             University of Warsaw                             *
+ *                               13th March 2010                                *
+ ********************************************************************************/
 
 #include <sstream>
 #include <inttypes.h>
@@ -78,85 +78,49 @@ namespace Hex
     {
         uint position = move.GetLocation().GetPos();
         uint player = move.GetPlayer().GetVal();
-        uint row = position & ((kBoardSizeAligned << 1) - 1);
+        uint modulo = (kBoardSizeAligned << 1) - 1;
         /* CAUTION!
          * The above assumes that kBoardSizeAligned is a power of 2.
-         * Only then it is equivalent to:
-         * uint row = position % kBoardSizeAligned;
          */
+        uint changed_positions_amount;
+        const uint *changed_positions;
 
         hash_board.Play(position, player);
+        changed_positions_amount = hash_board.GetChangedPositionsAmount(position);
+        changed_positions = hash_board.GetChangedPositions(position);
 
         used_fields[position] = 0;
-        all_sum -= row_sums[row - 1] + row_sums[row] + row_sums[row + 1];
 
-        /* TODO: change this so it accepts patterns of different shapes */
-
-        /* Decreasing row sums */
-        row_sums[row - 1] -=
-            gammas[position - kBoardSizeAligned + 1] +
-            gammas[position - kBoardSizeAligned];
-        row_sums[row] -=
-            gammas[position + 1] + gammas[position] + gammas[position - 1];
-        row_sums[row + 1] -=
-            gammas[position + kBoardSizeAligned] +
-            gammas[position + kBoardSizeAligned - 1];
-        /* Decreasing row sums */
+        for (uint i = 0; i < changed_positions_amount; ++i) {
+            row_sums[changed_positions[i] & modulo] -= gammas[changed_positions[i]];
+            all_sum -= gammas[changed_positions[i]];
 
         /* TODO: implement get_strength */
-        /* Changing gammas */
-        gammas[position - kBoardSizeAligned + 1] =
-            get_strength(hash_board.GetHash(position - kBoardSizeAligned + 1)) *
-            used_fields[position - kBoardSizeAligned + 1];
-        gammas[position + 1] =
-            get_strength(hash_board.GetHash(position + 1)) *
-            used_fields[position + 1];
-        gammas[position + kBoardSizeAligned] =
-            get_strength(hash_board.GetHash(position + kBoardSizeAligned)) *
-            used_fields[position + kBoardSizeAligned];
-        gammas[position] = 0.0;
-        gammas[position + kBoardSizeAligned - 1] =
-            get_strength(hash_board.GetHash(position + kBoardSizeAligned - 1)) *
-            used_fields[position + kBoardSizeAligned - 1];
-        gammas[position - 1] =
-            get_strength(hash_board.GetHash(position - 1)) *
-            used_fields[position - 1];
-        gammas[position - kBoardSizeAligned] =
-            get_strength(hash_board.GetHash(position - kBoardSizeAligned)) *
-            used_fields[position - kBoardSizeAligned];
-        /* Changing gammas */
+        /* TODO: make it so that out-of-bounds values are 0; implement it in patterns */
+            gammas[changed_positions[i]] =
+                get_strength(hash_board.GetHash(changed_positions[i])) *
+                used_fields[changed_positions[i]];
 
-        /* Zeroing out-of-bounds gammas */
+            row_sums[changed_positions[i] & modulo] += gammas[changed_positions[i]];
+            all_sum += gammas[changed_positions[i]];
+
+            /* Amending double's lack of precision.                             */
+            /* TODO: implement min_gamma; mayhaps a minimapl present gamma decreased tenfold */
+            //if (row_sums[changed_positions[i] & modulo < min_gamma)
+                //row_sums[changed_positions[i] & modulo = 0.0;
+            /* Amending double's lack of precision.                             */
+        }
+
+        /* Zeroing out-of-bounds gammas
         gammas[(row - 1) * kBoardSizeAligned] = gammas[row * kBoardSizeAligned - 1] =
             gammas[row * kBoardSizeAligned] = gammas[(row + 1) * kBoardSizeAligned - 1] =
             gammas[(row + 1) * kBoardSizeAligned] = gammas[(row + 2) * kBoardSizeAligned - 1] = 0.0f;
-        /* Zeroing out-of-bounds gammas */
-
-        /* Increasing row sums */
-        row_sums[row - 1] +=
-            gammas[position - kBoardSizeAligned + 1] +
-            gammas[position - kBoardSizeAligned];
-        row_sums[row] +=
-            gammas[position + 1] + gammas[position - 1];
-        row_sums[row + 1] +=
-            gammas[position + kBoardSizeAligned ] +
-            gammas[position + kBoardSizeAligned - 1];
-
-        /* Amending double's lack of precision */
-        /* TODO: change 0.0 to min_gamma (the minimal present value of gamma) */
-        if (row_sums[row - 1] < 0.0)
-            row_sums[row - 1] = 0.0;
-        if (row_sums[row] < 0.0)
-            row_sums[row] = 0.0;
-        if (row_sums[row + 1] < 0.0)
-            row_sums[row + 1] = 0.0;
-        /* Increasing row sums */
+         Zeroing out-of-bounds gammas */
 
         /* Zeroing out-of-bounds row sums */
-        row_sums[0] = row_sums[kBoardSizeAligned - 1] = 0.0;
+        row_sums[0] = row_sums[1] = row_sums[kBoardSizeAligned - 2] =
+            row_sums[kBoardSizeAligned - 3] = 0.0;
         /* Zeroing out-of-bounds row sums */
-
-        all_sum += row_sums[row - 1] + row_sums[row] + row_sums[row + 1];
 
         return;
     }

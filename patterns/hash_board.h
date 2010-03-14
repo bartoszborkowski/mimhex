@@ -31,6 +31,9 @@ namespace HexPatterns
 
             void Play(uint position, uint player);
 
+            uint GetChangedPositionsAmount(uint position) const;
+            const uint * GetChangedPositions(uint position) const;
+
             uint GetBoardSize() const;
 
             std::string ToAsciiArt() const;

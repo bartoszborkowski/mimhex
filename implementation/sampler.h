@@ -1,9 +1,9 @@
-/*******************************************************************************
- *                              Bartosz Borkowski                              *
- *              Faculty of Mathematics, Informatics and Mechanics              *
- *                              Warsaw University                              *
- *                             9th March 2010                                  *
- *******************************************************************************/
+/********************************************************************************
+ *                              Bartosz Borkowski                               *
+ *              Faculty of Mathematics, Informatics and Mechanics               *
+ *                             University of Warsaw                             *
+ *                               13th March 2010                                *
+ ********************************************************************************/
 
 #ifndef MIMHEX_SAMPLER_H_
 #define MIMHEX_SAMPLER_H_

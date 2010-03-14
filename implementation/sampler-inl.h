@@ -1,9 +1,9 @@
-/*******************************************************************************
- *                              Bartosz Borkowski                              *
- *              Faculty of Mathematics, Informatics and Mechanics              *
- *                              Warsaw University                              *
- *                             9th March 2010                                  *
- *******************************************************************************/
+/********************************************************************************
+ *                              Bartosz Borkowski                               *
+ *              Faculty of Mathematics, Informatics and Mechanics               *
+ *                             University of Warsaw                             *
+ *                               13th March 2010                                *
+ ********************************************************************************/
 
 #ifndef MIMHEX_SAMPLER_INL_H_
 #define MIMHEX_SAMPLER_INL_H_
@@ -13,7 +13,7 @@ inline uint Sampler::RandomMove() const
     double r = random_generator() * all_sum;
     uint i, j;
 
-    for (i = 1; i <= kBoardSize; ++i)
+    for (i = 2; i <= kBoardSize; ++i)
         if (r < row_sums[i])
             break;
         else
@@ -21,7 +21,7 @@ inline uint Sampler::RandomMove() const
 
     i *= kBoardSizeAligned;
 
-    for (j = 1; j <= kBoardSize; ++j)
+    for (j = 2; j <= kBoardSize; ++j)
         if (r < gammas[i + j])
             break;
         else
