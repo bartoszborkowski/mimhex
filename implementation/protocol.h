@@ -1,8 +1,9 @@
 #ifndef PROTOCOL_H_
 #define PROTOCOL_H_
 
-#include "gtp.hpp"
+#include "hextypes.h"
 #include "game.h"
+#include "gtp.hpp"
 
 namespace Hex {
 

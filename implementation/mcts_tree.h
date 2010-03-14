@@ -1,6 +1,7 @@
 #ifndef MCTS_TREE_H_
 #define MCTS_TREE_H_
 
+#include "hextypes.h"
 #include "mcts_node.h"
 
 namespace Hex {

@@ -2,7 +2,7 @@
 #define HEX_BOARD_LOCATION_H_
 
 #include <string>
-#include "small_set.h"
+#include "hextypes.h"
 #include "params.h"
 #include "switches.h"
 

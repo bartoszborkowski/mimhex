@@ -1,3 +1,4 @@
+#include "hextypes.h"
 #include "board.h"
 
 namespace Hex {

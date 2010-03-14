@@ -1,6 +1,7 @@
 #ifndef MCTS_NODE_H_
 #define MCTS_NODE_H_
 
+#include "hextypes.h"
 #include "board.h"
 #include "auto_pointer.h"
 #include "params.h"
