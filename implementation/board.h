@@ -40,7 +40,7 @@ namespace Hex {
  *     (d) If FOR_SIX() cannot be used for some reasons, use direction constants
  *         without the macro.
  *     (e) When locating a field within guarded area consider using
- *         Dim::guarded_board_size.
+ *         Dim::guardedboard_size.
  */
 
 // -----------------------------------------------------------------------------
@@ -60,12 +60,12 @@ class Dim {
         /**
          * The size of the board increased by the guarding margins on both sides.
          */
-        static const uint guarded_board_size = board_size + guard_count * 2;
+        static const uint guardedboard_size = board_size + guard_count * 2;
 
         /**
          * The size of the board as it is kept in memory.
          */
-        static const uint actual_board_size = 16;
+        static const uint actualboard_size = 16;
 
         /**
          * A special value added to variables in loops in order to iterate over
@@ -116,7 +116,7 @@ class Dim {
         /**
          * The number of fields in the board as it is kept in memory.
          */
-        static const uint actual_field_count = actual_board_size * actual_board_size;
+        static const uint actual_field_count = actualboard_size * actualboard_size;
 
         /**
          * @in @param x A field coordinant, where 1 describes leftmost column.
@@ -251,7 +251,7 @@ class Board {
 
     private:
         /**
-         * @in @param val A value in the format as used in the internal table.
+         * @in @param val A value in the format as used in the internal array.
          * @return The internal representation of the position retrieved from the
          * given value.
          */
@@ -259,43 +259,58 @@ class Board {
 
         /**
          * @in @param pos The internal representation of a position.
-         * @return The value to store in the internal table representing the given
+         * @return The value to store in the internal array representing the given
          * position and the first player.
          */
         static ushort ToFirst(ushort pos);
 
         /**
          * @in @param pos The internal representation of a position.
-         * @return The value to store in the internal table representing the given
+         * @return The value to store in the internal array representing the given
          * position and the second player.
          */
         static ushort ToSecond(ushort pos);
 
         /**
-         * @in @param val A value in the format as used in the internal table.
+         * @in @param pos The internal representation of a position
+         * @in @param owner The owner to be associated with the position
+         * @return The value to store in the internal bridge set representing the
+         * given position and the given owner.
+         */
+        static ushort ToBridge(ushort pos, ushort owner);
+
+        /**
+         * @in @param pos A value in the format as it is stored inside a
+         * bridge set.
+         * @return The position associated with the value.
+         */
+        static uint BridgeToPos(ushort val);
+
+        /**
+         * @in @param val A value in the format as used in the internal array.
          * @return true iff value represents the first player.
          * @note false is returned for empty fields.
          */
         static bool IsFirst(ushort val);
 
         /**
-         * @in @param val A value in the format as used in the internal table.
+         * @in @param val A value in the format as used in the internal array.
          * @return true iff value represents the second player.
          * @note false is returned for empty fields.
          */
         static bool IsSecond(ushort val);
 
         /**
-         * @in @param val A value in the format as used in the internal table.
+         * @in @param val A value in the format as used in the internal array.
          * @return true iff value represents an empty field.
          */
         static bool IsEmpty(ushort val);
 
         /**
          * @in @param val The first value in the format as used in the interal
-         * table.
+         * array.
          * @in @param val2 The second value in the format as used in the interal
-         * table.
+         * array.
          * @return true iff val and val2 represent the same player.
          * @note val and val2 shouldn't be empty.
          */
@@ -303,9 +318,9 @@ class Board {
 
         /**
          * @in @param val The first value in the format as used in the interal
-         * table.
+         * array.
          * @in @param val2 The second value in the format as used in the interal
-         * table.
+         * array.
          * @return true iff val and val2 represent opposite players.
          * @note val and val2 shouldn't be empty.
          */
@@ -320,7 +335,7 @@ class Board {
         /**
          * Unifies groups of pawns at positions pos1 and pos2 (if present and
          * their colours match).
-         * @return A value stored at pos1 in the internal table.
+         * @return A value stored at pos1 in the internal array.
          */
         uint MakeUnion(uint pos1, uint pos2);
 
@@ -366,7 +381,7 @@ class Board {
         /**
          * Special values used for F&U roots for each side of the map.
          * FIXME: Preferably the functioning of all UpdatePathsStats...()
-         * should be independant from the guarding used. visible[] table may be
+         * should be independant from the guarding used. visible[] array may be
          * initialized appropriately to achieve this.
          */
         static const uint root_up = (Dim::guard_count - 1) * Dim::down
@@ -398,12 +413,12 @@ class Board {
          * single tree is maintained for the first player and a special constant
          * value is used to mark fields occupied by the second player.
          */
-        mutable ushort _board[Dim::actual_field_count];
+        mutable ushort board[Dim::actual_field_count];
 
     public:
         /**
-         * DEPRECATED: Scheduled for removal. Arrays inside the mcts nodes will
-         * be utilized instead.
+         * DEPRECATED: Scheduled for removal. Arrays inside mcts nodes will be
+         * utilized instead.
          * A custom optimization used in a fashion similar to AMAF. The structure
          * holds the number paths crossing through the field that caused a player
          * to win. If the flag TODO is set, actual shortest paths are counted,
@@ -441,33 +456,52 @@ class Board {
          * used for fast iteration over all possible moves. If bridges in any
          * form are enabled then nonbridge fields are always kept first in the
          * array.
+         * @note Formerly known as _fast_field_map
          */
-        ushort _fast_field_map[Dim::actual_field_count];
+        ushort field_map[Dim::actual_field_count];
 
         /**
          * The array holds field map indices for each position. The following
          * invariant is true:
-         *   _fast_field_map[_reverse_field_map[x]] = x
+         *   field_map[rev_map[x]] = x
          * where x is a valid, free position. Also holds:
-         *   _reverse_field_map[_fast_field_map[x]] = x
+         *   rev_map[field_map[x]] = x
          * for any x within bounds.
+         * @note Formerly known as _reverse_fast_field_map
          */
-        ushort _reverse_fast_field_map[Dim::actual_field_count];
+        ushort rev_map[Dim::actual_field_count];
 
-        /*
-         * These ones are used in bridges.
-         * First in the pair is an index of second free field in bridge. Second guy from pair
-         * says if bridge is built by first player.
+        /**
+         * The array holds for each position bridges associated with it. By
+         * simple computation there can be proven that there are only up to
+         * 3 such bridges. Each element within a set represents a field
+         * position and its owner. The format used is identical to the one
+         * in board array.
          */
-        SmallSet<pair<ushort,bool> > _field_bridge_connections[Dim::actual_field_count];
-        SmallSet<ushort, Dim::field_count / 2> attacked_bridges;
+        SmallSet<ushort> bridge_conn[Dim::actual_field_count];
 
-        uint _moves_left;
+        /**
+         * The array holds positions of all attacked bridges in the board.
+         * By a simple estimate there can only be up to 1/2 such fields.
+         */
+        SmallSet<ushort, Dim::field_count / 3> attacked_bridges;
 
-        // index of last field in _fast_field_map that isn't a bridge
-        int _field_map_bound;
+        /**
+         * Moves left until the board is full.
+         */
+        uint moves_left;
 
-        Player _current;
+        /**
+         * The index of the last field in field_map that isn't a bridge.
+         * All fields with indices from bridge_range + 1 up to moves_left - 1
+         * are bridges.
+         */
+        int bridge_range;
+
+        /**
+         * Player to make the next move.
+         */
+        Player current;
 };
 
 // -----------------------------------------------------------------------------
