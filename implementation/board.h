@@ -30,7 +30,7 @@ namespace Hex {
  *
  * (4) Make better use of constants introduced in class ::Dim.
  *     Specificaly:
- *     (a) When iterating through a stripe of fields use Dim::ToPos() to mark
+ *     (a) When iterating through a stripe of fields use Dim::OfPos() to mark
  *         initial and final positions.
  *     (b) Use i += Dim::right to move iterator horizontally. Use i += Dim::down
  *         to move iterator vertically.
@@ -123,7 +123,7 @@ class Dim {
          * @in @param y A field coordinant, where 1 describes uppermost row.
          * @return The internal representation of position (x, y).
          */
-        static uint ToPos(int x, int y);
+        static uint OfPos(int x, int y);
 
         /**
          * @in @param x The horizontal shift.

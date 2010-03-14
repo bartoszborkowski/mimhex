@@ -41,7 +41,7 @@ const int Dim::cclockwise[Dim::down * 2 + 1] = {
     right // lower_right -> right
 };
 
-uint Dim::ToPos(int x, int y) {
+uint Dim::OfPos(int x, int y) {
     return (x + Dim::guard_count - 1) + (y + Dim::guard_count - 1) * Dim::down;
 }
 
@@ -130,7 +130,7 @@ Location Location::OfCoords (std::string coords) {
 }
 
 Location::Location(uint x, uint y):
-    _pos(Dim::ToPos(x, y)) {}
+    _pos(Dim::OfPos(x, y)) {}
 
 Location::Location(uint pos):
     _pos(pos) {}
@@ -246,7 +246,7 @@ const Board Board::Empty() {
         board.rev_map[i] = -1;
     for (uint i = 1; i <= Dim::board_size; ++i) {
         for (uint j = 1; j <= Dim::board_size; ++j) {
-            signed int field = Dim::ToPos(i, j);
+            signed int field = Dim::OfPos(i, j);
             board.field_map[counter] = field;
             board.rev_map[field] = counter++;
         }
@@ -255,10 +255,10 @@ const Board Board::Empty() {
     for (uint i = 0; i < Dim::actual_field_count; ++i)
         board.board[i] = board_empty;
     for (uint i = 1; i <= Dim::board_size; ++i) {
-        board.board[Dim::ToPos(i, 0)] = ToFirst(root_up);
-        board.board[Dim::ToPos(i, Dim::board_size + 1)] = ToFirst(root_down);
-        board.board[Dim::ToPos(0, i)] = ToSecond(root_left);
-        board.board[Dim::ToPos(Dim::board_size + 1, i)] = ToSecond(root_right);
+        board.board[Dim::OfPos(i, 0)] = ToFirst(root_up);
+        board.board[Dim::OfPos(i, Dim::board_size + 1)] = ToFirst(root_down);
+        board.board[Dim::OfPos(0, i)] = ToSecond(root_left);
+        board.board[Dim::OfPos(Dim::board_size + 1, i)] = ToSecond(root_right);
     }
 
     board.ClearShortestPathsStats();
@@ -921,11 +921,11 @@ std::string Board::ToAsciiArt(Location last_move) const {
         for (uint j = 1; j < (i < 10 ? i : i - 1); ++j)
             s << " ";
         s << i;
-        if (Dim::ToPos(1, i) == last_move.GetPos())
+        if (Dim::OfPos(1, i) == last_move.GetPos())
             s << "(";
         else s << " ";
         for (uint j = 1; j <= Dim::board_size; ++j) {
-            uint pos = Dim::ToPos(j, i);
+            uint pos = Dim::OfPos(j, i);
             if (IsEmpty(board[pos]))
                 s << ".";
             else if (IsFirst(board[pos]))
