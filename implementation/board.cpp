@@ -180,10 +180,11 @@ bool Location::ValidLocation(uint x, uint y) {
 
 // -----------------------------------------------------------------------------
 
-Move::Move (const Player& player, const Location& location)
-    : _player(player), _location(location) {}
+Move::Move (const Player& player, const Location& location):
+    _player(player), _location(location) {}
 
-Move::Move() :_player(Player::First()), _location(0) {}
+Move::Move():
+    _player(Player::First()), _location(0) {}
 
 Location Move::GetLocation() const { return _location; }
 
