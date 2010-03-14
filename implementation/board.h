@@ -18,7 +18,7 @@ namespace Hex {
  * TODO LIST:
  *
  * (1) Fix bridges. Make the code more readable and if this is not possible
- *     comment it in greater detail.
+ *     comment it in greater detail. (DONE - juleg)
  *
  * (2) Audit and retest UpdatePathsStats...(). Specificaly changes applied
  *     during migration to variable guarding could introduce some bugs. Also
@@ -338,16 +338,22 @@ class Board {
         uint ConstFind(uint pos) const;
 
         /**
-         * FIXME: Internal table representation changed.
+         * Update bridges around position pos.
+         * @in @param pos A recently changed position.
          */
         void UpdateBridges(uint pos);
 
         /**
-         * FIXME: Internal table representation changed.
+         * Update the order of the field maps to store the bridges after the
+         * remaining nonbridge fields. Move bridge fields inside the bridge
+         * range of the field map, move nonbridge fields outside the bridge
+         * range.
+         * @in @param pos A position with possibly invalid index inside the
+         * field map.
          */
         void UpdateBridgeBound(uint pos);
 
-        void clearShortestPathsStats();
+        void ClearShortestPathsStats();
 
     public:
         void UpdatePathsStatsFloodFillFU(Board& aBoard, const Player& winner);
@@ -396,12 +402,12 @@ class Board {
 
     public:
         /**
+         * DEPRECATED: Scheduled for removal. Arrays inside the mcts nodes will
+         * be utilized instead.
          * A custom optimization used in a fashion similar to AMAF. The structure
          * holds the number paths crossing through the field that caused a player
          * to win. If the flag TODO is set, actual shortest paths are counted,
          * otherwise - flooded areas containing the field.
-         * TODO: Add the switch.
-         * FIXME: Deprecated. Scheduled for removal.
          */
         short timesOfBeingOnShortestPath[Dim::actual_field_count];
 

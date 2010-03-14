@@ -256,12 +256,12 @@ const Board Board::Empty() {
         board._board[Dim::ToPos(Dim::board_size + 1, i)] = ToSecond(root_right);
     }
 
-    board.clearShortestPathsStats();
+    board.ClearShortestPathsStats();
 
     return board;
 }
 
-void Board::clearShortestPathsStats() {
+void Board::ClearShortestPathsStats() {
 
     for(uint i = 0; i < Dim::actual_field_count; i++)
         timesOfBeingOnShortestPath[i]=0;
@@ -746,7 +746,6 @@ void Board::PlayLegal(const Move& move) {
 
     if(Switches::IsAvoidingBridges() || Switches::IsDefendingBridges())
         UpdateBridgeData(pos, replace_pos);
-
 }
 
 void Board::UpdateBridgeData (uint pos, uint replace_pos) {
@@ -764,6 +763,7 @@ void Board::UpdateBridgeData (uint pos, uint replace_pos) {
 }
 
 void Board::MakeUnion(uint pos) {
+    // Perform unions with neighbouring fields as needed.
     uint rep = MakeUnion(pos, pos + Dim::right);
     rep = MakeUnion(rep, pos + Dim::left);
     rep = MakeUnion(rep, pos + Dim::upper_left);
@@ -887,29 +887,18 @@ void Board::UpdateBridges(uint pos) {
 }
 
 void Board::UpdateBridgeBound(uint pos) {
-    // FIXME: This most likely does not work.
-    // TODO: It's absolutely essential to comment this snippet.
-
     if (_field_bridge_connections[pos].Size() > 0) {
-        if (_reverse_fast_field_map[pos] <= _field_map_bound) {
+        // A bridge field might be stored outside the bridge range.
+        if (_reverse_fast_field_map[pos] <= _field_map_bound)
+            // Move the bridge field inside the bridge range and extend the
+            // range.
             MoveFree(pos, _field_map_bound--);
-//             ushort map_pos = _reverse_fast_field_map[pos];
-//             _fast_field_map[map_pos] = _fast_field_map[_field_map_bound];
-//             _fast_field_map[_field_map_bound--] = pos;
-//
-//             _reverse_fast_field_map[pos] = _field_map_bound + 1;
-//             _reverse_fast_field_map[_fast_field_map[map_pos]] = map_pos;
-        }
     } else if (_reverse_fast_field_map[pos] < _moves_left) {
-        if (_reverse_fast_field_map[pos] > _field_map_bound) {
+        // A nonbridge field might be stored inside the bridge range.
+        if (_reverse_fast_field_map[pos] > _field_map_bound)
+            // Move the nonbridge field outside the bridge range and shrink
+            // the range.
             MoveFree(pos, ++_field_map_bound);
-//             ushort map_pos = _reverse_fast_field_map[pos];
-//             _fast_field_map[map_pos] = _fast_field_map[++_field_map_bound];
-//             _fast_field_map[_field_map_bound] = pos;
-//
-//             _reverse_fast_field_map[pos] = _field_map_bound;
-//             _reverse_fast_field_map[_fast_field_map[map_pos]] = map_pos;
-        }
     }
 }
 
