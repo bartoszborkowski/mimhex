@@ -1,0 +1,274 @@
+
+
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+<META http-equiv="Expires" content="0">
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<META name="description" content="Play online - turn based games: chess, checkers, amazons, reversi, Go, twixt">
+<META name="keywords" content="multiplayer massive board game online">
+<meta name="MSSmartTagsPreventParsing" content="TRUE">
+<LINK href="/include/base.css" rel=StyleSheet type=text/css>
+
+<title>Little Golem</title>
+
+</head>
+<body>
+
+<table border=0 cellpadding=0 cellspacing=4>
+	<!-- top row -->
+	<table>
+		<tr valign='top' >
+	                <!--advertisment-->
+			<td width="468" align="center"><div style='background: #ff8000;width: 460px;height: 60px;vertical-align: middle;'><table><tr><td width='60' align='center'><img src='/images/icon/soccer.png'/></td><td><a href='/Ctrn.action?view=&dto.id=133' style='color:black'><span style='font-size: 18px'>Tournament: 'Serie A'</span><br><span style='font-size: 12px'>[StreetSoccer Street Soccer]</span><br><spen style='font-size: 14px'>start on Mar 15, 2010</span></a></td></tr></table></div>
+			<a href='/jsp/index.jsp'>Main page</a>
+			<a href='/jsp/game/index.jsp'>My games</a>
+			</td>
+	                <!--end advertisment-->
+	
+	    		<td>
+
+     <TABLE border=0 cellPadding=1 cellSpacing=0 bgcolor=#a9a9a8 width="240">
+      <TBODY>
+       <TR>
+        <TD>
+          <TABLE border=0 cellPadding=0 cellSpacing=0 bgcolor=#ffe701 width='100%'>
+            <TBODY>
+             <TR>
+              <TD align=middle bgcolor=#a9a9a8 width=20><IMG alt='' border=0 height=14 src='/ng/images/table/sign.gif' width=14></TD>
+              <TD bgcolor=#a9a9a8 noWrap>
+                <p><font size='2' face='Arial'><b>Summary</b></font></p></TD>
+              <TD align=right bgcolor=#a9a9a8 width=60><IMG alt='' border=0 height=12 hspace=3 src='/ng/images/table/minigolem.gif' vspace=3 width=12></TD></TR>
+             <TR>
+              <TD align=middle colSpan=3>
+            					
+<table cellpadding="0" cellspacing="0" border="0" width="100%" >
+
+        <tr>
+               <td>Players/Games:</td>
+               <td><b>20515/1164395</b></td>
+        </tr>
+        
+        				
+        				                                 
+</table>
+              </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+            		
+</td>
+		</tr>
+	</table>	
+	<table>
+	<tr valign='top' align='left'>
+		<td >
+			<!-- body -->
+
+
+
+
+<font size='5' color='darkblue'><b>
+Hex 13x13-Size 13
+:: #911741
+(game finished)
+</b></font>
+<!--inside-->
+<table cellspacing='2' cellpadding='0' border='0' width="100%">
+ <tr valign='top'>
+  <td>
+   <!--game part-->
+    <table cellspacing='2' cellpadding='0' border='0' width="100%">
+     <tr><td>
+      <!--message-->
+      	  
+     </td></tr>
+     <tr><td>
+      <!--board-->
+      <img width='311' height='189' src='/generate/10246572.gif'>
+     </td></tr>
+     <tr><td>
+      <!--buttons-->
+      
+      
+      
+     </td></tr>
+   	</table>
+   <!--end game part-->
+  </td>
+  <td>
+   <!--
+   	info part
+   -->
+    <table cellspacing=2 cellpadding=0 border=0 width="100%">
+    
+     
+
+     <tr>
+     <!--first player-->
+     <td>
+           <TABLE border=0 cellPadding=1 cellSpacing=0 bgcolor=#a9a9a8 width="500">
+      <TBODY>
+       <TR>
+        <TD>
+          <TABLE border=0 cellPadding=0 cellSpacing=0 bgcolor=#FFFF80 width='100%'>
+            <TBODY>
+             <TR>
+              <TD align=middle bgcolor=#a9a9a8 width=20><IMG alt='' border=0 height=14 src='/ng/images/table/sign.gif' width=14></TD>
+              <TD bgcolor=#a9a9a8 noWrap>
+                <p><font size='2' face='Arial'><b>Players</b></font></p></TD>
+              <TD align=right bgcolor=#a9a9a8 width=60><IMG alt='' border=0 height=12 hspace=3 src='/ng/images/table/minigolem.gif' vspace=3 width=12></TD></TR>
+             <TR>
+              <TD align=middle colSpan=3>
+
+        <table cellpadding=0 cellspacing=2 border=0 bgcolor=#FFFF80 width="100%">
+ 	  	
+    			<tr>
+    				<td colspan='3' bgcolor='Red'>&nbsp;</td>
+    				<td rowspan='3'>&nbsp;&nbsp;</td>
+    				<td colspan='3' bgcolor='Blue'>&nbsp;</td>   				
+    			</tr>
+      			<tr>     	
+      	  			<td>
+      	   				<img src=/ng/images/source/banner/PL.gif>
+      	  			</td>
+      	  			<td width='50%'>
+      	   				<font face=Arial size=2>Poland</font>
+      	  			</td>
+      	  			<td align='right' nowrap>
+      	   				<font face=Arial size=3 color=#800000><b>2060</b></font>      	
+      	  			</td>
+      	  			<td >
+      	   				<img src=/ng/images/source/banner/AT.gif>
+      	  			</td>
+      	  			<td width='50%'>
+      	   				<font face=Arial size=2>Austria</font>
+      	  			</td>
+      	  			<td align='right' nowrap>
+      	   				<font face=Arial size=3 color=#800000><b>1628</b></font>      	
+      	  			</td>
+      	 		</tr>
+      	 		<tr>
+      	  			<td colspan=3>
+      	   				<b><a href='/jsp/info/player.jsp?plid=17295'>Jaroslaw Herba</a></b>
+      	  			</td>
+      	  			<td colspan=3>
+      	   				<b><a href='/jsp/info/player.jsp?plid=16949'>Martin</a></b>
+      	  			</td>	
+      	 		</tr>
+      	 		
+      	 		<tr>
+      	 			<td colspan=3 align='center'>
+      	 				<font size='7' color='brown'><b>2</b></font>
+      	 			</td>
+      	 			<td><font size='1'>result</font></td>
+      	 			<td colspan=3 align='center'>
+      	 				<font size='7' color='brown'><b>0</b></font>
+      	 			</td>
+      	 		</tr>
+      	 		
+      	</table>  
+                    </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+            
+     </td>
+     <tr><td colspan=2>
+	  <!--game info-->
+           <TABLE border=0 cellPadding=1 cellSpacing=0 bgcolor=#a9a9a8 width="100%">
+      <TBODY>
+       <TR>
+        <TD>
+          <TABLE border=0 cellPadding=0 cellSpacing=0 bgcolor=#C0C0C0 width='100%'>
+            <TBODY>
+             <TR>
+              <TD align=middle bgcolor=#a9a9a8 width=20><IMG alt='' border=0 height=14 src='/ng/images/table/sign.gif' width=14></TD>
+              <TD bgcolor=#a9a9a8 noWrap>
+                <p><font size='2' face='Arial'><b>Game info</b></font></p></TD>
+              <TD align=right bgcolor=#a9a9a8 width=60><IMG alt='' border=0 height=12 hspace=3 src='/ng/images/table/minigolem.gif' vspace=3 width=12></TD></TR>
+             <TR>
+              <TD align=middle colSpan=3>
+                  
+      <p class="news">
+      
+      	Start time: 2008-07-21 19:38
+      	<br>Finish time: 2008-08-29 21:05
+      	<br>Tournament: <a href="../tournament/tournament.jsp?trnid=hex.rt.2008.7.98">hex.rt.2008.7.98</a>
+            
+      
+      </p>
+                    </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+                	
+     </td></tr>
+     
+     <tr><td colspan=2>
+      <!--game list-->
+           <TABLE border=0 cellPadding=1 cellSpacing=0 bgcolor=#a9a9a8 width="100%">
+      <TBODY>
+       <TR>
+        <TD>
+          <TABLE border=0 cellPadding=0 cellSpacing=0 bgcolor=#C0C0C0 width='100%'>
+            <TBODY>
+             <TR>
+              <TD align=middle bgcolor=#a9a9a8 width=20><IMG alt='' border=0 height=14 src='/ng/images/table/sign.gif' width=14></TD>
+              <TD bgcolor=#a9a9a8 noWrap>
+                <p><font size='2' face='Arial'><b>List of moves&nbsp;&nbsp;<a href='/servlet/sgf/911741/game.hsgf'>hsgf</a>&nbsp;&nbsp;&nbsp;<a href='game.jsp?gid=911741&nmove=0'>&lt;&lt;</a>&nbsp;&nbsp;<a href='game.jsp?gid=911741&nmove=43'>&lt</a>&nbsp;&nbsp;<a href='game.jsp?gid=911741&nmove=45'>&gt;</a>&nbsp;&nbsp;<a href='game.jsp?gid=911741'>&gt;&gt;</a></b></font></p></TD>
+              <TD align=right bgcolor=#a9a9a8 width=60><IMG alt='' border=0 height=12 hspace=3 src='/ng/images/table/minigolem.gif' vspace=3 width=12></TD></TR>
+             <TR>
+              <TD align=middle colSpan=3>
+                  
+      <p align=left><a href=game.jsp?gid=911741&nmove=1><font color=#FFFFFF size=2><b>1.a3</b></font></a> <a href=game.jsp?gid=911741&nmove=2><font color=#000000 size=2><b>2.d8</b></font></a> <a href=game.jsp?gid=911741&nmove=3><font color=#FFFFFF size=2><b>3.g7</b></font></a> <a href=game.jsp?gid=911741&nmove=4><font color=#000000 size=2><b>4.f10</b></font></a> <a href=game.jsp?gid=911741&nmove=5><font color=#FFFFFF size=2><b>5.i9</b></font></a> <a href=game.jsp?gid=911741&nmove=6><font color=#000000 size=2><b>6.i10</b></font></a> <a href=game.jsp?gid=911741&nmove=7><font color=#FFFFFF size=2><b>7.h10</b></font></a> <a href=game.jsp?gid=911741&nmove=8><font color=#000000 size=2><b>8.h7</b></font></a> <a href=game.jsp?gid=911741&nmove=9><font color=#FFFFFF size=2><b>9.f8</b></font></a> <a href=game.jsp?gid=911741&nmove=10><font color=#000000 size=2><b>10.e9</b></font></a> <a href=game.jsp?gid=911741&nmove=11><font color=#FFFFFF size=2><b>11.g9</b></font></a> <a href=game.jsp?gid=911741&nmove=12><font color=#000000 size=2><b>12.f13</b></font></a> <a href=game.jsp?gid=911741&nmove=13><font color=#FFFFFF size=2><b>13.j8</b></font></a> <a href=game.jsp?gid=911741&nmove=14><font color=#000000 size=2><b>14.h12</b></font></a> <a href=game.jsp?gid=911741&nmove=15><font color=#FFFFFF size=2><b>15.h11</b></font></a> <a href=game.jsp?gid=911741&nmove=16><font color=#000000 size=2><b>16.e12</b></font></a> <a href=game.jsp?gid=911741&nmove=17><font color=#FFFFFF size=2><b>17.j11</b></font></a> <a href=game.jsp?gid=911741&nmove=18><font color=#000000 size=2><b>18.h4</b></font></a> <a href=game.jsp?gid=911741&nmove=19><font color=#FFFFFF size=2><b>19.i4</b></font></a> <a href=game.jsp?gid=911741&nmove=20><font color=#000000 size=2><b>20.h5</b></font></a> <a href=game.jsp?gid=911741&nmove=21><font color=#FFFFFF size=2><b>21.i5</b></font></a> <a href=game.jsp?gid=911741&nmove=22><font color=#000000 size=2><b>22.h6</b></font></a> <a href=game.jsp?gid=911741&nmove=23><font color=#FFFFFF size=2><b>23.j6</b></font></a> <a href=game.jsp?gid=911741&nmove=24><font color=#000000 size=2><b>24.j7</b></font></a> <a href=game.jsp?gid=911741&nmove=25><font color=#FFFFFF size=2><b>25.k6</b></font></a> <a href=game.jsp?gid=911741&nmove=26><font color=#000000 size=2><b>26.k7</b></font></a> <a href=game.jsp?gid=911741&nmove=27><font color=#FFFFFF size=2><b>27.i7</b></font></a> <a href=game.jsp?gid=911741&nmove=28><font color=#000000 size=2><b>28.j2</b></font></a> <a href=game.jsp?gid=911741&nmove=29><font color=#FFFFFF size=2><b>29.k2</b></font></a> <a href=game.jsp?gid=911741&nmove=30><font color=#000000 size=2><b>30.j3</b></font></a> <a href=game.jsp?gid=911741&nmove=31><font color=#FFFFFF size=2><b>31.k3</b></font></a> <a href=game.jsp?gid=911741&nmove=32><font color=#000000 size=2><b>32.j5</b></font></a> <a href=game.jsp?gid=911741&nmove=33><font color=#FFFFFF size=2><b>33.l4</b></font></a> <a href=game.jsp?gid=911741&nmove=34><font color=#000000 size=2><b>34.i13</b></font></a> <a href=game.jsp?gid=911741&nmove=35><font color=#FFFFFF size=2><b>35.k12</b></font></a> <a href=game.jsp?gid=911741&nmove=36><font color=#000000 size=2><b>36.j12</b></font></a> <a href=game.jsp?gid=911741&nmove=37><font color=#FFFFFF size=2><b>37.k11</b></font></a> <a href=game.jsp?gid=911741&nmove=38><font color=#000000 size=2><b>38.j13</b></font></a> <a href=game.jsp?gid=911741&nmove=39><font color=#FFFFFF size=2><b>39.k13</b></font></a> <a href=game.jsp?gid=911741&nmove=40><font color=#000000 size=2><b>40.i11</b></font></a> <a href=game.jsp?gid=911741&nmove=41><font color=#FFFFFF size=2><b>41.k9</b></font></a> <a href=game.jsp?gid=911741&nmove=42><font color=#000000 size=2><b>42.i8</b></font></a> <a href=game.jsp?gid=911741&nmove=43><font color=#FFFFFF size=2><b>43.h8</b></font></a> <font color=#000000 size=2><span style="background-color: #FF8080"><b>44.resign</span></b></font> </p>
+                    </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+           
+     </td></tr>
+     
+     
+     
+   	</table>   
+   <!--
+   	end info part
+    -->
+
+  </td> 
+</table>
+
+
+
+
+<!-- end -->
+
+</td>
+</tr>
+</table>
+</table>				
+				
+<hr size=1>
+
+<!------------------------------------------------------------------------->					
+<CENTER>
+
+<p><font size='-1'><b>Little Golem</b>. Thanks for playing on our website. 
+<a href="/jsp/message/webmaster.jsp">Message to webmaster</a>.
+Read our <a href="/jsp/info/policy.jsp">Privacy policy</a>.
+Time for generation of page: 58 ms.
+
+
+</font>
+</p>
+					
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-189420-1";
+urchinTracker();
+</script>
+
+</body>
+</html>
+					
