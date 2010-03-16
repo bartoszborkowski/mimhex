@@ -12,7 +12,6 @@ namespace Hex {
 #define FOR_SIX(x)  BOOST_FOREACH(x, Dim::neighbours)
 #define FOR_SIX2(x)  BOOST_FOREACH(x, Dim::other_bridge_ends)
 
-
 uint Board::ToPos(ushort val) {
     if (Switches::DetectWins())
         return val & ~board_second;
@@ -107,7 +106,7 @@ void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& win
     memset(visited, 0, Dim::actual_field_count * sizeof(visited[0]));
 
     if (Player::First() == winner) {
-        for (uint i = Dim::OfPos(1,1); i <= Dim::OfPos(Dim::board_size,1); i = i + Dim::right)
+        for (uint i = Dim::OfPos(1, 1); i <= Dim::OfPos(Dim::board_size, 1); i = i + Dim::right)
             if (IsFirst(board[i])) {
                 // I put to queue every node by the edge
                 queue[++end]=i;
@@ -248,7 +247,7 @@ void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, const Player& winn
     // FIXME: Please merge both branches of this if into a single code snippet.
     // They are both very similar.
     if (Player::First() == winner) {
-        // FIXME: Use OfPos() in order to aquire appropriate iteration range.
+        // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
         for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
                   i < Dim::guard_count * Dim::down + Dim::board_size + Dim::guard_count;
                   i += Dim::right)
@@ -267,7 +266,7 @@ void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, const Player& winn
         // avoiding warnings
         uint current = 0;
         uint min = (uint) -1;
-        // FIXME: Use OfPos() in order to aquire appropriate iteration range.
+        // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
         for (uint i = (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count;
                   i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size;
                   i += Dim::right) {
@@ -290,7 +289,7 @@ void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, const Player& winn
 
     } else {
 
-        // FIXME: Use OfPos() in order to aquire appropriate iteration range.
+        // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
         for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
                   i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count;
                   i = i + Dim::down)
@@ -309,7 +308,7 @@ void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, const Player& winn
         //avoiding warnings
         uint current = 0;
         uint min = (uint) -1;
-        // FIXME: Use OfPos() in order to aquire appropriate iteration range.
+        // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
         for (uint i = Dim::guard_count * Dim::down + Dim::guard_count - 1 + Dim::board_size;
                   i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size;
                   i = i + Dim::down) {
@@ -338,8 +337,8 @@ void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, const Player& winn
  */
 void Board::UpdatePathsStatsFloodFillFU(Board& aBoard, const Player& winner){
     /* first uses positive numbers, second -1s */
-    /* board[(guardedboard_size - 2) * Dim::actualboard_size  + 2] is always a guard of a first type */
-    /* board[2 * Dim::actualboard_size  + 1] is always a guard of a second type */
+    /* board[(guarded_size - 2) * Dim::actual_size  + 2] is always a guard of a first type */
+    /* board[2 * Dim::actual_size  + 1] is always a guard of a second type */
 
     // Two-directional F&U is required for the procedure to function.
     ASSERT(Switches::DetectWins());
@@ -348,7 +347,7 @@ void Board::UpdatePathsStatsFloodFillFU(Board& aBoard, const Player& winner){
     uint parent;
 
     if (Player::First() == winner)
-        startingPoint = (Dim::guardedboard_size - 2) * Dim::down  + 2;
+        startingPoint = (Dim::guarded_size - 2) * Dim::down  + 2;
     else
         startingPoint = 2 * Dim::down + 1;
 
@@ -362,8 +361,8 @@ void Board::ShowPathsStats() {
 
     cerr << "SHOREST PATHS STATS:\n";
 
-    for (uint i = 0; i < Dim::actualboard_size; i++){
-        for (uint j = 0; j < Dim::actualboard_size; j++)
+    for (uint i = 0; i < Dim::actual_size; i++){
+        for (uint j = 0; j < Dim::actual_size; j++)
             cerr << " " << timesOfBeingOnShortestPath[i * Dim::down + j] << " ";
         cerr << "\n";
     }
@@ -387,7 +386,7 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, const Player& winner){
         int startingPoint;
         uint parent;
 
-        startingPoint = (Dim::guardedboard_size - 2) * Dim::actualboard_size + 2;
+        startingPoint = (Dim::guarded_size - 2) * Dim::actual_size + 2;
 
         parent = Find(startingPoint);
 
@@ -407,13 +406,13 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, const Player& winner){
         memset(visited, 0, Dim::actual_field_count * sizeof(visited[0]));
 
         if (Player::First() == winner){
-            // FIXME: Use OfPos() in order to aquire appropriate iteration range.
+            // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
             for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
                       i < Dim::guard_count * Dim::down + Dim::board_size + Dim::guard_count;
                       i += Dim::right)
                 if (IsFirst(board[i])) {
                     queue[++end] = i;
-                    visited[i] = Dim::actualboard_size;
+                    visited[i] = Dim::actual_size;
                 }
 
             for (; beg<=end; beg++)
@@ -430,7 +429,7 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, const Player& winner){
 
             beg = 0;
             end = -1;
-            // FIXME: Use OfPos() in order to aquire appropriate iteration range.
+            // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
             for (uint i = (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count;
                       i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size;
                       i += Dim::right)
@@ -442,7 +441,7 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, const Player& winner){
 
             for(; beg <= end; beg++)
                 FOR_SIX(int dir)
-                    if (visited[queue[beg] + dir] > 0 && visited[queue[beg] + dir] < Dim::actualboard_size + Dim::board_size) {
+                    if (visited[queue[beg] + dir] > 0 && visited[queue[beg] + dir] < Dim::actual_size + Dim::board_size) {
                         queue[++end]=queue[beg] + dir;
                         visited[queue[end]] = 0;
                         aBoard.timesOfBeingOnShortestPath[queue[end]]++;
@@ -450,7 +449,7 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, const Player& winner){
 
         } else {
 
-            // FIXME: Use OfPos() in order to aquire appropriate iteration range.
+            // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
             for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
                       i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count;
                       i = i + Dim::down)
@@ -466,7 +465,7 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, const Player& winner){
                         visited[queue[end]] = visited[beg] + 1;
                     }
 
-            // FIXME: Use OfPos() in order to aquire appropriate iteration range.
+            // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
             for (uint i = Dim::guard_count * Dim::down + Dim::guard_count - 1;
                       i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count - 1;
                       i = i + Dim::down)
@@ -474,7 +473,7 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, const Player& winner){
 
             beg=0;
             end=-1;
-            // FIXME: Use OfPos() in order to aquire appropriate iteration range.
+            // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
             for (uint i = Dim::guard_count * Dim::down + Dim::guard_count - 1 + Dim::board_size;
                       i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count - 1 + Dim::board_size;
                       i = i + Dim::down)
@@ -486,7 +485,7 @@ void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, const Player& winner){
 
             for(; beg <= end; beg++)
                 FOR_SIX (int dir)
-                    if (visited[queue[beg] + dir] > 0 && visited[queue[beg] + dir] < Dim::actualboard_size + Dim::board_size){
+                    if (visited[queue[beg] + dir] > 0 && visited[queue[beg] + dir] < Dim::actual_size + Dim::board_size){
                         queue[++end] = queue[beg] + dir;
                         visited[queue[end]] = 0;
                         aBoard.timesOfBeingOnShortestPath[queue[end]]++;
@@ -718,6 +717,7 @@ void Board::UpdateBridges(uint pos) {
 }
 
 void Board::UpdateBridgeBound(uint pos) {
+
     if (bridge_conn[pos].Size() > 0) {
         // A bridge field might be stored outside the bridge range.
         if (rev_map[pos] <= bridge_range)

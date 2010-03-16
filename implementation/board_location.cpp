@@ -26,9 +26,9 @@ Location::Location() {}
 
 uint Location::GetPos() const { return _pos; }
 
-uint Location::GetX() const { return _pos % Dim::actualboard_size - 1; }
+uint Location::GetX() const { return _pos % Dim::actual_size - 1; }
 
-uint Location::GetY() const { return _pos / Dim::actualboard_size - 1; }
+uint Location::GetY() const { return _pos / Dim::actual_size - 1; }
 
 std::string Location::ToCoords() const {
     std::stringstream coords;

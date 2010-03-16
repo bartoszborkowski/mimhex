@@ -36,8 +36,8 @@ void Game::PrintBoard(std::string& board) {
 	board = current_board.ToAsciiArt(last_move);
 }
 
-void Game::SetPlayoutsPerMove(uint playouts) {
-	tree.SetPlayoutsPerMove(playouts);
+void Game::SetPerMove(uint playouts) {
+	tree.SetPerMove(playouts);
 }
 
 void Game::PrintTree(std::string& ascii_tree, uint children) {

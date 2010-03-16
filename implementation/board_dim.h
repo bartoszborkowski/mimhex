@@ -23,18 +23,18 @@ class Dim {
         /**
          * The size of the board increased by the guarding margins on both sides.
          */
-        static const uint guardedboard_size = board_size + guard_count * 2;
+        static const uint guarded_size = board_size + guard_count * 2;
 
         /**
          * The size of the board as it is kept in memory.
          */
-        static const uint actualboard_size = 16;
+        static const uint actual_size = 16;
 
         /**
          * A special value added to variables in loops in order to iterate over
          * fields in the same column.
          */
-        static const int down = actualboard_size;
+        static const int down = actual_size;
 
         /**
          * Special values that can be added to positions in order to get another,
@@ -79,7 +79,7 @@ class Dim {
         /**
          * The number of fields in the board as it is kept in memory.
          */
-        static const uint actual_field_count = actualboard_size * actualboard_size;
+        static const uint actual_field_count = actual_size * actual_size;
 
         /**
          * @in @param x A field coordinant, where 1 describes leftmost column.

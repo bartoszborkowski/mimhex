@@ -28,7 +28,7 @@ namespace Hex {
  * (2) Audit and retest UpdatePathsStats...(). Specificaly changes applied
  *     during migration to variable guarding could introduce some bugs. Also
  *     some of the procedures were not tested at all, because of lack of
- *     bidirectional F&U.
+ *     bidirectional F&U. (DONE???)
  *
  * (3) Make UpdatePathsStats() independent from the guarding - initialize
  *     visible[] as visited on borders to achieve this.
@@ -45,7 +45,10 @@ namespace Hex {
  *     (d) If FOR_SIX() cannot be used for some reasons, use direction constants
  *         without the macro.
  *     (e) When locating a field within guarded area consider using
- *         Dim::guardedboard_size.
+ *         Dim::guardedboard_size. (DONE - joint work)
+ *
+ * (5) Move each class into a separate file. (DONE - gustawrawicz)
+ *
  */
 
 // -----------------------------------------------------------------------------

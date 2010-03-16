@@ -1,4 +1,4 @@
-//#define INSERT_ASSERTIONS
+#define INSERT_ASSERTIONS
 
 #include "switches.cpp"
 #include "board.cpp"

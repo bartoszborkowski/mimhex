@@ -98,7 +98,7 @@ void Protocol::CShowBoard(Gtp::Io& inout) {
 void Protocol::CSetPlayoutsPerMove(Gtp::Io& inout) {
 	uint playouts = inout.Read<uint>();
 	inout.CheckEmpty();
-	game.SetPlayoutsPerMove(playouts);
+	game.SetPerMove(playouts);
 }
 
 void Protocol::CShowTree(Gtp::Io& inout) {

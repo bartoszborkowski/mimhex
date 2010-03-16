@@ -38,11 +38,11 @@ int Dim::ByPos(int x, int y) {
 }
 
 int Dim::ToX(uint pos) {
-    return pos % Dim::actualboard_size - 1;
+    return pos % Dim::actual_size - 1;
 }
 
 int Dim::ToY(uint pos) {
-    return pos / Dim::actualboard_size - 1;
+    return pos / Dim::actual_size - 1;
 }
 
 void Dim::ToCoords(uint pos, int& x, int& y) {
