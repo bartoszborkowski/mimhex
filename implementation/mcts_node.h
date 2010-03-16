@@ -35,6 +35,7 @@ class Statistics {
 
         void Won();
         void Lost();
+        void Update(bool b);
 
     public:
         uint won;
@@ -49,14 +50,15 @@ class MCTSNode {
         MCTSNode* SelectBestChild();
         MCTSNode* SelectChild();
         MCTSNode* GetChild(uint index);
+        MCTSNode* GetChildByPos(uint pos);
 
         Player GetPlayer();
 
-        void Update(const Board& board, uint* begin, uint* end);
+        void Update(uint* begin, uint* end);
 
         uint GetPlayed();
         bool IsLeaf();
-        void Expand(Board& board);
+        void Expand(Board& board, uint count);
 
         void ToAsciiArt(std::ostream& stream, uint max_children, uint max_level);
 
@@ -81,7 +83,7 @@ class MCTSNode {
         Location loc;
         uint count;
         AutoTable<MCTSNode> children;
-        AutoTable<MCTSNode*> pos_to_children_mapping;
+        AutoTable<MCTSNode*> pos_to_child;
         float value;
         bool computed;
 };

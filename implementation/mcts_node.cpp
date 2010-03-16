@@ -21,6 +21,11 @@ void Statistics::Lost() {
     ++played;
 }
 
+void Statistics::Update(bool b) {
+    won += (b == true);
+    ++played;
+}
+
 float Statistics::GetMu() {
     ASSERT(played > 0);
     return static_cast<float>(won) / static_cast<float>(played);
@@ -90,6 +95,11 @@ MCTSNode* MCTSNode::GetChild(uint index) {
     return &children[index];
 }
 
+MCTSNode* MCTSNode::GetChildByPos(uint pos) {
+    ASSERT(pos_to_child[pos] != NULL);
+    return pos_to_child[pos];
+}
+
 Player MCTSNode::GetPlayer() {
     if (count % 2 == 0)
         return Player::Second();
@@ -146,15 +156,16 @@ bool MCTSNode::IsLeaf() {
     return children == NULL;
 }
 
-void MCTSNode::Expand(Board& board) {
+void MCTSNode::Expand(Board& board, uint c) {
     ASSERT(board.MovesLeft() > 0);
+    count = c;
     unsigned short* locations;
     children = new MCTSNode[board.MovesLeft()];
     board.GetPossiblePositions(locations);
-    pos_to_children_mapping = new MCTSNode* [Dim::actual_field_count];
+    pos_to_child = new MCTSNode* [Dim::actual_field_count];
     for (uint i = 0; i < board.MovesLeft(); ++i) {
         children[i].loc = locations[i];
-        pos_to_children_mapping[locations[i]] = &(children[i]);
+        pos_to_child[locations[i]] = &(children[i]);
         /*amaf_paths:*/
         // FIXME: Nodes take care of themselves
 //         children[i].path.won = board.timesOfBeingOnShortestPath[locations[i]];
@@ -162,38 +173,20 @@ void MCTSNode::Expand(Board& board) {
     }
 }
 
-void MCTSNode::Update(const Board& board, uint* begin, uint* end) {
+void MCTSNode::Update(uint* begin, uint* end) {
 
     computed = false;
 
-    // TODO: Untested.
-    if (GetPlayer() == Player::First())
-        ucb.Won();
-    else
-        ucb.Lost();
+    bool b = GetPlayer() == Player::First();
+    ucb.Update(b);
 
-    // TODO: Implement RAVE here. Use Switches.
-    /*
-    for (int level = board.MovesLeft(); level > 0; --level) {
-        uint pos = full_path[level];
-        int tree_level = current_level - 1;
-        if (tree_level >= level)
-            tree_level = level - 1;
-        else if (((level + tree_level) & 1) == 0)
-            tree_level--;
-        if ((tree_level & 1) == 0)
-            current = player;
-        else current = player.Opponent();
-        while (tree_level >= 0) {
-            MCTSNode* updated = path[tree_level]->pos_to_children_mapping[pos];
-            if (winner == current)
-                updated->rave_stats.won++;
-            updated->rave_stats.played++;
-            updated->SetInvalidRAVE();
-            tree_level -= 2;
+    if (Switches::Rave() && !IsLeaf()) {
+
+        for (uint* it = begin; it != end; ++it) {
+            GetChildByPos(*it)->rave.Update(b);
+            b = !b;
         }
     }
-    */
 
     // TODO: Implement Path RAVE here. Use Switches.
 }
