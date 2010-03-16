@@ -9,6 +9,7 @@
 #include <string>
 #include <fstream>
 #include <boost/lexical_cast.hpp>
+#include <map>
 
 #include "board.cpp"
 #include "template.cpp"
@@ -16,9 +17,9 @@
 #include "hash_board.cpp"
 #include "sampler.cpp"
 #include "macro_definitions.h"
-#include <map>
 
-#define BUFF_SIZE 1024
+
+#define BUFF_SIZE 2048
 
 using namespace std;
 using namespace HexPatterns;
@@ -29,23 +30,14 @@ Hash CalculateHash(Hash h[][FIELD_STATES],
     return h[0][f0] ^ h[1][f1] ^ h[2][f2] ^ h[3][f3] ^ h[4][f4] ^ h[5][f5];
 }
 
-int main(int, char **)
-{
-    //const uint max_patterns = 3000000000;
+int main(int, char **){
     map<uint, Hash> pattern_conv;
     map<uint, Hash> pattern_appearance;
     map<uint, Hash> min_pattern_appearance;
-    //Hash pattern_conv[max_patterns];
-    //Hash pattern_appearance[max_patterns];
-    //Hash min_pattern_appearance[max_patterns];
     Hash field_base_hash[6][FIELD_STATES];
-    
     pattern_conv.clear();
     pattern_appearance.clear();
     min_pattern_appearance.clear();
-//     memset(pattern_conv, 0, max_patterns * sizeof(Hash));
-//     memset(pattern_appearance, 0, max_patterns * sizeof(Hash));
-//     memset(min_pattern_appearance, 0, max_patterns * sizeof(Hash));
 
     rep(i, FIELD_STATES) {
         field_base_hash[0][i] = templates[0].GetHash(-16, i);
@@ -78,37 +70,23 @@ int main(int, char **)
 	ofstream out0("min_hash.txt", ios_base::out);
 	ofstream out1("comp.txt", ios_base::out);
 	ofstream out2("pattern_numb.txt", ios_base::out);
-	char buffer[BUFF_SIZE];
-	string split;
-	string part;
-	size_t pos, end;
 
-	while (in.good()) {
-		in.getline(buffer, BUFF_SIZE);
-		split = buffer;
-		pos = 0;
-
-		while (pos !=string::npos) {
-			end = split.find_first_of(' ', pos);
-			part = split.substr(pos, end == string::npos ? end : end - pos);
-
-			try {
-				uint p = boost::lexical_cast<uint>(part);
-
-				min_pattern_appearance[pattern_conv[p]] = 1;
-				pattern_appearance[p] = 1;
-
-			} catch (boost::bad_lexical_cast &) {
-			}
-
-			if (end == string::npos)
-				break;
-			else
-				pos = end + 1;
+	uint line_no = 0;
+	string line;
+	while (!in.eof()){
+		getline(in, line);
+		istringstream iss;
+		iss.str(line);
+		uint p;
+		while (iss >> p){
+			min_pattern_appearance[pattern_conv[p]] = 1;
+			pattern_appearance[p] = 1;
 		}
+		line_no ++;
 	}
+	cout << "Ilość wczytanych lini: " <<line_no << endl;
 
-    // TODO zmienić na iterator
+
     map<uint, Hash>::iterator it_pa = pattern_appearance.begin();
     while (it_pa != pattern_appearance.end()){
         uint indx = it_pa->first;
@@ -116,9 +94,8 @@ int main(int, char **)
         ++it_pa;
     }
 
-    // TODO zmienić na iterator
-    map<uint, Hash>::iterator it_mpa = min_pattern_appearance.begin();
     uint oridnal_no = 0;
+    map<uint, Hash>::iterator it_mpa = min_pattern_appearance.begin();
     while (it_mpa != min_pattern_appearance.end()){
         uint indx = it_mpa->first;
 		out2 << oridnal_no << " " << indx << endl; // ordinal number -> minPattern
@@ -129,32 +106,18 @@ int main(int, char **)
 	in.close();
 	in.open("pattern_teams.txt", fstream::in);
 
-	while (in.good()) {
-		in.getline(buffer, BUFF_SIZE);
-		split = buffer;
-		pos = 0;
-
-		while (pos !=string::npos) {
-			end = split.find_first_of(' ', pos);
-			part = split.substr(pos, end == string::npos ? end : end - pos);
-
-			try {
-				uint p = boost::lexical_cast<uint>(part);
-
-				out1 << min_pattern_appearance[pattern_conv[p]];
-			} catch (boost::bad_lexical_cast &) {
-			}
-
-			if (end == string::npos)
-				break;
-			else {
+	while (!in.eof()){
+		getline(in, line);
+		istringstream iss;
+		iss.str(line);
+		uint p;
+		while (iss >> p){
+			out1 << min_pattern_appearance[pattern_conv[p]];
+			if (!iss.eof())
 				out1 << " ";
-				pos = end + 1;
-			}
+			pattern_appearance[p] = 1;
 		}
-
 		out1 << endl;
-
 	}
 
 	in.close();
