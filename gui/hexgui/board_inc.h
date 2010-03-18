@@ -12,6 +12,10 @@
 //#include "params.h"
 
 #include "board.h"
+#include "board_player.h"
+#include "board_location.h"
+#include "board_move.h"
+#include "board_dim.h"
 //#include "gtp.h"
 #include "mcts_node.h"
 #include "mcts_tree.h"

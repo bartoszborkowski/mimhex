@@ -3,6 +3,10 @@
 
 #include "board_inc.h"
 #include "board.cpp"
+#include "board_player.cpp"
+#include "board_location.cpp"
+#include "board_move.cpp"
+#include "board_dim.cpp"
 //#include "gtp.cpp"
 #include "mcts_node.cpp"
 #include "mcts_tree.cpp"

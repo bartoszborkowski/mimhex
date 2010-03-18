@@ -39,6 +39,7 @@ Move MCTSTree::BestMove(Player player, Board& board) {
     nodes[0] = root.GetPointer();
 
     if (root->IsLeaf()) {
+        std::cerr << "expanding root" << std::endl;
         root->Expand(board, board.MovesLeft());
     }
 
@@ -84,10 +85,9 @@ Move MCTSTree::BestMove(Player player, Board& board) {
     }
     */
 
-    MCTSNode* best = root->SelectBestChild();
-    player = player.Opponent();
-
-    return Move(player, best->loc);
+    Move best(player, root->SelectBestChild()->loc);
+    ASSERT(board.IsValidMove(best));
+    return best;
 }
 
 Player MCTSTree::RandomFinish(Board& board, uint* path, uint current_level) {
