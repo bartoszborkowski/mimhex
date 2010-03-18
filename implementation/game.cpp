@@ -11,7 +11,7 @@ Game::Game() : empty_board(Board::Empty()), last_move(0) {
 
 void Game::ClearBoard() {
 	current_board.Load(empty_board);
-	tree.Reset();
+	tree.Reset(current_board);
 }
 
 void Game::Play(const Move& move) {

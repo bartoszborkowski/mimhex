@@ -22,7 +22,7 @@ void Statistics::Lost() {
 }
 
 void Statistics::Update(bool b) {
-    won += (b == true);
+    won += (1 & b);
     ++played;
 }
 
@@ -46,16 +46,15 @@ MCTSNode::MCTSNode():
     ucb(Params::initialization, 2 * Params::initialization),
     rave(Params::initialization, 2 * Params::initialization),
     path(Params::initialization, 2 * Params::initialization),
-    loc(0),
-    count(0),
+    children(NULL),
     computed(false) {}
 
-MCTSNode::MCTSNode(Location location):
+MCTSNode::MCTSNode(const Board& board):
     ucb(Params::initialization, 2 * Params::initialization),
     rave(Params::initialization, 2 * Params::initialization),
     path(Params::initialization, 2 * Params::initialization),
-    loc(location),
-    count(0),
+    count(board.MovesLeft()),
+    children(NULL),
     computed(false) {}
 
 MCTSNode* MCTSNode::SelectBestChild() {
@@ -101,10 +100,11 @@ MCTSNode* MCTSNode::GetChildByPos(uint pos) {
 }
 
 Player MCTSNode::GetPlayer() {
-    if (count % 2 == 0)
-        return Player::Second();
-    else
+    // FIXME: This could be optimized.
+    if (count % 2 == Dim::field_count % 2)
         return Player::First();
+    else
+        return Player::Second();
 }
 
 float MCTSNode::Compute() {
@@ -156,16 +156,17 @@ bool MCTSNode::IsLeaf() {
     return children == NULL;
 }
 
-void MCTSNode::Expand(Board& board, uint c) {
-    ASSERT(board.MovesLeft() > 0);
-    count = c;
-    unsigned short* locations;
-    children = new MCTSNode[board.MovesLeft()];
-    board.GetPossiblePositions(locations);
-    pos_to_child = new MCTSNode* [Dim::actual_field_count];
+void MCTSNode::Expand(const Board& board) {
+    ASSERT(board.MovesLeft() == count);
+    ASSERT(count > 0);
+    ASSERT(children == NULL);
+    const ushort* empty = board.GetEmpty();
+    children = new MCTSNode[count];
+    pos_to_child = new MCTSNode*[Dim::actual_field_count];
     for (uint i = 0; i < board.MovesLeft(); ++i) {
-        children[i].loc = locations[i];
-        pos_to_child[locations[i]] = &(children[i]);
+        children[i].loc = empty[i];
+        children[i].count = count - 1;
+        pos_to_child[empty[i]] = &children[i];
         /*amaf_paths:*/
         // FIXME: Nodes take care of themselves
 //         children[i].path.won = board.timesOfBeingOnShortestPath[locations[i]];
@@ -173,18 +174,17 @@ void MCTSNode::Expand(Board& board, uint c) {
     }
 }
 
-void MCTSNode::Update(uint* begin, uint* end) {
+void MCTSNode::Update(bool won, uint* begin, uint* end) {
 
     computed = false;
 
-    bool b = GetPlayer() == Player::First();
-    ucb.Update(b);
+    ucb.Update(won);
 
     if (Switches::Rave() && !IsLeaf()) {
 
         for (uint* it = begin; it != end; ++it) {
-            GetChildByPos(*it)->rave.Update(b);
-            b = !b;
+            GetChildByPos(*it)->rave.Update(won);
+            won = !won;
         }
     }
 
@@ -198,7 +198,7 @@ void MCTSNode::ToAsciiArt(std::ostream& stream, uint max_children, uint max_leve
 
 void MCTSNode::RecursivePrint(std::ostream& stream, uint max_children, uint max_level, uint level, Player player) {
 
-    ASSERT (children == NULL || count > 0);
+    ASSERT (IsLeaf() || count > 0);
 
     if (max_level == 0)
         return;

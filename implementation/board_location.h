@@ -10,6 +10,7 @@ namespace Hex{
 
 class Location {
     public:
+        Location();
         static Location OfCoords (std::string);
         Location (uint pos);
         Location (uint x, uint y);
@@ -22,9 +23,6 @@ class Location {
         static bool ValidLocation(const std::string& location);
         static bool ValidLocation(uint x, uint y);
         static bool ValidPosition(uint pos);
-
-    private:
-        Location();
 
     private:
         uint _pos;

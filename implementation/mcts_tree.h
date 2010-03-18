@@ -10,9 +10,9 @@ class MCTSTree {
     public:
         MCTSTree();
 
-        void Reset();
+        void Reset(const Board& board);
 
-        Move BestMove(Player player, Board& board);
+        Move BestMove(Player player, const Board& board);
         Player RandomFinish(Board& board, uint* path, uint current_level);
         Player RandomFinishWithoutPath(Board& board);
 
@@ -26,7 +26,6 @@ class MCTSTree {
         Player current;
         uint max_depth;
         uint per_move;
-        uint root_children_number;
 
         static const uint default_max_depth;
         static const uint default_per_move;

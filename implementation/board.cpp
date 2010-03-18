@@ -664,8 +664,8 @@ uint Board::MovesLeft() const {
     return moves_left;
 }
 
-void Board::GetPossiblePositions(Board::ushort_ptr& locations) {
-    locations = field_map;
+const ushort* Board::GetEmpty() const {
+    return field_map;
 }
 
 void Board::UpdateBridges(uint pos) {
@@ -779,7 +779,7 @@ std::string Board::ToAsciiArt(Location last_move) const {
     return s.str();
 }
 
-bool Board::IsValidMove(const Move& move) {
+bool Board::IsValidMove(const Move& move) const {
     return (Location::ValidPosition(move.GetLocation().GetPos())) &&
             IsEmpty(board[move.GetLocation().GetPos()]) &&
           ((moves_left % 2 == 0 && move.GetPlayer() == Player::Second()) ||

@@ -10,22 +10,19 @@ const uint MCTSTree::ultimate_depth = Dim::field_count;
 const uint MCTSTree::visits_to_expand = 10;
 const uint MCTSTree::amaf_paths_palyouts = 1000;
 
-inline MCTSTree::MCTSTree():
-    current(Player::First()) {
+MCTSTree::MCTSTree():
+    root(NULL),
+    current(Player::First()),
+    max_depth(default_max_depth),
+    per_move(default_per_move) {}
 
-    Reset();
-    max_depth = default_max_depth;
-    per_move = default_per_move;
+void MCTSTree::Reset(const Board& board) {
+    root = new MCTSNode(board);
 }
 
-void MCTSTree::Reset() {
-    root = new MCTSNode();
-    root_children_number = 0;
-}
+Move MCTSTree::BestMove(Player player, const Board& board) {
 
-Move MCTSTree::BestMove(Player player, Board& board) {
-
-    Reset();
+    Reset(board);
 
     ASSERT(!board.IsWon());
     ASSERT(root != NULL);
@@ -33,14 +30,14 @@ Move MCTSTree::BestMove(Player player, Board& board) {
     Board brd;
     MCTSNode* node;
     MCTSNode* nodes[Dim::field_count];
-    uint level;
+    uint level = 0;
     uint history[Dim::field_count];
 
     nodes[0] = root.GetPointer();
+    history[0] = 0; // Some invalid move.
 
     if (root->IsLeaf()) {
-        std::cerr << "expanding root" << std::endl;
-        root->Expand(board, board.MovesLeft());
+        root->Expand(board);
     }
 
     if (max_depth == 0)
@@ -48,7 +45,7 @@ Move MCTSTree::BestMove(Player player, Board& board) {
 
     for (uint i = 0; i < per_move; ++i) {
 
-        level = 0;
+        level = 1;
         node = root.GetPointer();
         brd.Load(board);
         while (!node->IsLeaf()) {
@@ -61,7 +58,7 @@ Move MCTSTree::BestMove(Player player, Board& board) {
 
         if (level < max_depth && node->GetPlayed() >= visits_to_expand
                               && brd.MovesLeft() > 0) {
-            node->Expand(brd, brd.MovesLeft());
+            node->Expand(brd);
             node = node->SelectChild();
             brd.PlayLegal(Move(brd.CurrentPlayer(), node->loc));
             nodes[level] = node;
@@ -69,10 +66,13 @@ Move MCTSTree::BestMove(Player player, Board& board) {
             ++level;
         }
 
-//         Player winner = RandomFinish(brd, history, level);
+        Player winner = RandomFinish(brd, history, level);
 
-        for (int i = level - 1; i >= 0; --i)
-            nodes[i]->Update(history + i, history + level);
+        bool won = (winner == brd.CurrentPlayer());
+        for (int i = level - 1; i >= 0; --i) {
+            nodes[i]->Update(won, history + i + 1, history + level);
+            won = !won;
+        }
     }
 
     // TODO: Scheduled for moving to MCTSNode::Update()
@@ -84,6 +84,8 @@ Move MCTSTree::BestMove(Player player, Board& board) {
 //        board.ShowPathsStats();
     }
     */
+
+    std::cerr << ToAsciiArt(4);
 
     Move best(player, root->SelectBestChild()->loc);
     ASSERT(board.IsValidMove(best));

@@ -53,16 +53,9 @@ namespace Hex {
 
 // -----------------------------------------------------------------------------
 
-
-
-
-// -----------------------------------------------------------------------------
-
 class Board {
     public:
         const static Board Empty();
-
-        typedef ushort* ushort_ptr;
 
         Board();
         Player CurrentPlayer() const;
@@ -76,10 +69,10 @@ class Board {
         Player Winner() const;
         void Load (const Board&);
         uint MovesLeft() const;
-        void GetPossiblePositions(ushort_ptr& locations);
+        const ushort* GetEmpty() const;
         std::string ToAsciiArt(Location last_move) const;
         void Show() const;
-        bool IsValidMove(const Move& move);
+        bool IsValidMove(const Move& move) const;
 
     private:
         /**

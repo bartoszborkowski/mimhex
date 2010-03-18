@@ -45,7 +45,7 @@ class Statistics {
 class MCTSNode {
     public:
         MCTSNode();
-        MCTSNode(Location loc);
+        MCTSNode(const Board& board);
 
         MCTSNode* SelectBestChild();
         MCTSNode* SelectChild();
@@ -54,11 +54,11 @@ class MCTSNode {
 
         Player GetPlayer();
 
-        void Update(uint* begin, uint* end);
+        void Update(bool won, uint* begin, uint* end);
 
         uint GetPlayed();
         bool IsLeaf();
-        void Expand(Board& board, uint count);
+        void Expand(const Board& board);
 
         void ToAsciiArt(std::ostream& stream, uint max_children, uint max_level);
 
