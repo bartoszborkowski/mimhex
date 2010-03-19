@@ -53,6 +53,7 @@ MCTSNode::MCTSNode(const Board& board):
     ucb(Params::initialization, 2 * Params::initialization),
     rave(Params::initialization, 2 * Params::initialization),
     path(Params::initialization, 2 * Params::initialization),
+    loc(0),
     count(board.MovesLeft()),
     children(NULL),
     computed(false) {}

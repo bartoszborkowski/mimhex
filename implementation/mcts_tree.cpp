@@ -27,10 +27,15 @@ Move MCTSTree::BestMove(Player player, const Board& board) {
     ASSERT(!board.IsWon());
     ASSERT(root != NULL);
 
+    /// Temporary board to animate playouts
     Board brd;
+    /// Current node in the MCTS tree.
     MCTSNode* node;
+    /// All the nodes on the path in the MCTS tree. Valid range: 0..level - 1.
     MCTSNode* nodes[Dim::field_count];
-    uint level = 0;
+    /// Number of moves made so far.
+    uint level = 1;
+    /// All the moves made so far. Valid range: 1..level - 1.
     uint history[Dim::field_count];
 
     nodes[0] = root.GetPointer();
