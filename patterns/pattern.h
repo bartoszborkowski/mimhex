@@ -23,16 +23,18 @@ namespace HexPatterns
             Pattern(const Pattern &pattern);
             Pattern & operator =(const Pattern &pattern);
 
-            uint GetPosition() const;
-            Hash HashChange(uint position, uint player) const;
+            uint GetId() const;
+            int GetRow() const;
+            int GetColumn() const;
+
+            Hash HashChange(int position, uint player) const;
 
             std::string ToAsciiArt() const;
 
         private:
             uint id;
             uint template_id;
-            uint central_position;
-            Hash fields_base_hashes[Hex::kFieldsAlignedAmount][FIELD_STATES];
+            int row, column;
     };
 
     Pattern patterns[PATTERNS_AMOUNT];

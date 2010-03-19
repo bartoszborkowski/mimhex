@@ -7,6 +7,8 @@ cd ../lib
 rm -Rvf CMakeFiles/ CTestTestfile.cmake Makefile cmake_install.cmake
 cd ../tests
 rm -Rvf CMakeFiles/ CTestTestfile.cmake Makefile cmake_install.cmake
+cd ../benchmarks
+rm -Rvf CMakeFiles/ CTestTestfile.cmake Makefile cmake_install.cmake
 cd ../patterns
 rm -Rvf CMakeFiles/ CTestTestfile.cmake Makefile cmake_install.cmake
 cd utils

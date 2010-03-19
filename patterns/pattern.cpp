@@ -13,33 +13,22 @@ namespace HexPatterns
 {
     uint Pattern::InitialisePatterns()
     {
-        rep(ii, Hex::kBoardSize + 2)
-            rep(jj, Hex::kBoardSize + 2) {
-                uint kk = GUARDED_POSITION(ii, jj);
+        rep(ii, Hex::kBoardSizeAligned)
+            rep(jj, Hex::kBoardSizeAligned) {
+                uint kk = ii * Hex::kBoardSizeAligned + jj;
                 patterns[kk] = Pattern(kk, 0, ii, jj);
             }
 
         return 0;
     }
 
-    Pattern::Pattern() : id(-1), template_id(-1), central_position(-1)
+    Pattern::Pattern() : id(-1), template_id(-1), row(-1), column(-1)
     {
-        memset(fields_base_hashes, 0, kPatternHashMemory);
     }
 
-    Pattern::Pattern(uint _id, uint _template_id, int row, int column) :
-        id(_id), template_id(_template_id),
-        central_position(GUARDED_POSITION(row, column))
+    Pattern::Pattern(uint _id, uint _template_id, int _row, int _column) :
+        id(_id), template_id(_template_id), row(_row), column(_column)
     {
-        memset(fields_base_hashes, 0, kPatternHashMemory);
-
-        rep(ii, Hex::kBoardSize + 2)
-            rep(jj, Hex::kBoardSize + 2) {
-                uint kk = GUARDED_POSITION(ii, jj);
-                rep(ff, FIELD_STATES)
-                    fields_base_hashes[kk][ff] =
-                        templates[template_id].GetHash(ii - row, jj - column, ff);
-            }
     }
 
     Pattern::Pattern(const Pattern &pattern)
@@ -61,17 +50,8 @@ namespace HexPatterns
         ret << "Pattern" << std::endl
             << "\tid \t\t" << id << std::endl
             << "\ttemplate_id \t"<< template_id << std::endl
-            << "\tposition \t" << central_position << std::endl;
-
-        rep(ii, Hex::kFieldsAlignedAmount)
-            if (fields_base_hashes[ii][0]) {
-                ret << "\thash[" << ii
-                    << "][0] \t\t" << fields_base_hashes[ii][0] << std::endl
-                    << "\thash[" << ii
-                    << "][1] \t\t" << fields_base_hashes[ii][1] << std::endl
-                    << "\thash[" << ii
-                    << "][2] \t\t" << fields_base_hashes[ii][2] << std::endl;
-            }
+            << "\trow \t" << row << std::endl
+            << "\tcolumn \t" << column << std::endl;
 
         return ret.str();
     }

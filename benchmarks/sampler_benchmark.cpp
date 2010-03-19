@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
  */
 {
     Hex::Sampler sampler;
-    uint loops = 1000000;
+    uint loops = 100000;
     uint pos;
     time_t begin, end;
     Hex::Player player(Hex::Player::First());

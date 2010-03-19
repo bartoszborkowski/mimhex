@@ -1,1 +1,0 @@
-/usr/bin/c++     -fPIC CMakeFiles/sampler_benchmark.dir/sampler_benchmark.cpp.o  -o sampler_benchmark -rdynamic 
