@@ -22,89 +22,31 @@
 
 namespace HexPatterns
 {
-    template<class T> T ParseToken(const std::string &input, const char separator,
-        size_t &pos)
+    void FillArrays(uint i, int row, int col, Hash h0, Hash h1, Hash h2,
+        Hash h3, int pos[][DIMENSIONS], Hash h[][FIELD_STATES])
     {
-        size_t end = input.find_first_of(separator, pos);
-        std::string part =
-            input.substr(pos, end == std::string::npos ? end : end - pos);
-        pos = end == std::string::npos ? end : end + 1;
+        pos[i][ROW] = row;
+        pos[i][COLUMN] = col;
 
-        try {
-            return boost::lexical_cast<T>(part);
-        } catch (boost::bad_lexical_cast &) {
-            std::cerr << "Error: " << part << " is of invalid type" << std::endl;
-            exit(1);
-        }
+        h[i][PLAYER_0_STATE] = h0;
+        h[i][PLAYER_1_STATE] = h1;
+        h[i][GUARDIAN_STATE] = h2;
+        h[i][EMPTY_STATE] = h3;
     }
 
-    void ParseString(const std::string &input, const char separator,
-        uint &id, uint &base_hash, uint &size,
-        int relative_positions[][DIMENSIONS],
-        Hash field_hashes[][FIELD_STATES])
-    /*
-    * TODO: move this to some util-like file
-    */
+    uint Template::InitialiseTemplates()
     {
-        size_t pos = 0;
+        int positions[6][DIMENSIONS];
+        Hash hashes[6][FIELD_STATES];
 
-        id = ParseToken<uint>(input, separator, pos);
-        base_hash = ParseToken<uint>(input, separator, pos);
-        size = ParseToken<uint>(input, separator, pos);
+        FillArrays(0, -1, 0, 1858371402, 637933676, 1993303069, 0, positions, hashes);
+        FillArrays(1, -1, 1, 2029330270, 1495175269, 1134523642, 0, positions, hashes);
+        FillArrays(2, 0, -1, 608453654, 2081962756, 792820039, 0, positions, hashes);
+        FillArrays(3, 0, 1, 290675495, 1419729510, 1768091954, 0, positions, hashes);
+        FillArrays(4, 1, -1, 336599391, 1251852077, 927732484, 0, positions, hashes);
+        FillArrays(5, 1, 0, 1933830382, 260111653, 2066513445, 0, positions, hashes);
 
-        if (size > Hex::kFieldsAmount) {
-            std::cerr << "Error: Template " << id << " size out of bounds."
-                        << std::endl;
-            exit(1);
-        }
-
-        rep(ii, size) {
-            rep(jj, DIMENSIONS)
-                relative_positions[ii][jj] =
-                    ParseToken<int>(input, separator, pos);
-            rep(jj, FIELD_STATES - 1)
-                field_hashes[ii][jj] =
-                    ParseToken<uint>(input, separator, pos);
-        }
-
-        return;
-    }
-
-    uint Template::InitialiseTemplates(const char *template_file)
-    {
-        std::ifstream ifs(template_file, std::ifstream::in);
-        char buffer[BUFFER_SIZE];
-
-        int relative_positions[Hex::kFieldsAmount][DIMENSIONS];
-        Hash field_hashes[Hex::kFieldsAmount][FIELD_STATES];
-
-        size_t rp_size = Hex::kFieldsAmount * DIMENSIONS * sizeof(int);
-        size_t fbh_size = Hex::kFieldsAmount * FIELD_STATES * sizeof(Hash);
-
-        uint id, base_hash, size;
-
-        if (!ifs.good()) {
-            std::cerr << "Error: could not open file \'" << template_file
-                        << "\'" << std::endl;
-            exit(1);
-        }
-
-        while (ifs.good()) {
-            memset(relative_positions, 0, rp_size);
-            memset(field_hashes, 0, fbh_size);
-
-            ifs.getline(buffer, BUFFER_SIZE);
-            if (buffer[0] != COMMENT_LINE) {
-                ParseString(buffer, ' ', id, base_hash, size,
-                    relative_positions, field_hashes);
-
-                templates[id] =
-                    Template(id, base_hash, size,
-                        relative_positions, field_hashes);
-            }
-        }
-
-        ifs.close();
+        templates[0] = Template(0, 0, 6, positions, hashes);
 
         return 0;
     }

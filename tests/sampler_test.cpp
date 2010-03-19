@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
  */
 {
     Hex::Sampler sampler;
-    uint loops = 1000000;
+    uint loops = 10000;
     uint pos;
     Hex::Player player(Hex::Player::First());
     std::map<HexPatterns::Hash, uint> choices, occurences;
