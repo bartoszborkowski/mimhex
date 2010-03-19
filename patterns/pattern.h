@@ -16,7 +16,7 @@ namespace HexPatterns
     class Pattern
     {
         public:
-            static uint InitialisePatterns(const char *pattern_file = PATTERNS_FILE);
+            static uint InitialisePatterns();
 
             Pattern();
             Pattern(uint id, uint template_id, int row, int column);

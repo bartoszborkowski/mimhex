@@ -13,7 +13,7 @@ inline Hash HashBoard::GetHash(uint position) const
     return position_hash[position];
 }
 
-inline const Hash * HashBoard::GetAllHash() const
+inline const Hash * HashBoard::GetAllHashes() const
 {
     return position_hash;
 }

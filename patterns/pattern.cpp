@@ -11,9 +11,8 @@
 
 namespace HexPatterns
 {
-    uint Pattern::InitialisePatterns(const char */*pattern_file*/)
+    uint Pattern::InitialisePatterns()
     {
-    // TODO: make this a 'from file' function
         rep(ii, Hex::kBoardSize + 2)
             rep(jj, Hex::kBoardSize + 2) {
                 uint kk = GUARDED_POSITION(ii, jj);

@@ -25,10 +25,7 @@ namespace HexPatterns
         ((row + 2) * Hex::kBoardSizeAligned + (column + 2))
 
     #define TEMPLATES_AMOUNT        1
-    #define TEMPLATES_FILE          "template.data"
-
     #define PATTERNS_AMOUNT         (Hex::kFieldsAlignedAmount)
-    #define PATTERNS_FILE           "pattern.data"
 
     #define PATTERN_DATA_FILE       "pattern_strength.data"
 
