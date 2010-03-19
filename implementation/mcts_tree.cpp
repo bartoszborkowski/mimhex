@@ -18,6 +18,7 @@ MCTSTree::MCTSTree():
 
 void MCTSTree::Reset(const Board& board) {
     root = new MCTSNode(board);
+    ASSERT(root->IsLeaf());
 }
 
 Move MCTSTree::BestMove(Player player, const Board& board) {
@@ -39,14 +40,10 @@ Move MCTSTree::BestMove(Player player, const Board& board) {
     uint history[Dim::field_count];
 
     nodes[0] = root.GetPointer();
-    history[0] = 0; // Some invalid move.
 
-    if (root->IsLeaf()) {
-        root->Expand(board);
-    }
-
-    if (max_depth == 0)
-        node = root->GetChild(Rand::next_rand(brd.MovesLeft()));
+//  TODO: If we really want this option than implement it properly.
+//     if (max_depth == 0)
+//         node = root->GetChild(Rand::next_rand(brd.MovesLeft()));
 
     for (uint i = 0; i < per_move; ++i) {
 
@@ -55,6 +52,7 @@ Move MCTSTree::BestMove(Player player, const Board& board) {
         brd.Load(board);
         while (!node->IsLeaf()) {
             node = node->SelectChild();
+            ASSERT(brd.CurrentPlayer() == node->GetPlayer());
             brd.PlayLegal(Move(brd.CurrentPlayer(), node->loc));
             nodes[level] = node;
             history[level] = node->loc.GetPos();
@@ -73,22 +71,13 @@ Move MCTSTree::BestMove(Player player, const Board& board) {
 
         Player winner = RandomFinish(brd, history, level);
 
-        bool won = (winner == brd.CurrentPlayer());
+        bool won = (winner == nodes[level - 1]->GetPlayer());
         for (int i = level - 1; i >= 0; --i) {
-            nodes[i]->Update(won, history + i + 1, history + level);
+            ASSERT((winner == nodes[i]->GetPlayer()) == won);
+            nodes[i]->Update(won, history + i + 1, history + Dim::field_count);
             won = !won;
         }
     }
-
-    // TODO: Scheduled for moving to MCTSNode::Update()
-    /*
-    for(uint i=0; i<amaf_paths_palyouts; i++){
-        brd.Load(board);
-        Player winner = RandomFinishWithoutPath(brd);
-        brd.UpdatePathsStatsAllShortestPathsBFS(board,winner);
-//        board.ShowPathsStats();
-    }
-    */
 
     std::cerr << ToAsciiArt(4);
 
@@ -97,13 +86,14 @@ Move MCTSTree::BestMove(Player player, const Board& board) {
     return best;
 }
 
-Player MCTSTree::RandomFinish(Board& board, uint* path, uint current_level) {
+Player MCTSTree::RandomFinish(Board& board, uint* history, uint level) {
 
     while (!board.IsFull()) {
       Player pl = board.CurrentPlayer();
       Move move = board.GenerateMoveUsingKnowledge(pl);
-      path[++current_level] = move.GetLocation().GetPos();
       board.PlayLegal(move);
+      history[level] = move.GetLocation().GetPos();
+      ++level;
     }
 
     return board.Winner();

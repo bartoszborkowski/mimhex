@@ -102,7 +102,8 @@ MCTSNode* MCTSNode::GetChildByPos(uint pos) {
 
 Player MCTSNode::GetPlayer() {
     // FIXME: This could be optimized.
-    if (count % 2 == Dim::field_count % 2)
+    ASSERT(count > 0 || IsLeaf());
+    if (count % 2 == (Dim::field_count - 1) % 2)
         return Player::First();
     else
         return Player::Second();
@@ -154,6 +155,7 @@ float MCTSNode::GetAmafWeight() {
 }
 
 bool MCTSNode::IsLeaf() {
+//     std::cerr << "count: " << count << std::endl;
     return children == NULL;
 }
 
@@ -164,7 +166,7 @@ void MCTSNode::Expand(const Board& board) {
     const ushort* empty = board.GetEmpty();
     children = new MCTSNode[count];
     pos_to_child = new MCTSNode*[Dim::actual_field_count];
-    for (uint i = 0; i < board.MovesLeft(); ++i) {
+    for (uint i = 0; i < count; ++i) {
         children[i].loc = empty[i];
         children[i].count = count - 1;
         pos_to_child[empty[i]] = &children[i];
@@ -190,6 +192,14 @@ void MCTSNode::Update(bool won, uint* begin, uint* end) {
     }
 
     // TODO: Implement Path RAVE here. Use Switches.
+    /*
+    for(uint i=0; i<amaf_paths_palyouts; i++){
+        brd.Load(board);
+        Player winner = RandomFinishWithoutPath(brd);
+        brd.UpdatePathsStatsAllShortestPathsBFS(board,winner);
+//        board.ShowPathsStats();
+    }
+    */
 }
 
 void MCTSNode::ToAsciiArt(std::ostream& stream, uint max_children, uint max_level) {
