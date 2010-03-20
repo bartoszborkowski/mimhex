@@ -24,7 +24,7 @@ enum Feature {
   feature_count = 1
 };
 
-const uint level_count [feature_count] = { (1 << 6) * 121 };
+const uint level_count [feature_count] = { 4096 };
 
 
 // -----------------------------------------------------------------------------
