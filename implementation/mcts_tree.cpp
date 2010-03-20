@@ -74,7 +74,7 @@ Move MCTSTree::BestMove(Player player, const Board& board) {
         bool won = (winner == nodes[level - 1]->GetPlayer());
         for (int i = level - 1; i >= 0; --i) {
             ASSERT((winner == nodes[i]->GetPlayer()) == won);
-            nodes[i]->Update(won, history + i + 1, history + Dim::field_count);
+            nodes[i]->Update(won, history + i + 1, history + board.MovesLeft() + 1);
             won = !won;
         }
     }
@@ -122,7 +122,6 @@ void MCTSTree::SetPerMove(uint playouts) {
 
 std::string MCTSTree::ToAsciiArt(uint children) {
     std::stringstream stream;
-    // FIXME
     root->ToAsciiArt(stream, children, -1);
     return stream.str();
 }

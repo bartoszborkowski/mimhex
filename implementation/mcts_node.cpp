@@ -96,6 +96,7 @@ MCTSNode* MCTSNode::GetChild(uint index) {
 }
 
 MCTSNode* MCTSNode::GetChildByPos(uint pos) {
+    ASSERT(pos < Dim::actual_field_count);
     ASSERT(pos_to_child[pos] != NULL);
     return pos_to_child[pos];
 }
@@ -141,6 +142,7 @@ float MCTSNode::GetUcbWeight() {
 }
 
 float MCTSNode::GetRaveWeight() {
+    ASSERT(Switches::PathRave() || Switches::Rave());
     float r = 1.0f - GetUcbWeight();
     if (Switches::PathAmaf() && Switches::Rave())
         r *= Params::gamma;
@@ -148,6 +150,7 @@ float MCTSNode::GetRaveWeight() {
 }
 
 float MCTSNode::GetAmafWeight() {
+    ASSERT(Switches::PathAmaf());
     float r = 1.0f - GetUcbWeight();
     if (Switches::PathAmaf() && Switches::Rave())
         r *= 1.0f - Params::gamma;
@@ -185,9 +188,10 @@ void MCTSNode::Update(bool won, uint* begin, uint* end) {
 
     if (Switches::Rave() && !IsLeaf()) {
 
+        ASSERT(end - begin == count);
         for (uint* it = begin; it != end; ++it) {
-            GetChildByPos(*it)->rave.Update(won);
             won = !won;
+            GetChildByPos(*it)->rave.Update(won);
         }
     }
 
