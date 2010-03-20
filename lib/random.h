@@ -17,6 +17,14 @@ public:
 	  ASSERT(n < 0xffff);
 	  return ((next_rand() & 0xffff) * n) >> 16;
 	}
+	static double next_double() {
+	  const double inv_max_uint = 1.0 / static_cast<double>(1L << 31);
+	  return next_rand() * inv_max_uint;
+	}
+	static double next_double (double scale) {
+	  const double inv_max_uint = 1.0 / static_cast<double>(1L << 31);
+	  return static_cast<double>(next_rand()) * (inv_max_uint * scale);
+	}
 private:
 	static unsigned _seed;
 };

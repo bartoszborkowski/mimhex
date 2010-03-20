@@ -31,7 +31,8 @@ Hash CalculateHash(Hash h[][FIELD_STATES],
 
 int main(int, char **)
 {
-    const uint max_patterns = 3000000000;
+    //const uint max_patterns = 3000000000;
+	const uint max_patterns = 300000;
     Hash pattern_conv[max_patterns];
     Hash pattern_appearance[max_patterns];
     Hash min_pattern_appearance[max_patterns];

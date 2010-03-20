@@ -9,11 +9,10 @@
 #define MIMHEX_MACRO_DEFINITIONS_H_
 
 #include "board.h"
+#include "rep.h"
 
 namespace HexPatterns
 {
-    #define rep(iterator, upper_bound)                                              \
-        for (uint iterator = 0; iterator < upper_bound; ++iterator)
 
     #define rep_bound(iterator, lower_bound, upper_bound)                           \
         for (uint iterator = lower_bound; iterator < upper_bound; ++iterator)
