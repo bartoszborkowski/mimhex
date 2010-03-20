@@ -134,7 +134,7 @@ uint MCTSNode::GetPlayed() {
 
 float MCTSNode::GetUcbWeight() {
     ASSERT(ucb.played > 0);
-    if (Switches::Rave() || Switches::PathAmaf())
+    if (Switches::Rave() || Switches::PathRave() || Switches::PathAmaf())
         return static_cast<float>(ucb.played)
                / (Params::beta + static_cast<float>(ucb.played));
     else
@@ -144,7 +144,7 @@ float MCTSNode::GetUcbWeight() {
 float MCTSNode::GetRaveWeight() {
     ASSERT(Switches::PathRave() || Switches::Rave());
     float r = 1.0f - GetUcbWeight();
-    if (Switches::PathAmaf() && Switches::Rave())
+    if (Switches::PathAmaf())
         r *= Params::gamma;
     return r;
 }
@@ -152,7 +152,7 @@ float MCTSNode::GetRaveWeight() {
 float MCTSNode::GetAmafWeight() {
     ASSERT(Switches::PathAmaf());
     float r = 1.0f - GetUcbWeight();
-    if (Switches::PathAmaf() && Switches::Rave())
+    if (Switches::PathRave() || Switches::Rave())
         r *= 1.0f - Params::gamma;
     return r;
 }
@@ -190,6 +190,7 @@ void MCTSNode::Update(bool won, uint* begin, uint* end) {
 
         ASSERT(end - begin == count);
         for (uint* it = begin; it != end; ++it) {
+            ASSERT(*it != loc.GetPos());
             won = !won;
             GetChildByPos(*it)->rave.Update(won);
         }
@@ -231,23 +232,26 @@ void MCTSNode::RecursivePrint(std::ostream& stream, uint max_children, uint max_
     }
 
     stream << "ev: " << Compute() << " mu: " << GetMu();
-    if (Switches::Rave())
-        stream << " rave: " << rave.GetValue();
-    if (Switches::PathAmaf())
-        stream << " path: " << path.GetValue();
-
-    if ((level & 1) == 0)
+    if ((level & 1) == 0) {
         stream << " won: " << static_cast<double> (ucb.played - ucb.won) * 100 / ucb.played << "%";
-    else
+        if (Switches::Rave())
+            stream << " rave: " << 1.0f - rave.GetMu();
+        if (Switches::PathAmaf())
+            stream << " path: " << 1.0f - path.GetMu();
+    } else {
         stream << " won: " << static_cast<double> (ucb.won) * 100 / ucb.played << "%";\
+        if (Switches::Rave())
+            stream << " rave: " << rave.GetMu();
+        if (Switches::PathAmaf())
+            stream << " path: " << path.GetMu();
+    }
     stream << " all: " << ucb.played;
     stream << std::endl;
 
     if (children != NULL) {
         std::map<double, std::vector<uint> > children_indices;
         for (uint i = 0; i < count; ++i) {
-            double val = static_cast<double>(children[i].ucb.won) /
-                    children[i].ucb.played;
+            double val = children[i].GetPlayed();
             children_indices[val].push_back(i);
         }
         std::map<double, std::vector<uint> >::const_reverse_iterator it
