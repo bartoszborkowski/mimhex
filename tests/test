@@ -1,0 +1,33 @@
+TESTS=$1
+PROG1=$2
+PROG2=$3
+RESULTS=`mktemp results.XXXXXX`
+
+echo "Starting test..."
+for i in `seq $TESTS`; do
+  (
+    a=`./judge-static -P 0 -T 5m -i <(echo 11) $PROG1 $PROG2 | tail -n2 | grep score=1 | grep $PROG1`
+    if [ "$a" = "`echo`" ]; then
+      echo "$PROG2 won";
+    else
+      echo "$PROG1 won";
+      echo $a >> $RESULTS
+    fi
+  ) &
+  (
+    b=`./judge-static -P 0 -T 5m -i <(echo 11) $PROG2 $PROG1 | tail -n2 | grep score=1 | grep $PROG1`
+    if [ "$b" = "`echo`" ]; then
+      echo "$PROG2 won";
+    else
+      echo "$PROG1 won";
+      echo $b >> $RESULTS
+    fi
+  ) &
+  wait
+done
+
+echo "Test finished"
+echo "$PROG1 won `cat $RESULTS | wc -l` times"
+echo "$PROG2 won $[2*$TESTS-`cat $RESULTS | wc -l`] times"
+
+rm $RESULTS
