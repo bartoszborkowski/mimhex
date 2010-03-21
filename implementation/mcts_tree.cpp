@@ -78,8 +78,6 @@ Move MCTSTree::BestMove(Player player, const Board& board) {
         }
     }
 
-    std::cerr << ToAsciiArt(2);
-
     Move best(player, root->SelectBestChild()->loc);
     ASSERT(board.IsValidMove(best));
     return best;
