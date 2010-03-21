@@ -35,11 +35,13 @@ class Statistics {
 
         void Won();
         void Lost();
-        void Update(bool b);
+        void Update(bool won);
 
     public:
         uint won;
         uint played;
+        float value;
+        bool computed;
 };
 
 class MCTSNode {
@@ -55,6 +57,7 @@ class MCTSNode {
         Player GetPlayer();
 
         void Update(bool won, uint* begin, uint* end);
+        void Update(bool won);
 
         uint GetPlayed();
         bool IsLeaf();

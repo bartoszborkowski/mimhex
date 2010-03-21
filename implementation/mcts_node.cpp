@@ -10,20 +10,24 @@ namespace Hex {
 
 Statistics::Statistics(uint init_won, uint init_played):
     won(init_won),
-    played(init_played) {}
+    played(init_played),
+    computed(false) {}
 
 void Statistics::Won() {
     ++won;
     ++played;
+    computed = false;
 }
 
 void Statistics::Lost() {
     ++played;
+    computed = false;
 }
 
 void Statistics::Update(bool b) {
     won += (1 & b);
     ++played;
+    computed = false;
 }
 
 float Statistics::GetMu() {
@@ -37,7 +41,11 @@ float Statistics::GetBound() {
 }
 
 float Statistics::GetValue() {
-    return GetMu() + GetBound();
+    if (!computed) {
+        computed = true;
+        value = GetMu() + GetBound();
+    }
+    return value;
 }
 
 // -----------------------------------------------------------------------------
@@ -194,6 +202,13 @@ void MCTSNode::Expand(const Board& board) {
     }
 }
 
+void MCTSNode::Update(bool won) {
+
+    computed = false;
+    rave.Update(won);
+
+}
+
 void MCTSNode::Update(bool won, uint* begin, uint* end) {
 
     computed = false;
@@ -205,7 +220,7 @@ void MCTSNode::Update(bool won, uint* begin, uint* end) {
         ASSERT(end - begin == count);
         for (uint* it = begin; it != end && it != end + 1; it += 2) {
             ASSERT(*it != loc.GetPos());
-            GetChildByPos(*it)->rave.Update(!won);
+            GetChildByPos(*it)->Update(!won);
         }
     }
 
