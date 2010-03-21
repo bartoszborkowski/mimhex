@@ -60,10 +60,11 @@ class MCTSNode {
         bool IsLeaf();
         void Expand(const Board& board);
 
-        void ToAsciiArt(std::ostream& stream, uint max_children, uint max_level);
+        void ToAsciiArt(std::ostream& stream, uint max_children, uint max_level, Player player);
 
     private:
         float Compute();
+        float Best();
 
         float GetMu();
         float GetUcbWeight();

@@ -19,8 +19,8 @@ void Game::Play(const Move& move) {
 	current_board.PlayLegal(move);
 	last_move = move.GetLocation();
 
-	//FIXME remove this later
-	//cerr << current_board.ToAsciiArt(last_move);
+// 	FIXME remove this later
+// 	cerr << current_board.ToAsciiArt(last_move);
 }
 
 Move Game::GenMove(Player player) {

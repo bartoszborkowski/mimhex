@@ -23,7 +23,6 @@ class MCTSTree {
 
     private:
         AutoPointer<MCTSNode> root;
-        Player current;
         uint max_depth;
         uint per_move;
 

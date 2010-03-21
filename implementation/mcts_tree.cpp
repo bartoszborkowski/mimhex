@@ -12,7 +12,6 @@ const uint MCTSTree::amaf_paths_palyouts = 1000;
 
 MCTSTree::MCTSTree():
     root(NULL),
-    current(Player::First()),
     max_depth(default_max_depth),
     per_move(default_per_move) {}
 
@@ -33,11 +32,11 @@ Move MCTSTree::BestMove(Player player, const Board& board) {
     /// Current node in the MCTS tree.
     MCTSNode* node;
     /// All the nodes on the path in the MCTS tree. Valid range: 0..level - 1.
-    MCTSNode* nodes[Dim::field_count];
+    MCTSNode* nodes[Dim::field_count + 1];
     /// Number of moves made so far.
     uint level = 1;
     /// All the moves made so far. Valid range: 1..level - 1.
-    uint history[Dim::field_count];
+    uint history[Dim::field_count + 1];
 
     nodes[0] = root.GetPointer();
 
@@ -79,7 +78,7 @@ Move MCTSTree::BestMove(Player player, const Board& board) {
         }
     }
 
-    std::cerr << ToAsciiArt(4);
+    std::cerr << ToAsciiArt(2);
 
     Move best(player, root->SelectBestChild()->loc);
     ASSERT(board.IsValidMove(best));
@@ -122,7 +121,7 @@ void MCTSTree::SetPerMove(uint playouts) {
 
 std::string MCTSTree::ToAsciiArt(uint children) {
     std::stringstream stream;
-    root->ToAsciiArt(stream, children, -1);
+    root->ToAsciiArt(stream, children, -1, root->GetPlayer());
     return stream.str();
 }
 

@@ -63,14 +63,17 @@ MCTSNode* MCTSNode::SelectBestChild() {
     ASSERT(count > 0);
 
     MCTSNode* best = &children[0];
-    float best_mu = best->GetMu();
+    // FIXME
+    float best_mu = best->Best();
     for (uint i = 1; i < count; ++i) {
-        float mu = children[i].GetMu();
+        // FIXME
+        float mu = children[i].Best();
         if (mu > best_mu) {
             best = &children[i];
             best_mu = mu;
         }
     }
+    std::cerr << "chose: " << best_mu << std::endl;
     return best;
 }
 
@@ -104,10 +107,10 @@ MCTSNode* MCTSNode::GetChildByPos(uint pos) {
 Player MCTSNode::GetPlayer() {
     // FIXME: This could be optimized.
     ASSERT(count > 0 || IsLeaf());
-    if (count % 2 == (Dim::field_count - 1) % 2)
-        return Player::First();
-    else
+    if (count % 2 == Dim::field_count % 2)
         return Player::Second();
+    else
+        return Player::First();
 }
 
 float MCTSNode::Compute() {
@@ -122,6 +125,17 @@ float MCTSNode::Compute() {
             value += path.GetValue() * GetAmafWeight();
     }
     return value;
+}
+
+float MCTSNode::Best() {
+    float r = ucb.GetMu() * GetUcbWeight();
+    if (Switches::Rave())
+        r += rave.GetMu() * GetRaveWeight();
+    if (Switches::PathRave())
+        r += path.GetMu() * GetRaveWeight();
+    if (Switches::PathAmaf())
+        r += path.GetMu() * GetAmafWeight();
+    return r;
 }
 
 float MCTSNode::GetMu() {
@@ -207,9 +221,9 @@ void MCTSNode::Update(bool won, uint* begin, uint* end) {
     */
 }
 
-void MCTSNode::ToAsciiArt(std::ostream& stream, uint max_children, uint max_level) {
+void MCTSNode::ToAsciiArt(std::ostream& stream, uint max_children, uint max_level, Player pl) {
 
-    RecursivePrint(stream, max_children, max_level, 0, GetPlayer());
+    RecursivePrint(stream, max_children, max_level, 0, pl);
 }
 
 void MCTSNode::RecursivePrint(std::ostream& stream, uint max_children, uint max_level, uint level, Player player) {
@@ -223,22 +237,24 @@ void MCTSNode::RecursivePrint(std::ostream& stream, uint max_children, uint max_
         stream << "  ";
 
     if (loc.GetPos() != 0) {
-        if (player == Player::First())
+        if (GetPlayer() == Player::First())
+            stream << "# ";
+        else
             stream << "O ";
-        else stream << "# ";
         stream << loc.ToCoords() << " ";
     } else {
         stream << "root ";
     }
 
-    stream << "ev: " << Compute() << " mu: " << GetMu();
-    if ((level & 1) == 0) {
+    if (GetPlayer() == player) {
+        stream << "ev: " << 1.0f - Compute() << " mu: " << 1.0f - GetMu();
         stream << " won: " << static_cast<double> (ucb.played - ucb.won) * 100 / ucb.played << "%";
         if (Switches::Rave())
             stream << " rave: " << 1.0f - rave.GetMu();
         if (Switches::PathAmaf())
             stream << " path: " << 1.0f - path.GetMu();
     } else {
+        stream << "ev: " << Compute() << " mu: " << GetMu();
         stream << " won: " << static_cast<double> (ucb.won) * 100 / ucb.played << "%";\
         if (Switches::Rave())
             stream << " rave: " << rave.GetMu();
@@ -251,7 +267,7 @@ void MCTSNode::RecursivePrint(std::ostream& stream, uint max_children, uint max_
     if (children != NULL) {
         std::map<double, std::vector<uint> > children_indices;
         for (uint i = 0; i < count; ++i) {
-            double val = children[i].GetPlayed();
+            double val = children[i].Best();
             children_indices[val].push_back(i);
         }
         std::map<double, std::vector<uint> >::const_reverse_iterator it
@@ -265,7 +281,7 @@ void MCTSNode::RecursivePrint(std::ostream& stream, uint max_children, uint max_
                     max_children,
                     max_level - 1,
                     level + 1,
-                    player.Opponent()
+                    player
                 );
             }
         }
