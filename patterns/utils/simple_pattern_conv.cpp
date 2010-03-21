@@ -19,8 +19,6 @@
 #include "macro_definitions.h"
 
 
-#define BUFF_SIZE 2048
-
 using namespace std;
 using namespace HexPatterns;
 
@@ -75,26 +73,26 @@ int main(int, char **){
 	string line;
 	while (!in.eof()){
 		getline(in, line);
-		istringstream iss;
-		iss.str(line);
-		uint p;
-		while (iss >> p){
-			min_pattern_appearance[pattern_conv[p]] = 1;
-			pattern_appearance[p] = 1;
+		istringstream line_stream;
+		line_stream.str(line);
+		uint pattern;
+		while (line_stream >> pattern){
+			min_pattern_appearance[pattern_conv[pattern]] = 1;
+			pattern_appearance[pattern] = 1;
 		}
 		line_no ++;
 	}
-	cout << "Ilość wczytanych lini: " <<line_no << endl;
 
-
-    map<uint, Hash>::iterator it_pa = pattern_appearance.begin();
-    while (it_pa != pattern_appearance.end()){
-        uint indx = it_pa->first;
+	// iterate over pattern_appearance and and write pattern -> min_patterns
+    map<uint, Hash>::iterator it_pc = pattern_conv.begin();
+    while (it_pc != pattern_conv.end()){
+        uint indx = it_pc->first;
 		out0 << indx << " " << pattern_conv[indx] << endl; // pattern -> minPattern
-        ++it_pa;
+        ++it_pc;
     }
 
     uint oridnal_no = 0;
+    // iterater over min_pattern_appearanve and for each assign ordinal number
     map<uint, Hash>::iterator it_mpa = min_pattern_appearance.begin();
     while (it_mpa != min_pattern_appearance.end()){
         uint indx = it_mpa->first;
@@ -108,14 +106,14 @@ int main(int, char **){
 
 	while (!in.eof()){
 		getline(in, line);
-		istringstream iss;
-		iss.str(line);
-		uint p;
-		while (iss >> p){
-			out1 << min_pattern_appearance[pattern_conv[p]];
-			if (!iss.eof())
+		istringstream line_stream;
+		line_stream.str(line);
+		uint pattern;
+		while (line_stream >> pattern){
+			out1 << min_pattern_appearance[pattern_conv[pattern]];
+			if (!line_stream.eof())
 				out1 << " ";
-			pattern_appearance[p] = 1;
+			pattern_appearance[pattern] = 1;
 		}
 		out1 << endl;
 	}
