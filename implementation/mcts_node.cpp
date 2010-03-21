@@ -203,9 +203,8 @@ void MCTSNode::Update(bool won, uint* begin, uint* end) {
     if (Switches::Rave() && !IsLeaf()) {
 
         ASSERT(end - begin == count);
-        for (uint* it = begin; it != end; ++it) {
+        for (uint* it = begin + 1; it != end && it != end + 1; it += 2) {
             ASSERT(*it != loc.GetPos());
-            won = !won;
             GetChildByPos(*it)->rave.Update(won);
         }
     }
