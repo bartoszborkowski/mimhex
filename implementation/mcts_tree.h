@@ -10,11 +10,27 @@ class MCTSTree {
     public:
         MCTSTree();
 
+        /**
+         * Reset the tree to a single root associated with the given board.
+         * @in @param board The given board.
+         */
         void Reset(const Board& board);
 
+        /**
+         * @in @param board The given board.
+         * @return The best move possible for the situation described by the
+         * given board.
+         */
         Move BestMove(const Board& board);
-        Player RandomFinish(Board& board, uint* path, uint level);
-        Player RandomFinishWithoutPath(Board& board);
+
+        /**
+         * @in @param board The given board.
+         * @out @param path A history array to fill in.
+         * @in @param level The level of the tree from which the game is
+         * finished
+         * @return The winner of the finished game.
+         */
+        Player RandomFinish(Board& board, uint* history, uint level);
 
         void SetMaxDepth(uint depth);
         void SetPerMove(uint playouts);

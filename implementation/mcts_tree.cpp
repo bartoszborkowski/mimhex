@@ -4,6 +4,7 @@
 
 namespace Hex {
 
+// TODO: Move these to params.h
 const uint MCTSTree::default_max_depth = -1;
 const uint MCTSTree::default_per_move = 100000;
 const uint MCTSTree::ultimate_depth = Dim::field_count;
@@ -40,9 +41,9 @@ Move MCTSTree::BestMove(const Board& board) {
 
     nodes[0] = root.GetPointer();
 
-//  TODO: If we really want this option than implement it properly.
-//     if (max_depth == 0)
-//         node = root->GetChild(Rand::next_rand(brd.MovesLeft()));
+    // TODO: If we really want this option than implement it properly.
+    // if (max_depth == 0)
+    //     node = root->GetChild(Rand::next_rand(brd.MovesLeft()));
 
     for (uint i = 0; i < per_move; ++i) {
 
@@ -55,7 +56,8 @@ Move MCTSTree::BestMove(const Board& board) {
             Move move = node->GetMove();
             brd.PlayLegal(move);
             nodes[level] = node;
-            history[level] = move.GetLocation().GetPos();
+            if (Switches::Rave() || Switches::PathRave())
+                history[level] = move.GetLocation().GetPos();
             ++level;
         }
 
@@ -67,7 +69,8 @@ Move MCTSTree::BestMove(const Board& board) {
             Move move = node->GetMove();
             brd.PlayLegal(move);
             nodes[level] = node;
-            history[level] = move.GetLocation().GetPos();
+            if (Switches::Rave() || Switches::PathRave())
+                history[level] = move.GetLocation().GetPos();
             ++level;
         }
 
@@ -92,19 +95,10 @@ Player MCTSTree::RandomFinish(Board& board, uint* history, uint level) {
         Player pl = board.CurrentPlayer();
         Move move = board.GenerateMoveUsingKnowledge(pl);
         board.PlayLegal(move);
-        history[level] = move.GetLocation().GetPos();
-        ++level;
-    }
-
-    return board.Winner();
-}
-
-Player MCTSTree::RandomFinishWithoutPath(Board& board) {
-
-    while (!board.IsFull()) {
-        Player pl = board.CurrentPlayer();
-        Move move = board.GenerateMoveUsingKnowledge(pl);
-        board.PlayLegal(move);
+        if (Switches::Rave() || Switches::PathRave()) {
+            history[level] = move.GetLocation().GetPos();
+            ++level;
+        }
     }
 
     return board.Winner();
