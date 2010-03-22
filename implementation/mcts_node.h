@@ -9,23 +9,6 @@
 
 namespace Hex {
 
-/*
- * TODO LIST:
- *
- * (1) Remove ucb_valid flag handling from the main loop inside BestMove(). [DONE: julk]
- *
- * (2) Move as many operations on MCTS nodes from the main loop inside BestMove()
- *     to MCTS node itself as possible. [DONE: julk]
- *
- * (3) Add Switches to the code.
- *
- * (4) Add PATH AMAF table to the MCTS tree (also to MCTS nodes).
- *
- * (5) Use a single is_valid flag instead of ucb_valid, rave_valid, etc.
- *     Remove separate Compute...() procedures and place the memoization inside
- *     a single Compute() procedure. [INVALID: julk]
- */
-
 class MCTSNode {
     public:
         /**

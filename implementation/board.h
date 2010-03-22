@@ -18,41 +18,6 @@ typedef unsigned short ushort;
 
 namespace Hex {
 
-
-/*
- * TODO LIST:
- *
- * (1) Fix bridges. Make the code more readable and if this is not possible
- *     comment it in greater detail. (DONE - juleg)
- *
- * (2) Audit and retest UpdatePathsStats...(). Specificaly changes applied
- *     during migration to variable guarding could introduce some bugs. Also
- *     some of the procedures were not tested at all, because of lack of
- *     bidirectional F&U. (DONE???)
- *
- * (3) Make UpdatePathsStats() independent from the guarding - initialize
- *     visible[] as visited on borders to achieve this.
- *
- * (4) Make better use of constants introduced in class ::Dim.
- *     Specificaly:
- *     (a) When iterating through a stripe of fields use Dim::OfPos() to mark
- *         initial and final positions.
- *     (b) Use i += Dim::right to move iterator horizontally. Use i += Dim::down
- *         to move iterator vertically.
- *     (c) Use FOR_SIX(int dir) macro whenever there is a need for performing
- *         the same operation for each of the directions Dim::left, Dim::right,
- *         Dim::upper_left, Dim::upper_right, Dim::lower_left and Dim::lower_right.
- *     (d) If FOR_SIX() cannot be used for some reasons, use direction constants
- *         without the macro.
- *     (e) When locating a field within guarded area consider using
- *         Dim::guardedboard_size. (DONE - joint work)
- *
- * (5) Move each class into a separate file. (DONE - gustawrawicz)
- *
- */
-
-// -----------------------------------------------------------------------------
-
 class Board {
     public:
         const static Board Empty();
@@ -328,8 +293,6 @@ class Board {
          */
         Player current;
 };
-
-// -----------------------------------------------------------------------------
 
 } // namespace Hex
 
