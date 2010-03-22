@@ -90,7 +90,7 @@ private:
   void CKnownCommand (Io&);
   void CQuit (Io&);
   void CGtpFile (Io&);
-
+  
 private:
   map <string, list<Callback> > callbacks;
 };
@@ -114,7 +114,6 @@ namespace detail {
   Specialization(float);
   Specialization(double);
   Specialization(string);
-  Specialization(unsigned long long);
 #undef Specialization
 }
 

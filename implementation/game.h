@@ -1,6 +1,7 @@
 #ifndef GAME_H_
 #define GAME_H_
 
+#include "hextypes.h"
 #include "mcts_tree.h"
 
 namespace Hex {
@@ -10,15 +11,17 @@ public:
 	Game();
 	void ClearBoard();
 	void Play(const Move& move);
-	Move GenMove(Player player);
+	Move GenMove();
 	void SetMaxUTCTreeDepth(uint depth);
 	void PrintBoard(std::string& board);
-	void SetPlayoutsPerMove(uint playouts);
+	void SetPerMove(uint playouts);
 	void PrintTree(std::string& ascii_tree, uint children);
 	bool IsValidMove(const Move& move);
 	bool IsFinished();
 	void setDefendingBridges(bool v);
 	void setAvoidingBridges(bool v);
+    Player CurrentPlayer();
+    Player nowWinner();
 
 private:
 	Board current_board;

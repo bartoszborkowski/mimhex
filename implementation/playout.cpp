@@ -1,3 +1,4 @@
+#include "hextypes.h"
 #include "board.h"
 
 namespace Hex {
@@ -11,8 +12,8 @@ uint DoPlayouts (const Board& start_board, uint n) {
 
     while (!board.IsFull()) {
       Player pl = board.CurrentPlayer();
-      Move move = board.RandomLegalMove (pl);
-      board.PlayLegal (move);
+      Move move = board.RandomLegalMove(pl);
+      board.PlayLegal(move);
     }
 
     if (board.Winner() == Player::First()) {

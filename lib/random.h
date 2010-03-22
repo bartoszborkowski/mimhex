@@ -17,10 +17,9 @@ public:
 	  ASSERT(n < 0xffff);
 	  return ((next_rand() & 0xffff) * n) >> 16;
 	}
+
 private:
 	static unsigned _seed;
 };
-
-unsigned Rand::_seed;
 
 #endif /* RANDOM_H_ */

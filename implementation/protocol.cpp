@@ -30,9 +30,9 @@ void Protocol::Run(std::istream& in, std::ostream& out) {
 void Protocol::CBoardSize(Gtp::Io& inout) {
 	uint boardSize = inout.Read<uint>();
 	inout.CheckEmpty();
-	if (boardSize != kBoardSize) {
+	if (boardSize != Dim::board_size) {
 		std::stringstream err;
-		err << "the only supported board size is " << kBoardSize;
+		err << "the only supported board size is " << Dim::board_size;
 		inout.SetError(err.str());
 	}
 }
@@ -76,7 +76,8 @@ void Protocol::CGenMove(Gtp::Io& inout) {
 		return;
 	}
 
-	Move move = game.GenMove(Player::OfString(player));
+    ASSERT (Player::OfString(player) == game.CurrentPlayer());
+	Move move = game.GenMove();
 	game.Play(move);
 	inout.out << move.GetLocation().ToCoords();
 }
@@ -98,7 +99,7 @@ void Protocol::CShowBoard(Gtp::Io& inout) {
 void Protocol::CSetPlayoutsPerMove(Gtp::Io& inout) {
 	uint playouts = inout.Read<uint>();
 	inout.CheckEmpty();
-	game.SetPlayoutsPerMove(playouts);
+	game.SetPerMove(playouts);
 }
 
 void Protocol::CShowTree(Gtp::Io& inout) {
@@ -112,13 +113,14 @@ void Protocol::CShowTree(Gtp::Io& inout) {
 void Protocol::CGenMoveNoPlay(Gtp::Io& inout) {
 	std::string player = inout.Read<std::string>();
 	inout.CheckEmpty();
-	
+
 	if (game.IsFinished()) {
 		inout.SetError("game is finished");
 		return;
 	}
 
-	Move move = game.GenMove(Player::OfString(player));
+    ASSERT (Player::OfString(player) == game.CurrentPlayer());
+    Move move = game.GenMove();
 	inout.out << move.GetLocation().ToCoords();
 }
 

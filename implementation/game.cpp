@@ -11,18 +11,21 @@ Game::Game() : empty_board(Board::Empty()), last_move(0) {
 
 void Game::ClearBoard() {
 	current_board.Load(empty_board);
-	tree.Reset();
+	tree.Reset(current_board);
 }
 
 void Game::Play(const Move& move) {
 	ASSERT(current_board.IsValidMove(move));
 	current_board.PlayLegal(move);
 	last_move = move.GetLocation();
+
+// 	FIXME remove this later
+// 	cerr << current_board.ToAsciiArt(last_move);
 }
 
-Move Game::GenMove(Player player) {
+Move Game::GenMove() {
 	ASSERT(!current_board.IsFull());
-	return tree.BestMove(player, current_board);
+	return tree.BestMove(current_board);
 }
 
 void Game::SetMaxUTCTreeDepth(uint depth) {
@@ -33,8 +36,8 @@ void Game::PrintBoard(std::string& board) {
 	board = current_board.ToAsciiArt(last_move);
 }
 
-void Game::SetPlayoutsPerMove(uint playouts) {
-	tree.SetPlayoutsPerMove(playouts);
+void Game::SetPerMove(uint playouts) {
+	tree.SetPerMove(playouts);
 }
 
 void Game::PrintTree(std::string& ascii_tree, uint children) {
@@ -51,10 +54,21 @@ bool Game::IsFinished() {
 }
 
 void Game::setDefendingBridges(bool v){
-	current_board.switches.defendingBridgesOn = v;
+	Switches::SetDefendingBridges(v);
 }
 void Game::setAvoidingBridges(bool v){
-	current_board.switches.avoidingBridgesOn = v;
+	Switches::SetAvoidingBridges(v);
+}
+
+Player Game::CurrentPlayer() {
+    return current_board.CurrentPlayer();
+}
+
+Player Game::nowWinner() {
+    if (current_board.IsWon())
+        return current_board.Winner();
+    else
+        return Player::None();
 }
 
 } // namespace Hex

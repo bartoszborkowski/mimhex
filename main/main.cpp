@@ -1,14 +1,21 @@
 #define INSERT_ASSERTIONS
 
+#include "switches.cpp"
 #include "board.cpp"
+#include "board_dim.cpp"
+#include "board_player.cpp"
+#include "board_location.cpp"
+#include "board_move.cpp"
 #include "playout.cpp"
 #include "gtp.cpp"
+#include "mcts_stats.cpp"
 #include "mcts_node.cpp"
 #include "mcts_tree.cpp"
 #include "game.cpp"
 #include "protocol.h"
 #include "protocol.cpp"
-#include "params.h"
+#include "random.cpp"
+#include "params.cpp"
 
 #include <iostream>
 #include <cstdlib>

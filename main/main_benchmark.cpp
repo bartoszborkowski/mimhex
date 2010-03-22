@@ -1,5 +1,14 @@
+#define INSERT_ASSERTIONS
+
+#include "switches.cpp"
+#include "params.cpp"
+#include "random.cpp"
 #include "board.h"
 #include "board.cpp"
+#include "board_dim.cpp"
+#include "board_player.cpp"
+#include "board_location.cpp"
+#include "board_move.cpp"
 #include "playout.cpp"
 
 #include <iostream>
