@@ -15,12 +15,12 @@ public:
 		_ptr = ptr;
 		return *this;
 	}
-	T& operator*() { return *_ptr; }
-	T* operator->() { return _ptr; }
-	bool operator==(T* ptr) { return ptr == _ptr; }
-	bool operator!=(T* ptr) { return ptr != _ptr; }
+	T& operator*() const { return *_ptr; }
+	T* operator->() const { return _ptr; }
+	bool operator==(T* ptr) const { return ptr == _ptr; }
+	bool operator!=(T* ptr) const { return ptr != _ptr; }
 
-	T* GetPointer() { return _ptr; }
+	T* GetPointer() const { return _ptr; }
 	T* Detach() {
 		T* ptr = _ptr;
 		_ptr = NULL;
@@ -50,7 +50,7 @@ public:
 	bool operator==(const T* ptr) const { return ptr == _ptr; }
 	bool operator!=(const T* ptr) const { return ptr != _ptr; }
 
-	T* GetPointer() { return _ptr; }
+	T* GetPointer() const { return _ptr; }
 	T* Detach() {
 		T* ptr = _ptr;
 		_ptr = NULL;
