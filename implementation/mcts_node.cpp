@@ -167,7 +167,7 @@ void MCTSNode::Update(bool won, uint* begin, uint* end) {
 
     if (Switches::Rave() && !IsLeaf()) {
 
-        ASSERT(end - begin == count);
+        ASSERT(end - begin == (int) count);
         /// Iterate over opponent moves.
         for (uint* it = begin; it != end && it != end + 1; it += 2) {
             ASSERT(*it != loc.GetPos());
