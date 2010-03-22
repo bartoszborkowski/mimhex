@@ -25,8 +25,8 @@ class Statistics {
         float GetBound() const;
 
         /**
-         * @return The value increased by the confidence bound.
          * @note This method is memoized.
+         * @return The value increased by the confidence bound.
          */
         float GetValue() const;
 
@@ -45,8 +45,8 @@ class Statistics {
         void Lose();
 
         /**
-         * @in @param won True if the game was won.
          * Update statistics to include another game.
+         * @in @param won True if the game was won.
          */
         void Update(bool won);
 

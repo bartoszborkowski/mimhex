@@ -162,7 +162,6 @@ void MCTSNode::Update(bool won) {
 void MCTSNode::Update(bool won, uint* begin, uint* end) {
 
     computed = false;
-
     ucb.Update(won);
 
     if (Switches::Rave() && !IsLeaf()) {
