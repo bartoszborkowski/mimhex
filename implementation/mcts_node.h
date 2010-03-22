@@ -196,11 +196,37 @@ class MCTSNode {
         Statistics ucb;
         Statistics rave;
         Statistics path;
+
+        /**
+         * The location of the move represented by this node.
+         */
         Location loc;
+
+        /**
+         * The number of child moves for this node. Valid even if no actual
+         * children have been allocated yet. This field is also used for
+         * determining player turn.
+         */
         uint count;
+
+        /**
+         * Children array of length count.
+         */
         AutoTable<MCTSNode> children;
+
+        /**
+         * A dictionary converting positions into valid children of the node.
+         */
         AutoTable<MCTSNode*> pos_to_child;
+
+        /**
+         * A field used for memoization of Compute() method.
+         */
         mutable float value;
+
+        /**
+         * True if the field value is valid.
+         */
         mutable bool computed;
 };
 
