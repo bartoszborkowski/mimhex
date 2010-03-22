@@ -6,9 +6,9 @@
 namespace Hex {
 
 /**
- * A class for maintaining single set of statistics. Performs simple memoization
- * in order to speed up GetValue() method. No memoization is done for
- * GetValue() or GetBound() methods alone.
+ * The class for maintaining a single set of statistics. Performs simple
+ * memoization in order to speed up GetValue() method. No memoization is done
+ * for GetMu() or GetBound() methods alone.
  */
 class Statistics {
     public:

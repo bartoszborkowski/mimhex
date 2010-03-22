@@ -37,7 +37,6 @@ MCTSNode* MCTSNode::SelectBestChild() const {
             best_mu = mu;
         }
     }
-    std::cerr << "chose: " << best_mu << std::endl;
     return best;
 }
 
@@ -107,6 +106,7 @@ uint MCTSNode::GetPlayed() const {
 
 float MCTSNode::GetUcbWeight() const {
     ASSERT(ucb.GetPlayed() > 0);
+    /// Use increasing UCB weight if any RAVE or AMAF technique is used.
     if (Switches::Rave() || Switches::PathRave() || Switches::PathAmaf())
         return static_cast<float>(ucb.GetPlayed())
                / (Params::beta + static_cast<float>(ucb.GetPlayed()));
@@ -116,6 +116,7 @@ float MCTSNode::GetUcbWeight() const {
 
 float MCTSNode::GetRaveWeight() const {
     ASSERT(Switches::PathRave() || Switches::Rave());
+    /// UCB, RAVE and AMAF weights sum to 1.0.
     float r = 1.0f - GetUcbWeight();
     if (Switches::PathAmaf())
         r *= Params::gamma;
@@ -124,6 +125,7 @@ float MCTSNode::GetRaveWeight() const {
 
 float MCTSNode::GetAmafWeight() const {
     ASSERT(Switches::PathAmaf());
+    /// UCB, RAVE and AMAF weights sum to 1.0.
     float r = 1.0f - GetUcbWeight();
     if (Switches::PathRave() || Switches::Rave())
         r *= 1.0f - Params::gamma;
@@ -139,16 +141,16 @@ void MCTSNode::Expand(const Board& board) {
     ASSERT(count > 0);
     ASSERT(children == NULL);
     const ushort* empty = board.GetEmpty();
+    /// Allocate actual children nodes.
     children = new MCTSNode[count];
+    /// Allocate the position dictionary.
     pos_to_child = new MCTSNode*[Dim::actual_field_count];
     for (uint i = 0; i < count; ++i) {
+        /// Fill in uninitialized fields of a child
         children[i].loc = empty[i];
         children[i].count = count - 1;
+        /// Fill in dictionary entry.
         pos_to_child[empty[i]] = &children[i];
-        /*amaf_paths:*/
-        // FIXME: Nodes take care of themselves
-//         children[i].path.won = board.timesOfBeingOnShortestPath[locations[i]];
-//         children[i].path.played = MCTSTree::amaf_paths_palyouts;
     }
 }
 
@@ -156,7 +158,6 @@ void MCTSNode::Update(bool won) {
 
     computed = false;
     rave.Update(won);
-
 }
 
 void MCTSNode::Update(bool won, uint* begin, uint* end) {
@@ -167,21 +168,15 @@ void MCTSNode::Update(bool won, uint* begin, uint* end) {
     if (Switches::Rave() && !IsLeaf()) {
 
         ASSERT(end - begin == count);
+        /// Iterate over opponent moves.
         for (uint* it = begin; it != end && it != end + 1; it += 2) {
             ASSERT(*it != loc.GetPos());
+            /// Update an immediate child.
             GetChildByPos(*it)->Update(!won);
         }
     }
 
-    // TODO: Implement Path RAVE here. Use Switches.
-    /*
-    for(uint i=0; i<amaf_paths_palyouts; i++){
-        brd.Load(board);
-        Player winner = RandomFinishWithoutPath(brd);
-        brd.UpdatePathsStatsAllShortestPathsBFS(board,winner);
-//        board.ShowPathsStats();
-    }
-    */
+    // TODO: Implement PATH-RAVE here. Use Switches.
 }
 
 void MCTSNode::ToAsciiArt(std::ostream& stream, uint max_children, uint max_level, Player pl) const {

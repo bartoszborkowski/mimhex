@@ -16,6 +16,10 @@ namespace Hex {
 
 class Switches {
     public:
+        static bool Hacks() {
+            return hacksOn;
+        }
+
         static bool IsAvoidingBridges() {
             return avoidingBridgesOn;
         }
@@ -54,6 +58,10 @@ class Switches {
 
         static bool AllShortest() {
             return allShortestOn;
+        }
+
+        static void SetHacks(bool b) {
+            SetSwitch("Hacks", hacksOn, b);
         }
 
         static void SetAvoidingBridges(bool b) {
@@ -109,6 +117,7 @@ class Switches {
         }
 
     private:
+        static SWITCH_TYPE hacksOn;
         static SWITCH_TYPE avoidingBridgesOn;
         static SWITCH_TYPE defendingBridgesOn;
         static SWITCH_TYPE patternsOn;

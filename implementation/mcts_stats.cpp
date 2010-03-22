@@ -51,6 +51,7 @@ void Statistics::Lose() {
 }
 
 void Statistics::Update(bool w) {
+    /// w & 1 evaluates to 1 for w == true, and 0 for w == false.
     won += (1 & w);
     ++played;
     computed = false;
