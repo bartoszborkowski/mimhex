@@ -44,11 +44,11 @@ public:
 		_ptr = ptr;
 		return *this;
 	}
-	T& operator*() { return *_ptr; }
-	T* operator->() { return _ptr; }
-	T& operator[](int idx) { return _ptr[idx]; }
-	bool operator==(T* ptr) { return ptr == _ptr; }
-	bool operator!=(T* ptr) { return ptr != _ptr; }
+    T& operator*() const { return *_ptr; }
+	T* operator->() const { return _ptr; }
+	T& operator[](int idx) const { return _ptr[idx]; }
+	bool operator==(const T* ptr) const { return ptr == _ptr; }
+	bool operator!=(const T* ptr) const { return ptr != _ptr; }
 
 	T* GetPointer() { return _ptr; }
 	T* Detach() {

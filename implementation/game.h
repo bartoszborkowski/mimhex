@@ -11,7 +11,7 @@ public:
 	Game();
 	void ClearBoard();
 	void Play(const Move& move);
-	Move GenMove(Player player);
+	Move GenMove();
 	void SetMaxUTCTreeDepth(uint depth);
 	void PrintBoard(std::string& board);
 	void SetPerMove(uint playouts);

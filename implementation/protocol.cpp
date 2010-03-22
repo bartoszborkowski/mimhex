@@ -76,7 +76,8 @@ void Protocol::CGenMove(Gtp::Io& inout) {
 		return;
 	}
 
-	Move move = game.GenMove(Player::OfString(player));
+    ASSERT (Player::OfString(player) == game.CurrentPlayer());
+	Move move = game.GenMove();
 	game.Play(move);
 	inout.out << move.GetLocation().ToCoords();
 }
@@ -118,7 +119,8 @@ void Protocol::CGenMoveNoPlay(Gtp::Io& inout) {
 		return;
 	}
 
-	Move move = game.GenMove(Player::OfString(player));
+    ASSERT (Player::OfString(player) == game.CurrentPlayer());
+    Move move = game.GenMove();
 	inout.out << move.GetLocation().ToCoords();
 }
 

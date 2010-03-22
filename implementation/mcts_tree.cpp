@@ -20,7 +20,7 @@ void MCTSTree::Reset(const Board& board) {
     ASSERT(root->IsLeaf());
 }
 
-Move MCTSTree::BestMove(Player player, const Board& board) {
+Move MCTSTree::BestMove(const Board& board) {
 
     Reset(board);
 
@@ -52,9 +52,10 @@ Move MCTSTree::BestMove(Player player, const Board& board) {
         while (!node->IsLeaf()) {
             node = node->SelectChild();
             ASSERT(brd.CurrentPlayer() == node->GetPlayer());
-            brd.PlayLegal(Move(brd.CurrentPlayer(), node->loc));
+            Move move = node->GetMove();
+            brd.PlayLegal(move);
             nodes[level] = node;
-            history[level] = node->loc.GetPos();
+            history[level] = move.GetLocation().GetPos();
             ++level;
         }
 
@@ -62,9 +63,11 @@ Move MCTSTree::BestMove(Player player, const Board& board) {
                               && brd.MovesLeft() > 0) {
             node->Expand(brd);
             node = node->SelectChild();
-            brd.PlayLegal(Move(brd.CurrentPlayer(), node->loc));
+            ASSERT(brd.CurrentPlayer() == node->GetPlayer());
+            Move move = node->GetMove();
+            brd.PlayLegal(move);
             nodes[level] = node;
-            history[level] = node->loc.GetPos();
+            history[level] = move.GetLocation().GetPos();
             ++level;
         }
 
@@ -78,7 +81,7 @@ Move MCTSTree::BestMove(Player player, const Board& board) {
         }
     }
 
-    Move best(player, root->SelectBestChild()->loc);
+    Move best = root->SelectBestChild()->GetMove();
     ASSERT(board.IsValidMove(best));
     return best;
 }

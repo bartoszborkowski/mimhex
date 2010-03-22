@@ -12,8 +12,8 @@ class MCTSTree {
 
         void Reset(const Board& board);
 
-        Move BestMove(Player player, const Board& board);
-        Player RandomFinish(Board& board, uint* path, uint current_level);
+        Move BestMove(const Board& board);
+        Player RandomFinish(Board& board, uint* path, uint level);
         Player RandomFinishWithoutPath(Board& board);
 
         void SetMaxDepth(uint depth);

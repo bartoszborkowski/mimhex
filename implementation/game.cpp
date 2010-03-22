@@ -23,9 +23,9 @@ void Game::Play(const Move& move) {
 // 	cerr << current_board.ToAsciiArt(last_move);
 }
 
-Move Game::GenMove(Player player) {
+Move Game::GenMove() {
 	ASSERT(!current_board.IsFull());
-	return tree.BestMove(player, current_board);
+	return tree.BestMove(current_board);
 }
 
 void Game::SetMaxUTCTreeDepth(uint depth) {
