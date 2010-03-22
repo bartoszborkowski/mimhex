@@ -8,6 +8,7 @@
 #include "board_move.cpp"
 #include "board_dim.cpp"
 //#include "gtp.cpp"
+#include "mcts_stats.cpp"
 #include "mcts_node.cpp"
 #include "mcts_tree.cpp"
 #include "game.cpp"

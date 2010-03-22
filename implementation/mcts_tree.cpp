@@ -89,11 +89,11 @@ Move MCTSTree::BestMove(const Board& board) {
 Player MCTSTree::RandomFinish(Board& board, uint* history, uint level) {
 
     while (!board.IsFull()) {
-      Player pl = board.CurrentPlayer();
-      Move move = board.GenerateMoveUsingKnowledge(pl);
-      board.PlayLegal(move);
-      history[level] = move.GetLocation().GetPos();
-      ++level;
+        Player pl = board.CurrentPlayer();
+        Move move = board.GenerateMoveUsingKnowledge(pl);
+        board.PlayLegal(move);
+        history[level] = move.GetLocation().GetPos();
+        ++level;
     }
 
     return board.Winner();
@@ -102,9 +102,9 @@ Player MCTSTree::RandomFinish(Board& board, uint* history, uint level) {
 Player MCTSTree::RandomFinishWithoutPath(Board& board) {
 
     while (!board.IsFull()) {
-      Player pl = board.CurrentPlayer();
-      Move move = board.GenerateMoveUsingKnowledge(pl);
-      board.PlayLegal(move);
+        Player pl = board.CurrentPlayer();
+        Move move = board.GenerateMoveUsingKnowledge(pl);
+        board.PlayLegal(move);
     }
 
     return board.Winner();

@@ -158,7 +158,7 @@ void manager::genMove() {
         clearLabels();
 
         Player current_ = game_.CurrentPlayer();
-        generated[game_.GenMove(current_).GetLocation()] ++;
+        generated[game_.GenMove().GetLocation()] ++;
         showLabels();
     }
     else {
@@ -175,7 +175,7 @@ void manager::searchMove() {
         Player current_ = game_.CurrentPlayer();
         for (size_t i=0; i<20; i++) {
             (std::cout << ".").flush();
-            generated[game_.GenMove(current_).GetLocation()] ++;
+            generated[game_.GenMove().GetLocation()] ++;
         }
         std::cout << std::endl;
         showLabels();
@@ -188,7 +188,7 @@ void manager::searchMove() {
 void manager::playMove() {
     if (game_.nowWinner()==Player::None()) {
         Player current_ = game_.CurrentPlayer();
-        Move m = game_.GenMove(current_);
+        Move m = game_.GenMove();
         putStone(m);
         if (auto_reply)
             auto_player = current_;

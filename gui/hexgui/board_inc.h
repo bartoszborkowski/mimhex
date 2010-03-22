@@ -17,6 +17,7 @@
 #include "board_move.h"
 #include "board_dim.h"
 //#include "gtp.h"
+#include "mcts_stats.h"
 #include "mcts_node.h"
 #include "mcts_tree.h"
 #include "game.h"
