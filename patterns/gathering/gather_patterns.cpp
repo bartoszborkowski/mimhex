@@ -85,11 +85,6 @@ struct SimpleStatsComputer{
         while (it != occurences.end()){
             uint hash = it->first;
             if (occurences[hash] != 0){
-                if (verbose){
-                    out << "----" << std::endl;
-                    printHash(hash, out);
-                }
-
                 out << hash << ": " << uses[hash] << " / " << occurences[hash] << std::endl;
             }
             ++it;
@@ -151,17 +146,17 @@ private:
       
       Hex::Player player = Hex::Player::OfString(playerStr);
       Hex::Location location = Hex::Location::OfCoords(locCoordsStr);
-      
-      played[location.GetPos()] = true;
-
-      board->Play(location.GetPos(), player.GetVal());
 
       const uint *allBoardHashes = board->GetAllHash();
       size_t allBoardHashesSize = board->GetBoardSize();
 
+		board->Play(location.GetPos(), player.GetVal());
       uint playHash = board->GetHash(location.GetPos());
 
       statsComp.reportPatternUse(&playHash, 1, allBoardHashes, allBoardHashesSize, played);
+		
+		board->Play(location.GetPos(), player.GetVal());
+		played[location.GetPos()] = true;
   }
 
   void CPrint(Gtp::Io& io){

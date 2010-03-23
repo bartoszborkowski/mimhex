@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Script calculates occurences of pattern. It checks if used pattern (first in each line) exist at least twice in each line.
+# First occurance is begining of line (where used Patterns are listed), second should be at list of all patterns existing in this
+# situation.
+#
+# by Michał Albrycht
+
+if [ -z $1 ] ; then
+  echo "Error: No argument. "
+  echo "Proper use: "
+  echo "   ./check_gathering_output data_filename"
+  exit 1
+fi
+
+echo $1;
+
+lineNo=0;
+cat $1 | while read line; do
+  let "lineNo += 1";
+  
+  usedPattern=`echo $line | cut -f1 -d" "`;
+  count=0;
+  for pattern in `echo $line`; do
+	 if [ $usedPattern -eq $pattern ]; then
+		let "count += 1";
+	 fi
+  done
+ # echo "Line: $lineNo    Count: $count";
+  if [ $count -le 1 ] ; then
+	 echo "Line $lineNo contains only $count occurences of used pattern!";
+  fi
+done
