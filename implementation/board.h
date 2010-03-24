@@ -14,6 +14,7 @@ namespace Hex {
 
   const uint kBoardSize = 11;
   const uint kBoardSizeAligned = 16;	// kBoardSize aligned to nearest higher power of 2
+  const uint kFieldsAmount = kBoardSize * kBoardSize;
   const uint kFieldsAlignedAmount = kBoardSizeAligned * kBoardSizeAligned;
 
 // -----------------------------------------------------------------------------

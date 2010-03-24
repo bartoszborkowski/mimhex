@@ -8,6 +8,11 @@
  *
  */
 
+#include <map>
+
+#include <iostream>
+#include <inttypes.h>
+
 #include "board.cpp"
 #include "gtp.hpp"
 #include "gtp.cpp"
@@ -16,11 +21,10 @@
 #include "hash_board.cpp"
 #include "sampler.cpp"
 
-#include <iostream>
-#include <inttypes.h>
-#include <map>
+#include "pattern_data.cpp"
 
 // prints 7-elem hash
+
 void printHash(uint hash, std::ostream &out){
 //#define GETNUM(x, pos) ".#oX"[(((x) >> (pos)) & 15) >> 2]
 
@@ -54,15 +58,14 @@ struct SimpleStatsComputer{
     void reportPatternUse(const uint *used_patterns, size_t n_used_patterns, const uint *existing_patterns, 
 			  size_t n_existing_patterns, const bool *played_positions){
       
+
         const uint *used_patterns_end = used_patterns + n_used_patterns;
         while (used_patterns != used_patterns_end){
             uint pattern = *used_patterns;
+
             ++used_patterns;
-            uses[pattern]++;
-            occurences[pattern]++;
-            
-            // the important part: outputting the chosen pattern hash
-			std::cerr << pattern;
+// the important part: outputting the chosen pattern hash
+				std::cerr << pattern;
         }
 
         const uint *existing_patterns_end = existing_patterns + n_existing_patterns;
@@ -76,7 +79,8 @@ struct SimpleStatsComputer{
             ++existing_patterns;
             ++played_positions;
         }
-	std::cerr << std::endl;
+
+			std::cerr << std::endl;
     }
 
     void print(std::ostream &out, bool verbose = false){
@@ -99,6 +103,7 @@ private:
 
 template<typename StatsComputerType>
 struct GtpController {
+
   GtpController(Gtp::Repl& gtp){
     gtp.Register("newgame"       , this, &GtpController::CNewGame);
     gtp.Register("play"          , this, &GtpController::CPlay);
@@ -147,10 +152,9 @@ private:
       Hex::Player player = Hex::Player::OfString(playerStr);
       Hex::Location location = Hex::Location::OfCoords(locCoordsStr);
 
-      const uint *allBoardHashes = board->GetAllHash();
+      const uint *allBoardHashes = board->GetAllHashes();
       size_t allBoardHashesSize = board->GetBoardSize();
 
-		board->Play(location.GetPos(), player.GetVal());
       uint playHash = board->GetHash(location.GetPos());
 
       statsComp.reportPatternUse(&playHash, 1, allBoardHashes, allBoardHashesSize, played);
@@ -162,7 +166,7 @@ private:
   void CPrint(Gtp::Io& io){
       statsComp.print(io.out);
   }
-  
+
   void CPrintVerbose(Gtp::Io& io){
       statsComp.print(io.out, true);
   }

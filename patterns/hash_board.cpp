@@ -12,11 +12,8 @@
 
 namespace HexPatterns
 {
-    const HashBoard HashBoard::EmptyHashBoard(const char */*hash_board_file*/)
+    const HashBoard HashBoard::EmptyHashBoard()
     {
-        // TODO: read from file
-        //std::ifstream ifs(hash_board_file, std::ifstream::in);
-
         HashBoard board;
 
         rep(ii, Hex::kFieldsAlignedAmount)
@@ -57,10 +54,6 @@ namespace HexPatterns
         }
         /* Adding guardians to two leftmost and rightmost columns */
 
-        board.Play(87, PLAYER_1_STATE);
-
-        std::cout << board.ToAsciiArt() << std::endl;
-
         return board;
     }
 
@@ -68,6 +61,8 @@ namespace HexPatterns
     {
         rep(ii, Hex::kFieldsAlignedAmount)
             pattern_count[ii] = 0;
+
+        memset(position_hash, 0, Hex::kFieldsAlignedAmount * sizeof(Hash));
     }
 
     HashBoard::HashBoard(const HashBoard &board)

@@ -13,7 +13,7 @@ inline Hash HashBoard::GetHash(uint position) const
     return position_hash[position];
 }
 
-inline const Hash * HashBoard::GetAllHash() const
+inline const Hash * HashBoard::GetAllHashes() const
 {
     return position_hash;
 }
@@ -25,6 +25,16 @@ inline void HashBoard::Play(uint position, uint player)
         patterns[patterns_at[position][ii]].HashChange(position, player);
 
     return;
+}
+
+inline uint HashBoard::GetChangedPositionsAmount(uint position) const
+{
+    return pattern_count[position];
+}
+
+inline const uint * HashBoard::GetChangedPositions(uint position) const
+{
+    return patterns_at[position];
 }
 
 inline uint HashBoard::GetBoardSize() const

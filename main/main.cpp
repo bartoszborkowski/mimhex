@@ -13,6 +13,7 @@
 #include "pattern.cpp"
 #include "hash_board.cpp"
 #include "sampler.cpp"
+#include "pattern_data.cpp"
 
 #include <iostream>
 #include <cstdlib>

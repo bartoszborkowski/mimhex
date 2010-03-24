@@ -1,12 +1,13 @@
-/*******************************************************************************
- *                              Bartosz Borkowski                              *
- *              Faculty of Mathematics, Informatics and Mechanics              *
- *                              Warsaw University                              *
- *                             9th March 2010                                  *
- *******************************************************************************/
+/********************************************************************************
+ *                              Bartosz Borkowski                               *
+ *              Faculty of Mathematics, Informatics and Mechanics               *
+ *                             University of Warsaw                             *
+ *                               13th March 2010                                *
+ ********************************************************************************/
+
+#include <iostream>
 
 #include <inttypes.h>
-#include <iostream>
 #include <time.h>
 
 #include <boost/random/linear_congruential.hpp>
@@ -17,7 +18,7 @@
 #include "pattern.cpp"
 #include "hash_board.cpp"
 #include "sampler.cpp"
-#include "macro_definitions.h"
+#include "pattern_data.cpp"
 
 int main(int argc, char *argv[])
 {

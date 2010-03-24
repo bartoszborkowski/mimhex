@@ -19,17 +19,19 @@ namespace HexPatterns
     class HashBoard
     {
         public:
-            static const HashBoard EmptyHashBoard
-                (const char *hash_board_file = "hash_data.txt");
+            static const HashBoard EmptyHashBoard();
 
             HashBoard();
             HashBoard(const HashBoard &board);
             HashBoard & operator =(const HashBoard &board);
 
             Hash GetHash(uint position) const;
-            const Hash * GetAllHash() const;
+            const Hash * GetAllHashes() const;
 
             void Play(uint position, uint player);
+
+            uint GetChangedPositionsAmount(uint position) const;
+            const uint * GetChangedPositions(uint position) const;
 
             uint GetBoardSize() const;
 

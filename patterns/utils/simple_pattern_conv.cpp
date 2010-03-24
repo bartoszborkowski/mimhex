@@ -8,15 +8,18 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <boost/lexical_cast.hpp>
 #include <map>
+
+#include <boost/lexical_cast.hpp>
 
 #include "board.cpp"
 #include "template.cpp"
 #include "pattern.cpp"
 #include "hash_board.cpp"
 #include "sampler.cpp"
-#include "macro_definitions.h"
+#include "pattern_data.cpp"
+
+#define BUFF_SIZE 1024
 
 
 using namespace std;
@@ -33,17 +36,18 @@ int main(int, char **){
     map<uint, Hash> pattern_appearance;
     map<uint, Hash> min_pattern_appearance;
     Hash field_base_hash[6][FIELD_STATES];
+
     pattern_conv.clear();
     pattern_appearance.clear();
     min_pattern_appearance.clear();
 
     rep(i, FIELD_STATES) {
-        field_base_hash[0][i] = templates[0].GetHash(-16, i);
-        field_base_hash[1][i] = templates[0].GetHash(-15, i);
-        field_base_hash[2][i] = templates[0].GetHash(-1, i);
-        field_base_hash[3][i] = templates[0].GetHash(1, i);
-        field_base_hash[4][i] = templates[0].GetHash(15, i);
-        field_base_hash[5][i] = templates[0].GetHash(16, i);
+        field_base_hash[0][i] = templates[0].GetHash(-1, 0, i);
+        field_base_hash[1][i] = templates[0].GetHash(-1, 1, i);
+        field_base_hash[2][i] = templates[0].GetHash(0, -1, i);
+        field_base_hash[3][i] = templates[0].GetHash(0, 1, i);
+        field_base_hash[4][i] = templates[0].GetHash(1, -1, i);
+        field_base_hash[5][i] = templates[0].GetHash(1, 0, i);
     }
 
     rep(f0, FIELD_STATES) // for every possible state of field 0
@@ -112,10 +116,12 @@ int main(int, char **){
 		while (line_stream >> pattern){
 			out1 << min_pattern_appearance[pattern_conv[pattern]];
 			if (!line_stream.eof())
+
 				out1 << " ";
 			pattern_appearance[pattern] = 1;
 		}
 		out1 << endl;
+
 	}
 
 	in.close();

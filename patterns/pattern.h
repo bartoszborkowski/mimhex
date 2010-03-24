@@ -16,23 +16,25 @@ namespace HexPatterns
     class Pattern
     {
         public:
-            static uint InitialisePatterns(const char *pattern_file = PATTERNS_FILE);
+            static uint InitialisePatterns();
 
             Pattern();
-            Pattern(uint id, uint template_id, int position);
+            Pattern(uint id, uint template_id, int row, int column);
             Pattern(const Pattern &pattern);
             Pattern & operator =(const Pattern &pattern);
 
-            uint GetPosition() const;
-            Hash HashChange(uint position, uint player) const;
+            uint GetId() const;
+            int GetRow() const;
+            int GetColumn() const;
+
+            Hash HashChange(int position, uint player) const;
 
             std::string ToAsciiArt() const;
 
         private:
             uint id;
             uint template_id;
-            uint central_position;
-            Hash fields_base_hash[Hex::kFieldsAlignedAmount][FIELD_STATES];
+            int row, column;
     };
 
     Pattern patterns[PATTERNS_AMOUNT];
