@@ -252,7 +252,7 @@ void manager::showTreeMcts() {
 
 void manager::setPlayouts(uint playouts) {
     std::cout << "# set playouts = " << playouts << std::endl;
-    game_.SetPerMove(playouts);
+    game_.GetTimeManager().playouts_per_move = playouts;
 }
 
 void manager::setTreeDepth(uint tree_depth) {

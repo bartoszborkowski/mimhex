@@ -17,5 +17,6 @@
 #include "params.cpp"
 #include "random.cpp"
 #include "switches.cpp"
+#include "time_manager.cpp"
 
 #endif /* GUI_BOARD_INC_H */
