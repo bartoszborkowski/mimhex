@@ -6,54 +6,54 @@
 namespace Hex {
 
 Game::Game() : empty_board(Board::Empty()), last_move(0) {
-	ClearBoard();
+    ClearBoard();
 }
 
 void Game::ClearBoard() {
-	current_board.Load(empty_board);
-	tree.Reset(current_board);
+    current_board.Load(empty_board);
+    tree.Reset(current_board);
 }
 
 void Game::Play(const Move& move) {
-	ASSERT(current_board.IsValidMove(move));
-	current_board.PlayLegal(move);
-	last_move = move.GetLocation();
+    ASSERT(current_board.IsValidMove(move));
+    current_board.PlayLegal(move);
+    last_move = move.GetLocation();
 
-// 	FIXME remove this later
-// 	cerr << current_board.ToAsciiArt(last_move);
+//  FIXME remove this later
+//  cerr << current_board.ToAsciiArt(last_move);
 }
 
 Move Game::GenMove() {
-	ASSERT(!current_board.IsFull());
-	return tree.BestMove(current_board);
+    ASSERT(!current_board.IsFull());
+    return tree.BestMove(current_board);
 }
 
 void Game::SetMaxUTCTreeDepth(uint depth) {
-	tree.SetMaxDepth(depth);
+    tree.SetMaxDepth(depth);
 }
 
 void Game::PrintBoard(std::string& board) {
-	board = current_board.ToAsciiArt(last_move);
+    board = current_board.ToAsciiArt(last_move);
 }
 
 void Game::PrintTree(std::string& ascii_tree, uint children) {
-	ascii_tree = tree.ToAsciiArt(children);
+    ascii_tree = tree.ToAsciiArt(children);
 }
 
 bool Game::IsValidMove(const Move& move) {
-	return current_board.IsValidMove(move);
+    return current_board.IsValidMove(move);
 }
 
 bool Game::IsFinished() {
-	// TODO better check
-	return current_board.IsFull();
+    // TODO better check
+    return current_board.IsFull();
 }
 
 void Game::setDefendingBridges(bool v){
-	Switches::SetDefendingBridges(v);
+    Switches::SetDefendingBridges(v);
 }
 void Game::setAvoidingBridges(bool v){
-	Switches::SetAvoidingBridges(v);
+    Switches::SetAvoidingBridges(v);
 }
 
 Player Game::CurrentPlayer() {

@@ -9,25 +9,25 @@ namespace Hex {
 
 class Protocol {
 public:
-	Protocol();
-	void Run(std::istream& in, std::ostream& out);
+    Protocol();
+    void Run(std::istream& in, std::ostream& out);
 
 private:
-	Gtp::Repl gtp;
-	Game game;
+    Gtp::Repl gtp;
+    Game game;
 
 private:
-	void CBoardSize(Gtp::Io& inout);
-	void CClearBoard(Gtp::Io& inout);
-	void CPlay(Gtp::Io& inout);
-	void CGenMove(Gtp::Io& inout);
-	void CSetMaxTreeDepth(Gtp::Io& inout);
-	void CShowBoard(Gtp::Io& inout);
-	void CShowTree(Gtp::Io& inout);
-	void CGenMoveNoPlay(Gtp::Io& inout);
-	void CDefendingBridges(Gtp::Io& inout);
-	void CAvoidingBridges(Gtp::Io& inout);
-	void CTimeManagement(Gtp::Io& inout);
+    void CBoardSize(Gtp::Io& inout);
+    void CClearBoard(Gtp::Io& inout);
+    void CPlay(Gtp::Io& inout);
+    void CGenMove(Gtp::Io& inout);
+    void CSetMaxTreeDepth(Gtp::Io& inout);
+    void CShowBoard(Gtp::Io& inout);
+    void CShowTree(Gtp::Io& inout);
+    void CGenMoveNoPlay(Gtp::Io& inout);
+    void CDefendingBridges(Gtp::Io& inout);
+    void CAvoidingBridges(Gtp::Io& inout);
+    void CTimeManagement(Gtp::Io& inout);
 };
 
 } // namespace Hex
