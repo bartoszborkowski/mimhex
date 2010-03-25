@@ -3,6 +3,7 @@
 
 #include "hextypes.h"
 #include "mcts_node.h"
+#include "time_manager.h"
 
 namespace Hex {
 
@@ -33,14 +34,16 @@ class MCTSTree {
         Player RandomFinish(Board& board, uint* history, uint level);
 
         void SetMaxDepth(uint depth);
-        void SetPerMove(uint playouts);
 
         std::string ToAsciiArt(uint children);
+
+        TimeManager & GetTimeManager();
 
     private:
         AutoPointer<MCTSNode> root;
         uint max_depth;
         uint per_move;
+        TimeManager time_manager;
 
         static const uint default_max_depth;
         static const uint default_per_move;

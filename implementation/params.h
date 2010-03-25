@@ -10,6 +10,7 @@ public:
     static float gamma;
     static unsigned initialization;
     static unsigned bridgeWeight;
+    static double resources_part;
 };
 
 } // namespace Hex

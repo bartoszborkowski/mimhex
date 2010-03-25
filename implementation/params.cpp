@@ -7,5 +7,6 @@ float Params::beta = 20.0;
 float Params::gamma = 0.5;
 unsigned Params::initialization = 1;
 unsigned Params::bridgeWeight = 128;
+double Params::resources_part = 0.09;
 
 }

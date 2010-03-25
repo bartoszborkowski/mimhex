@@ -16,11 +16,14 @@ Protocol::Protocol() {
 	gtp.Register ("genmove",				this, &Protocol::CGenMove);
 	gtp.Register ("set_max_tree_depth",		this, &Protocol::CSetMaxTreeDepth);
 	gtp.Register ("showboard",				this, &Protocol::CShowBoard);
-	gtp.Register ("set_playouts_per_move",	this, &Protocol::CSetPlayoutsPerMove);
 	gtp.Register ("showtree",				this, &Protocol::CShowTree);
 	gtp.Register ("genmove_noplay",			this, &Protocol::CGenMoveNoPlay);
 	gtp.Register ("set_defending_bridges",	this, &Protocol::CDefendingBridges);
 	gtp.Register ("set_avoiding_bridges",	this, &Protocol::CAvoidingBridges);
+	gtp.Register ("time_management",	this, &Protocol::CTimeManagement);
+	gtp.Register ("set_playouts_per_move", Gtp::GetSetCallback(&game.GetTimeManager().playouts_per_move));
+	gtp.Register ("playout_moves_left", Gtp::GetSetCallback(&game.GetTimeManager().playout_moves_left));
+	gtp.Register ("time_left", Gtp::GetSetCallback(&game.GetTimeManager().time_left));
 }
 
 void Protocol::Run(std::istream& in, std::ostream& out) {
@@ -96,12 +99,6 @@ void Protocol::CShowBoard(Gtp::Io& inout) {
 	inout.out << ascii_board;
 }
 
-void Protocol::CSetPlayoutsPerMove(Gtp::Io& inout) {
-	uint playouts = inout.Read<uint>();
-	inout.CheckEmpty();
-	game.SetPerMove(playouts);
-}
-
 void Protocol::CShowTree(Gtp::Io& inout) {
 	uint children = inout.Read<uint>(4);
 	inout.CheckEmpty();
@@ -136,6 +133,19 @@ void Protocol::CAvoidingBridges(Gtp::Io& inout) {
 	inout.CheckEmpty();
 	if (value == 0) game.setAvoidingBridges(false);
 	else game.setAvoidingBridges(true);
+}
+
+void Protocol::CTimeManagement(Gtp::Io& inout) {
+	if (inout.IsEmpty()) {
+		inout.out << game.GetTimeManager().management << '\n';
+		inout.out << kManagementPlayoutsPerMove << ' ' << "playouts per move\n";
+		inout.out << kManagementPlayoutMovesPerGame << ' ' << "playout moves per game\n";
+		inout.out << kManagementTime << ' ' << "time";
+		return;
+	}
+	uint choice = inout.Read<uint>();
+	inout.CheckEmpty();
+	game.GetTimeManager().management = TimeManagementType(choice);
 }
 
 } // namespace Hex

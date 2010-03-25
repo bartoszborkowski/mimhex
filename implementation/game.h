@@ -14,12 +14,12 @@ public:
 	Move GenMove();
 	void SetMaxUTCTreeDepth(uint depth);
 	void PrintBoard(std::string& board);
-	void SetPerMove(uint playouts);
 	void PrintTree(std::string& ascii_tree, uint children);
 	bool IsValidMove(const Move& move);
 	bool IsFinished();
 	void setDefendingBridges(bool v);
 	void setAvoidingBridges(bool v);
+    TimeManager & GetTimeManager();
     Player CurrentPlayer();
     Player nowWinner();
 

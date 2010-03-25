@@ -16,6 +16,7 @@
 #include "protocol.cpp"
 #include "random.cpp"
 #include "params.cpp"
+#include "time_manager.cpp"
 
 #include <iostream>
 #include <cstdlib>
