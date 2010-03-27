@@ -44,10 +44,10 @@ int main(int, char **){
     rep(i, FIELD_STATES) {
         field_base_hash[0][i] = templates[0].GetHash(-1, 0, i);
         field_base_hash[1][i] = templates[0].GetHash(-1, 1, i);
-        field_base_hash[2][i] = templates[0].GetHash(0, -1, i);
-        field_base_hash[3][i] = templates[0].GetHash(0, 1, i);
+        field_base_hash[2][i] = templates[0].GetHash(0, 1, i);
+        field_base_hash[3][i] = templates[0].GetHash(1, 0, i);
         field_base_hash[4][i] = templates[0].GetHash(1, -1, i);
-        field_base_hash[5][i] = templates[0].GetHash(1, 0, i);
+        field_base_hash[5][i] = templates[0].GetHash(0, -1, i);
     }
 
     rep(f0, FIELD_STATES) // for every possible state of field 0

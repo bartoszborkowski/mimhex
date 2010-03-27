@@ -19,6 +19,7 @@
 #include "template.cpp"
 #include "pattern.cpp"
 #include "hash_board.cpp"
+#include "hash_board_13.cpp"
 #include "sampler.cpp"
 
 #include "pattern_data.cpp"
@@ -36,7 +37,7 @@ void printHash(uint hash, std::ostream &out){
 //
 }
 
-using HexPatterns::HashBoard;
+using HexPatterns::HashBoard_13;
 
 /* StatsComputer concept:
  *
@@ -110,7 +111,7 @@ struct GtpController {
     gtp.Register("print"         , this, &GtpController::CPrint);
     gtp.Register("print_verbose" , this, &GtpController::CPrintVerbose);
 
-    board = new HashBoard;
+    board = new HashBoard_13;
     
     initPlayed();
   }
@@ -121,7 +122,7 @@ struct GtpController {
 private:
   void CNewGame(Gtp::Io &) {
     delete board;
-    board = new HashBoard(HashBoard::EmptyHashBoard());
+    board = new HashBoard_13(HashBoard_13::EmptyHashBoard());
     initPlayed();
   }
   
@@ -171,7 +172,7 @@ private:
       statsComp.print(io.out, true);
   }
 
-  HashBoard *board;
+  HashBoard_13 *board;
   StatsComputerType statsComp;
   bool played[Hex::kBoardSizeAligned * Hex::kBoardSizeAligned];
 };
