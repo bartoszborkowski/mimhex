@@ -140,9 +140,9 @@ namespace HexPatterns
     {
         std::stringstream ret;
 
-        rep(ii, Hex::kBoardSize) {
-            rep(jj, Hex::kBoardSize)
-                ret << position_hash[NORMALISED_POSITION(ii, jj)] << " ";
+        rep(ii, Hex::kBoardSize + 2) {
+            rep(jj, Hex::kBoardSize + 2)
+                ret << position_hash[GUARDED_POSITION(ii, jj)] << " ";
             ret << std::endl;
         }
 
