@@ -8,31 +8,24 @@
  *
  */
 
+#include <map>
+
+#include <iostream>
+#include <inttypes.h>
+
 #include "board.cpp"
 #include "gtp.hpp"
 #include "gtp.cpp"
 #include "template.cpp"
 #include "pattern.cpp"
 #include "hash_board.cpp"
+#include "hash_board_13.cpp"
 #include "sampler.cpp"
 
-#include <iostream>
-#include <inttypes.h>
-#include <map>
+#include "pattern_data.cpp"
 
-// prints 7-elem hash
-void printHash(uint hash, std::ostream &out){
-//#define GETNUM(x, pos) ".#oX"[(((x) >> (pos)) & 15) >> 2]
 
-//    out << "RYSOWANIE PATTERNÓW NIE DZIAŁA BO ZMIENIŁ SIĘ SPOSÓB HASHOWANIA!! \n"; //TODO albo poprawić albo wywalić całe rysowanie
-
-//    out << " " << GETNUM(hash, 10) << " " << GETNUM(hash, 0) << std::endl
-//       << GETNUM(hash, 8) << " " << ".#oX"[hash & 3] << " " << GETNUM(hash, 2) << std::endl
-//       << " " << GETNUM(hash, 6) << " " << GETNUM(hash, 4) << std::endl;
-//
-}
-
-using HexPatterns::HashBoard;
+using HexPatterns::HashBoard_13;
 
 /* StatsComputer concept:
  *
@@ -54,32 +47,33 @@ struct SimpleStatsComputer{
     void reportPatternUse(const uint *used_patterns, size_t n_used_patterns, const uint *existing_patterns, 
 			  size_t n_existing_patterns, const bool *played_positions){
       
+
         const uint *used_patterns_end = used_patterns + n_used_patterns;
         while (used_patterns != used_patterns_end){
             uint pattern = *used_patterns;
-            ++used_patterns;
             uses[pattern]++;
-            occurences[pattern]++;
-            
-            // the important part: outputting the chosen pattern hash
+            ++used_patterns;
+			// the important part: outputting the chosen pattern hash
 			std::cerr << pattern;
         }
 
         const uint *existing_patterns_end = existing_patterns + n_existing_patterns;
         while (existing_patterns != existing_patterns_end){
             if (!*played_positions){
-                occurences[*existing_patterns]++;
+            	uint pattern = *existing_patterns;
+                occurences[pattern]++;
                 //the important part: outputting all patterns present
-				std::cerr << " " << *existing_patterns;
+				std::cerr << " " << pattern;
 
             }
             ++existing_patterns;
             ++played_positions;
         }
-	std::cerr << std::endl;
+
+			std::cerr << std::endl;
     }
 
-    void print(std::ostream &out, bool verbose = false){
+    void print(std::ostream &out){
         map<uint, uint32_t>::iterator it = occurences.begin();
         int i = 0;
         while (it != occurences.end()){
@@ -92,20 +86,20 @@ struct SimpleStatsComputer{
         }
     }
 private:
-    void increment(const uint *dataBegin, const uint *dataEnd, uint32_t *array){}
+    //void increment(const uint *dataBegin, const uint *dataEnd, uint32_t *array){}
     map<uint, uint32_t> occurences;
     map<uint, uint32_t> uses;
 };
 
 template<typename StatsComputerType>
 struct GtpController {
+
   GtpController(Gtp::Repl& gtp){
     gtp.Register("newgame"       , this, &GtpController::CNewGame);
     gtp.Register("play"          , this, &GtpController::CPlay);
     gtp.Register("print"         , this, &GtpController::CPrint);
-    gtp.Register("print_verbose" , this, &GtpController::CPrintVerbose);
 
-    board = new HashBoard;
+    board = new HashBoard_13;
     
     initPlayed();
   }
@@ -116,7 +110,7 @@ struct GtpController {
 private:
   void CNewGame(Gtp::Io &) {
     delete board;
-    board = new HashBoard(HashBoard::EmptyHashBoard());
+    board = new HashBoard_13(HashBoard_13::EmptyHashBoard());
     initPlayed();
   }
   
@@ -145,29 +139,27 @@ private:
       io.in >> locCoordsStr;
       
       Hex::Player player = Hex::Player::OfString(playerStr);
-      Hex::Location location = Hex::Location::OfCoords(locCoordsStr);
+      uint location = HashBoard_13::GetLocation(locCoordsStr);
 
-      const uint *allBoardHashes = board->GetAllHash();
+      //Hex::Location location = Hex::Location::OfCoords(locCoordsStr);
+      //stara werja - nie można użyc bo zmieniony rozmiar planszy do zbierania patternów
+
+      const uint *allBoardHashes = board->GetAllHashes();
       size_t allBoardHashesSize = board->GetBoardSize();
 
-		board->Play(location.GetPos(), player.GetVal());
-      uint playHash = board->GetHash(location.GetPos());
+      uint playHash = board->GetHash(location);
 
       statsComp.reportPatternUse(&playHash, 1, allBoardHashes, allBoardHashesSize, played);
 		
-		board->Play(location.GetPos(), player.GetVal());
-		played[location.GetPos()] = true;
+		board->Play(location, player.GetVal());
+		played[location] = true;
   }
 
   void CPrint(Gtp::Io& io){
       statsComp.print(io.out);
   }
-  
-  void CPrintVerbose(Gtp::Io& io){
-      statsComp.print(io.out, true);
-  }
 
-  HashBoard *board;
+  HashBoard_13 *board;
   StatsComputerType statsComp;
   bool played[Hex::kBoardSizeAligned * Hex::kBoardSizeAligned];
 };
@@ -179,6 +171,6 @@ try {
     gtp.Run(std::cin, std::cout);
     return 0;
 } catch (std::exception &e) {
-    std::cerr << "exception caught: " << e.what();
+    std::cout << "exception caught: " << e.what();
     return 1;
 }

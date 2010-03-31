@@ -5,8 +5,10 @@
  *                             9th March 2010                                  *
  *******************************************************************************/
 
-#include <inttypes.h>
 #include <iostream>
+
+
+#include <inttypes.h>
 #include <time.h>
 
 #include <boost/random/linear_congruential.hpp>
@@ -16,7 +18,7 @@
 #include "pattern.cpp"
 #include "hash_board.cpp"
 #include "sampler.cpp"
-#include "macro_definitions.h"
+#include "pattern_data.cpp"
 
 using namespace HexPatterns;
 

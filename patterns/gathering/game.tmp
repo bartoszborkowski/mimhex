@@ -31,7 +31,7 @@
 	<table>
 		<tr valign='top' >
 	                <!--advertisment-->
-			<td width="468" align="center"><div style='background: #ff8000;width: 460px;height: 60px;vertical-align: middle;'><table><tr><td width='60' align='center'><img src='/images/icon/soccer.png'/></td><td><a href='/Ctrn.action?view=&dto.id=133' style='color:black'><span style='font-size: 18px'>Tournament: 'Serie A'</span><br><span style='font-size: 12px'>[StreetSoccer Street Soccer]</span><br><spen style='font-size: 14px'>start on Mar 15, 2010</span></a></td></tr></table></div>
+			<td width="468" align="center"><div style='background: #ff8000;width: 460px;height: 60px;vertical-align: middle;'><table><tr><td width='60' align='center'><img src='/images/icon/connect6.png'/></td><td><a href='/Ctrn.action?view=&dto.id=138' style='color:black'><span style='font-size: 18px'>Tournament: 'For 1900+'</span><br><span style='font-size: 12px'>[Connect6 Connect6]</span><br><spen style='font-size: 14px'>start on Apr 6, 2010</span></a></td></tr></table></div>
 			<a href='/jsp/index.jsp'>Main page</a>
 			<a href='/jsp/game/index.jsp'>My games</a>
 			</td>
@@ -57,7 +57,7 @@
 
         <tr>
                <td>Players/Games:</td>
-               <td><b>20515/1164395</b></td>
+               <td><b>20584/1171510</b></td>
         </tr>
         
         				
@@ -78,7 +78,7 @@
 
 <font size='5' color='darkblue'><b>
 Hex 13x13-Size 13
-:: #911741
+:: #606484
 (game finished)
 </b></font>
 <!--inside-->
@@ -93,7 +93,7 @@ Hex 13x13-Size 13
      </td></tr>
      <tr><td>
       <!--board-->
-      <img width='311' height='189' src='/generate/10246572.gif'>
+      <img width='547' height='361' src='/generate/10414119.gif'>
      </td></tr>
      <tr><td>
       <!--buttons-->
@@ -138,40 +138,40 @@ Hex 13x13-Size 13
     			</tr>
       			<tr>     	
       	  			<td>
-      	   				<img src=/ng/images/source/banner/PL.gif>
+      	   				<img src=/ng/images/source/banner/US.gif>
       	  			</td>
       	  			<td width='50%'>
-      	   				<font face=Arial size=2>Poland</font>
+      	   				<font face=Arial size=2>United States</font>
       	  			</td>
       	  			<td align='right' nowrap>
-      	   				<font face=Arial size=3 color=#800000><b>2060</b></font>      	
+      	   				<font face=Arial size=3 color=#800000><b>1500</b></font>      	
       	  			</td>
       	  			<td >
-      	   				<img src=/ng/images/source/banner/AT.gif>
+      	   				<img src=/ng/images/source/banner/ES.gif>
       	  			</td>
       	  			<td width='50%'>
-      	   				<font face=Arial size=2>Austria</font>
+      	   				<font face=Arial size=2>Spain</font>
       	  			</td>
       	  			<td align='right' nowrap>
-      	   				<font face=Arial size=3 color=#800000><b>1628</b></font>      	
+      	   				<font face=Arial size=3 color=#800000><b>1676</b></font>      	
       	  			</td>
       	 		</tr>
       	 		<tr>
       	  			<td colspan=3>
-      	   				<b><a href='/jsp/info/player.jsp?plid=17295'>Jaroslaw Herba</a></b>
+      	   				<b><a href='/jsp/info/player.jsp?plid=7186'>bgilbert</a></b>
       	  			</td>
       	  			<td colspan=3>
-      	   				<b><a href='/jsp/info/player.jsp?plid=16949'>Martin</a></b>
+      	   				<b><a href='/jsp/info/player.jsp?plid=13059'>Daniel Suárez Aller</a></b>
       	  			</td>	
       	 		</tr>
       	 		
       	 		<tr>
       	 			<td colspan=3 align='center'>
-      	 				<font size='7' color='brown'><b>2</b></font>
+      	 				<font size='7' color='brown'><b>0</b></font>
       	 			</td>
       	 			<td><font size='1'>result</font></td>
       	 			<td colspan=3 align='center'>
-      	 				<font size='7' color='brown'><b>0</b></font>
+      	 				<font size='7' color='brown'><b>2</b></font>
       	 			</td>
       	 		</tr>
       	 		
@@ -197,9 +197,9 @@ Hex 13x13-Size 13
                   
       <p class="news">
       
-      	Start time: 2008-07-21 19:38
-      	<br>Finish time: 2008-08-29 21:05
-      	<br>Tournament: <a href="../tournament/tournament.jsp?trnid=hex.rt.2008.7.98">hex.rt.2008.7.98</a>
+      	Start time: 2006-11-08 17:45
+      	<br>Finish time: 2006-11-23 22:06
+      	<br>Tournament: <a href="../tournament/tournament.jsp?trnid=hex.rt.2006.7.141">hex.rt.2006.7.141</a>
             
       
       </p>
@@ -218,12 +218,12 @@ Hex 13x13-Size 13
              <TR>
               <TD align=middle bgcolor=#a9a9a8 width=20><IMG alt='' border=0 height=14 src='/ng/images/table/sign.gif' width=14></TD>
               <TD bgcolor=#a9a9a8 noWrap>
-                <p><font size='2' face='Arial'><b>List of moves&nbsp;&nbsp;<a href='/servlet/sgf/911741/game.hsgf'>hsgf</a>&nbsp;&nbsp;&nbsp;<a href='game.jsp?gid=911741&nmove=0'>&lt;&lt;</a>&nbsp;&nbsp;<a href='game.jsp?gid=911741&nmove=43'>&lt</a>&nbsp;&nbsp;<a href='game.jsp?gid=911741&nmove=45'>&gt;</a>&nbsp;&nbsp;<a href='game.jsp?gid=911741'>&gt;&gt;</a></b></font></p></TD>
+                <p><font size='2' face='Arial'><b>List of moves&nbsp;&nbsp;<a href='/servlet/sgf/606484/game.hsgf'>hsgf</a>&nbsp;&nbsp;&nbsp;<a href='game.jsp?gid=606484&nmove=0'>&lt;&lt;</a>&nbsp;&nbsp;<a href='game.jsp?gid=606484&nmove=50'>&lt</a>&nbsp;&nbsp;<a href='game.jsp?gid=606484&nmove=52'>&gt;</a>&nbsp;&nbsp;<a href='game.jsp?gid=606484'>&gt;&gt;</a></b></font></p></TD>
               <TD align=right bgcolor=#a9a9a8 width=60><IMG alt='' border=0 height=12 hspace=3 src='/ng/images/table/minigolem.gif' vspace=3 width=12></TD></TR>
              <TR>
               <TD align=middle colSpan=3>
                   
-      <p align=left><a href=game.jsp?gid=911741&nmove=1><font color=#FFFFFF size=2><b>1.a3</b></font></a> <a href=game.jsp?gid=911741&nmove=2><font color=#000000 size=2><b>2.d8</b></font></a> <a href=game.jsp?gid=911741&nmove=3><font color=#FFFFFF size=2><b>3.g7</b></font></a> <a href=game.jsp?gid=911741&nmove=4><font color=#000000 size=2><b>4.f10</b></font></a> <a href=game.jsp?gid=911741&nmove=5><font color=#FFFFFF size=2><b>5.i9</b></font></a> <a href=game.jsp?gid=911741&nmove=6><font color=#000000 size=2><b>6.i10</b></font></a> <a href=game.jsp?gid=911741&nmove=7><font color=#FFFFFF size=2><b>7.h10</b></font></a> <a href=game.jsp?gid=911741&nmove=8><font color=#000000 size=2><b>8.h7</b></font></a> <a href=game.jsp?gid=911741&nmove=9><font color=#FFFFFF size=2><b>9.f8</b></font></a> <a href=game.jsp?gid=911741&nmove=10><font color=#000000 size=2><b>10.e9</b></font></a> <a href=game.jsp?gid=911741&nmove=11><font color=#FFFFFF size=2><b>11.g9</b></font></a> <a href=game.jsp?gid=911741&nmove=12><font color=#000000 size=2><b>12.f13</b></font></a> <a href=game.jsp?gid=911741&nmove=13><font color=#FFFFFF size=2><b>13.j8</b></font></a> <a href=game.jsp?gid=911741&nmove=14><font color=#000000 size=2><b>14.h12</b></font></a> <a href=game.jsp?gid=911741&nmove=15><font color=#FFFFFF size=2><b>15.h11</b></font></a> <a href=game.jsp?gid=911741&nmove=16><font color=#000000 size=2><b>16.e12</b></font></a> <a href=game.jsp?gid=911741&nmove=17><font color=#FFFFFF size=2><b>17.j11</b></font></a> <a href=game.jsp?gid=911741&nmove=18><font color=#000000 size=2><b>18.h4</b></font></a> <a href=game.jsp?gid=911741&nmove=19><font color=#FFFFFF size=2><b>19.i4</b></font></a> <a href=game.jsp?gid=911741&nmove=20><font color=#000000 size=2><b>20.h5</b></font></a> <a href=game.jsp?gid=911741&nmove=21><font color=#FFFFFF size=2><b>21.i5</b></font></a> <a href=game.jsp?gid=911741&nmove=22><font color=#000000 size=2><b>22.h6</b></font></a> <a href=game.jsp?gid=911741&nmove=23><font color=#FFFFFF size=2><b>23.j6</b></font></a> <a href=game.jsp?gid=911741&nmove=24><font color=#000000 size=2><b>24.j7</b></font></a> <a href=game.jsp?gid=911741&nmove=25><font color=#FFFFFF size=2><b>25.k6</b></font></a> <a href=game.jsp?gid=911741&nmove=26><font color=#000000 size=2><b>26.k7</b></font></a> <a href=game.jsp?gid=911741&nmove=27><font color=#FFFFFF size=2><b>27.i7</b></font></a> <a href=game.jsp?gid=911741&nmove=28><font color=#000000 size=2><b>28.j2</b></font></a> <a href=game.jsp?gid=911741&nmove=29><font color=#FFFFFF size=2><b>29.k2</b></font></a> <a href=game.jsp?gid=911741&nmove=30><font color=#000000 size=2><b>30.j3</b></font></a> <a href=game.jsp?gid=911741&nmove=31><font color=#FFFFFF size=2><b>31.k3</b></font></a> <a href=game.jsp?gid=911741&nmove=32><font color=#000000 size=2><b>32.j5</b></font></a> <a href=game.jsp?gid=911741&nmove=33><font color=#FFFFFF size=2><b>33.l4</b></font></a> <a href=game.jsp?gid=911741&nmove=34><font color=#000000 size=2><b>34.i13</b></font></a> <a href=game.jsp?gid=911741&nmove=35><font color=#FFFFFF size=2><b>35.k12</b></font></a> <a href=game.jsp?gid=911741&nmove=36><font color=#000000 size=2><b>36.j12</b></font></a> <a href=game.jsp?gid=911741&nmove=37><font color=#FFFFFF size=2><b>37.k11</b></font></a> <a href=game.jsp?gid=911741&nmove=38><font color=#000000 size=2><b>38.j13</b></font></a> <a href=game.jsp?gid=911741&nmove=39><font color=#FFFFFF size=2><b>39.k13</b></font></a> <a href=game.jsp?gid=911741&nmove=40><font color=#000000 size=2><b>40.i11</b></font></a> <a href=game.jsp?gid=911741&nmove=41><font color=#FFFFFF size=2><b>41.k9</b></font></a> <a href=game.jsp?gid=911741&nmove=42><font color=#000000 size=2><b>42.i8</b></font></a> <a href=game.jsp?gid=911741&nmove=43><font color=#FFFFFF size=2><b>43.h8</b></font></a> <font color=#000000 size=2><span style="background-color: #FF8080"><b>44.resign</span></b></font> </p>
+      <p align=left><a href=game.jsp?gid=606484&nmove=1><font color=#FFFFFF size=2><b>1.g7</b></font></a> <a href=game.jsp?gid=606484&nmove=2><font color=#000000 size=2><b>2.swap</b></font></a> <a href=game.jsp?gid=606484&nmove=3><font color=#FFFFFF size=2><b>3.d8</b></font></a> <a href=game.jsp?gid=606484&nmove=4><font color=#000000 size=2><b>4.d9</b></font></a> <a href=game.jsp?gid=606484&nmove=5><font color=#FFFFFF size=2><b>5.f8</b></font></a> <a href=game.jsp?gid=606484&nmove=6><font color=#000000 size=2><b>6.f7</b></font></a> <a href=game.jsp?gid=606484&nmove=7><font color=#FFFFFF size=2><b>7.e8</b></font></a> <a href=game.jsp?gid=606484&nmove=8><font color=#000000 size=2><b>8.e6</b></font></a> <a href=game.jsp?gid=606484&nmove=9><font color=#FFFFFF size=2><b>9.j6</b></font></a> <a href=game.jsp?gid=606484&nmove=10><font color=#000000 size=2><b>10.j5</b></font></a> <a href=game.jsp?gid=606484&nmove=11><font color=#FFFFFF size=2><b>11.h6</b></font></a> <a href=game.jsp?gid=606484&nmove=12><font color=#000000 size=2><b>12.h7</b></font></a> <a href=game.jsp?gid=606484&nmove=13><font color=#FFFFFF size=2><b>13.i6</b></font></a> <a href=game.jsp?gid=606484&nmove=14><font color=#000000 size=2><b>14.i8</b></font></a> <a href=game.jsp?gid=606484&nmove=15><font color=#FFFFFF size=2><b>15.l8</b></font></a> <a href=game.jsp?gid=606484&nmove=16><font color=#000000 size=2><b>16.k7</b></font></a> <a href=game.jsp?gid=606484&nmove=17><font color=#FFFFFF size=2><b>17.b7</b></font></a> <a href=game.jsp?gid=606484&nmove=18><font color=#000000 size=2><b>18.c7</b></font></a> <a href=game.jsp?gid=606484&nmove=19><font color=#FFFFFF size=2><b>19.b8</b></font></a> <a href=game.jsp?gid=606484&nmove=20><font color=#000000 size=2><b>20.f9</b></font></a> <a href=game.jsp?gid=606484&nmove=21><font color=#FFFFFF size=2><b>21.c9</b></font></a> <a href=game.jsp?gid=606484&nmove=22><font color=#000000 size=2><b>22.b9</b></font></a> <a href=game.jsp?gid=606484&nmove=23><font color=#FFFFFF size=2><b>23.c8</b></font></a> <a href=game.jsp?gid=606484&nmove=24><font color=#000000 size=2><b>24.c11</b></font></a> <a href=game.jsp?gid=606484&nmove=25><font color=#FFFFFF size=2><b>25.d10</b></font></a> <a href=game.jsp?gid=606484&nmove=26><font color=#000000 size=2><b>26.d11</b></font></a> <a href=game.jsp?gid=606484&nmove=27><font color=#FFFFFF size=2><b>27.e10</b></font></a> <a href=game.jsp?gid=606484&nmove=28><font color=#000000 size=2><b>28.e11</b></font></a> <a href=game.jsp?gid=606484&nmove=29><font color=#FFFFFF size=2><b>29.g10</b></font></a> <a href=game.jsp?gid=606484&nmove=30><font color=#000000 size=2><b>30.c5</b></font></a> <a href=game.jsp?gid=606484&nmove=31><font color=#FFFFFF size=2><b>31.d6</b></font></a> <a href=game.jsp?gid=606484&nmove=32><font color=#000000 size=2><b>32.e4</b></font></a> <a href=game.jsp?gid=606484&nmove=33><font color=#FFFFFF size=2><b>33.a6</b></font></a> <a href=game.jsp?gid=606484&nmove=34><font color=#000000 size=2><b>34.e3</b></font></a> <a href=game.jsp?gid=606484&nmove=35><font color=#FFFFFF size=2><b>35.b4</b></font></a> <a href=game.jsp?gid=606484&nmove=36><font color=#000000 size=2><b>36.c2</b></font></a> <a href=game.jsp?gid=606484&nmove=37><font color=#FFFFFF size=2><b>37.a3</b></font></a> <a href=game.jsp?gid=606484&nmove=38><font color=#000000 size=2><b>38.b1</b></font></a> <a href=game.jsp?gid=606484&nmove=39><font color=#FFFFFF size=2><b>39.d3</b></font></a> <a href=game.jsp?gid=606484&nmove=40><font color=#000000 size=2><b>40.e1</b></font></a> <a href=game.jsp?gid=606484&nmove=41><font color=#FFFFFF size=2><b>41.e2</b></font></a> <a href=game.jsp?gid=606484&nmove=42><font color=#000000 size=2><b>42.f1</b></font></a> <a href=game.jsp?gid=606484&nmove=43><font color=#FFFFFF size=2><b>43.f2</b></font></a> <a href=game.jsp?gid=606484&nmove=44><font color=#000000 size=2><b>44.g1</b></font></a> <a href=game.jsp?gid=606484&nmove=45><font color=#FFFFFF size=2><b>45.h2</b></font></a> <a href=game.jsp?gid=606484&nmove=46><font color=#000000 size=2><b>46.g2</b></font></a> <a href=game.jsp?gid=606484&nmove=47><font color=#FFFFFF size=2><b>47.g4</b></font></a> <a href=game.jsp?gid=606484&nmove=48><font color=#000000 size=2><b>48.g3</b></font></a> <a href=game.jsp?gid=606484&nmove=49><font color=#FFFFFF size=2><b>49.h3</b></font></a> <a href=game.jsp?gid=606484&nmove=50><font color=#000000 size=2><b>50.e5</b></font></a> <font color=#FFFFFF size=2><span style="background-color: #FF8080"><b>51.resign</span></b></font> </p>
                     </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
            
      </td></tr>
@@ -256,7 +256,7 @@ Hex 13x13-Size 13
 <p><font size='-1'><b>Little Golem</b>. Thanks for playing on our website. 
 <a href="/jsp/message/webmaster.jsp">Message to webmaster</a>.
 Read our <a href="/jsp/info/policy.jsp">Privacy policy</a>.
-Time for generation of page: 58 ms.
+Time for generation of page: 47 ms.
 
 
 </font>

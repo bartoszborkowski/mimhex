@@ -1,9 +1,9 @@
-/*******************************************************************************
- *                              Bartosz Borkowski                              *
- *              Faculty of Mathematics, Informatics and Mechanics              *
- *                              Warsaw University                              *
- *                             9th March 2010                                  *
- *******************************************************************************/
+/********************************************************************************
+ *                              Bartosz Borkowski                               *
+ *              Faculty of Mathematics, Informatics and Mechanics               *
+ *                             University of Warsaw                             *
+ *                               13th March 2010                                *
+ ********************************************************************************/
 
 #ifndef MIMHEX_TEMPLATE_INL_H_
 #define MIMHEX_TEMPLATE_INL_H_
@@ -23,14 +23,10 @@ inline uint Template::GetSize() const
     return size;
 }
 
-inline Hash Template::GetHash(int relative_position, uint player) const
+inline Hash Template::GetHash(int relative_row, int relative_column, uint state) const
 {
-    int position = relative_position - min_relative;
-
-    if (position < 0 || static_cast<uint>(position) > Hex::kFieldsAlignedAmount)
-        return 0;
-    else
-        return fields_base_hash[position][player];
+    return field_hashes[relative_row + Hex::kBoardSizeAligned - 1]
+        [relative_column + Hex::kBoardSizeAligned - 1][state];
 }
 
 #endif

@@ -12,15 +12,14 @@
 
 namespace HexPatterns
 {
-    const HashBoard HashBoard::EmptyHashBoard(const char */*hash_board_file*/)
+    const HashBoard HashBoard::EmptyHashBoard()
     {
-        // TODO: read from file
-        //std::ifstream ifs(hash_board_file, std::ifstream::in);
-
         HashBoard board;
 
-        rep(ii, Hex::kFieldsAlignedAmount)
+        rep(ii, Hex::kFieldsAlignedAmount) {
             board.pattern_count[ii] = 0;
+            board.position_hash[ii] = 0;
+        }
 
         rep(ii, Hex::kBoardSize + 2)
             rep(jj, Hex::kBoardSize + 2) {
@@ -32,7 +31,6 @@ namespace HexPatterns
                 board.patterns_at[kk][3] = kk + 1;
                 board.patterns_at[kk][4] = kk + Hex::kBoardSizeAligned - 1;
                 board.patterns_at[kk][5] = kk + Hex::kBoardSizeAligned;
-                board.position_hash[kk] = 0;
             }
 
         /* Adding guardians to two topmost and bottommost rows */
@@ -57,10 +55,6 @@ namespace HexPatterns
         }
         /* Adding guardians to two leftmost and rightmost columns */
 
-        board.Play(87, PLAYER_1_STATE);
-
-        std::cout << board.ToAsciiArt() << std::endl;
-
         return board;
     }
 
@@ -68,6 +62,8 @@ namespace HexPatterns
     {
         rep(ii, Hex::kFieldsAlignedAmount)
             pattern_count[ii] = 0;
+
+        memset(position_hash, 0, Hex::kFieldsAlignedAmount * sizeof(Hash));
     }
 
     HashBoard::HashBoard(const HashBoard &board)
@@ -94,4 +90,5 @@ namespace HexPatterns
 
         return ret.str();
     }
+
 } // namespace HexPatterns

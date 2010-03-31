@@ -1,9 +1,9 @@
-/*******************************************************************************
- *                              Bartosz Borkowski                              *
- *              Faculty of Mathematics, Informatics and Mechanics              *
- *                              Warsaw University                              *
- *                             9th March 2010                                  *
- *******************************************************************************/
+/********************************************************************************
+ *                              Bartosz Borkowski                               *
+ *              Faculty of Mathematics, Informatics and Mechanics               *
+ *                             University of Warsaw                             *
+ *                               13th March 2010                                *
+ ********************************************************************************/
 
 #include <iostream>
 #include <fstream>
@@ -17,99 +17,58 @@
 #define BUFFER_SIZE 512
 #define COMMENT_LINE '#'
 
+#define ROW         0
+#define COLUMN      1
+
 namespace HexPatterns
 {
-    void SplitString(const std::string &input, const char separator,
-        std::vector<int> &output)
-    /*
-    * TODO: move this to some util-like file
-    */
+    void FillArrays(uint i, int row, int col, Hash h0, Hash h1, Hash h2,
+        Hash h3, int pos[][DIMENSIONS], Hash h[][FIELD_STATES])
     {
-        size_t pos = 0, end = 0;
-        std::string part;
+        pos[i][ROW] = row;
+        pos[i][COLUMN] = col;
 
-        while (end != std::string::npos) {
-            end = input.find_first_of(separator, pos);
-            part = input.substr(pos, end == std::string::npos ? end : end - pos);
-            pos = end + 1;
-
-            try {
-            output.push_back(boost::lexical_cast<int>(part));
-            } catch (boost::bad_lexical_cast &) {
-                std::cerr << "Error: " << part << " is not an integer" << std::endl;
-                exit(1);
-            }
-        }
-
-        return;
+        h[i][PLAYER_0_STATE] = h0;
+        h[i][PLAYER_1_STATE] = h1;
+        h[i][GUARDIAN_STATE] = h2;
+        h[i][EMPTY_STATE] = h3;
     }
 
-    uint Template::InitialiseTemplates(const char *template_file)
+    uint Template::InitialiseTemplates()
     {
-        std::ifstream ifs(template_file, std::ifstream::in);
-        char buffer[BUFFER_SIZE];
-        Hash fields_hash[Hex::kFieldsAlignedAmount][FIELD_STATES];
-        std::vector<int> line;
+        int positions[6][DIMENSIONS];
+        Hash hashes[6][FIELD_STATES];
 
-        int min_relative_position;
-        int fields_relative_positions[Hex::kFieldsAlignedAmount];
-        Hash auxiliary_hash[Hex::kFieldsAlignedAmount][FIELD_STATES];
+        FillArrays(0, -1, 0, 1858371402, 637933676, 1993303069, 0, positions, hashes);
+        FillArrays(1, -1, 1, 2029330270, 1495175269, 1134523642, 0, positions, hashes);
+        FillArrays(2, 0, -1, 608453654, 2081962756, 792820039, 0, positions, hashes);
+        FillArrays(3, 0, 1, 290675495, 1419729510, 1768091954, 0, positions, hashes);
+        FillArrays(4, 1, -1, 336599391, 1251852077, 927732484, 0, positions, hashes);
+        FillArrays(5, 1, 0, 1933830382, 260111653, 2066513445, 0, positions, hashes);
 
-        if (!ifs.good()) {
-            std::cerr << "Error: could not open file: " << template_file << std::endl;
-            exit(1);
-        }
-
-        while (ifs.good()) {
-            // TODO: make the following into a function... or something
-            memset(fields_hash, 0, kHashMemory);
-            memset(auxiliary_hash, 0, kHashMemory);
-
-            min_relative_position = Hex::kFieldsAlignedAmount;
-            line.clear();
-
-            ifs.getline(buffer, BUFFER_SIZE);
-            if (buffer[0] != COMMENT_LINE) {
-                SplitString(buffer, ' ', line);
-                ASSERT(static_cast<uint>(line[2]) <= Hex::kFieldsAlignedAmount);
-
-                rep(ii, static_cast<uint>(line[2])) {
-                    uint tmp = 3 + ii * 4;
-                    fields_relative_positions[ii] = line[tmp];
-                    auxiliary_hash[ii][0] = line[tmp + 1];
-                    auxiliary_hash[ii][1] = line[tmp + 2];
-                    auxiliary_hash[ii][2] = line[tmp + 3];
-                    auxiliary_hash[ii][3] = 0;
-
-                    if (min_relative_position > fields_relative_positions[ii])
-                        min_relative_position = fields_relative_positions[ii];
-                }
-
-                rep(ii, static_cast<uint>(line[2])) {
-                    memcpy(fields_hash[fields_relative_positions[ii] - min_relative_position],
-                        auxiliary_hash[ii], FIELD_STATES * sizeof(Hash));
-                }
-
-                templates[line[0]] =
-                    Template(line[0], line[1], line[2], min_relative_position, fields_hash);
-            }
-        }
-
-        ifs.close();
+        templates[0] = Template(0, 0, 6, positions, hashes);
 
         return 0;
     }
 
-    Template::Template() : id(-1), base_hash(-1), size(0), min_relative(0)
+    Template::Template() : id(-1), base_hash(-1), size(0)
     {
-        memset(fields_base_hash, 0, kHashMemory);
+        memset(field_hashes, 0, kTemplateHashMemory);
     }
 
-    Template::Template(uint _id, Hash _base_hash, uint _size, int _min_relative,
-        Hash _fields_base_hash[][FIELD_STATES]) : id(_id), base_hash(_base_hash),
-        size(_size), min_relative(_min_relative)
+    Template::Template(uint _id, Hash _base_hash, uint _size,
+        int relative_positions[][DIMENSIONS],
+        Hash _field_hashes[][FIELD_STATES]) :
+        id(_id), base_hash(_base_hash), size(_size)
     {
-        memcpy(fields_base_hash, _fields_base_hash, kHashMemory);
+        memset(field_hashes, 0, kTemplateHashMemory);
+
+        rep(ii, size)
+            memcpy(
+                field_hashes
+                [relative_positions[ii][ROW] + Hex::kBoardSizeAligned - 1]
+                [relative_positions[ii][COLUMN] + Hex::kBoardSizeAligned - 1],
+                _field_hashes[ii], FIELD_STATES_SIZE);
     }
 
     Template::Template(const Template &t)
@@ -123,6 +82,84 @@ namespace HexPatterns
         return *this;
     }
 
+    Template Template::GetMirrorX() const
+    {
+        Template ret = Template(*this);
+        Hash aux[2 * Hex::kBoardSizeAligned - 1][FIELD_STATES];
+        size_t row_size =
+            (2 * Hex::kBoardSizeAligned - 1) * FIELD_STATES * sizeof(Hash);
+        uint offset = 2 * (Hex::kBoardSizeAligned - 1);
+
+        rep(ii, Hex::kBoardSizeAligned - 1) {
+            memcpy(aux, ret.field_hashes[ii], row_size);
+            memcpy(ret.field_hashes[ii],
+                ret.field_hashes[offset - ii], row_size);
+            memcpy(ret.field_hashes[offset - ii], aux, row_size);
+        }
+
+        return ret;
+    }
+
+    Template Template::GetMirrorY() const
+    {
+        Template ret = Template(*this);
+        Hash aux[FIELD_STATES];
+        size_t field_size = FIELD_STATES * sizeof(Hash);
+        uint offset = 2 * (Hex::kBoardSizeAligned - 1);
+
+        rep(ii, 2 * Hex::kBoardSizeAligned - 1)
+            rep(jj, Hex::kBoardSizeAligned - 1) {
+                memcpy(aux, ret.field_hashes[ii][jj], field_size);
+                memcpy(ret.field_hashes[ii][jj],
+                    ret.field_hashes[ii][offset - jj], field_size);
+                memcpy(ret.field_hashes[ii][offset - jj], aux, field_size);
+            }
+
+        return ret;
+    }
+
+    Template Template::GetMirrorXY() const
+    {
+        return GetMirrorY().GetMirrorX();
+    }
+
+    std::vector<Hash> Template::GetAllHashes() const
+    {
+        ulong len = 1;
+        Hash **hashes;
+        std::vector<Hash> ret;
+
+        rep(ii, size)
+            len *= FIELD_STATES;
+        /* len = FIELD_STATES ^ size                                            */
+
+        hashes = new Hash *[size];
+        rep(ii, size)
+            hashes[ii] = new Hash[FIELD_STATES];
+
+        uint kk = 0;
+        rep(ii, 2 * Hex::kBoardSizeAligned - 1)
+            rep(jj, 2 * Hex::kBoardSizeAligned - 1)
+                if (field_hashes[ii][jj][0])
+                    memcpy(hashes[kk++], field_hashes[ii][jj],
+                        FIELD_STATES * sizeof(Hash));
+        /* hashes array containes non-zero hashes from the template.            */
+
+        rep(ii, len)
+            ret.push_back(0);
+
+        rep(ii, len) {
+            rep(jj, size)
+                ret[ii] ^= hashes[jj][ii >> (jj * 2) & 3];
+        }
+
+        rep(ii, size)
+            delete [] hashes[ii];
+        delete hashes;
+
+        return ret;
+    }
+
     std::string Template::ToAsciiArt() const
     {
         std::stringstream ret;
@@ -130,17 +167,22 @@ namespace HexPatterns
         ret << "Template" << std::endl
             << "\tid \t\t" << id << std::endl
             << "\tbase_hash \t"<< base_hash << std::endl
-            << "\tsize \t\t" << size << std::endl;
+            << "\tsize \t\t" << size << std::endl << std::endl;
 
-        rep(ii, Hex::kFieldsAlignedAmount)
-            if (fields_base_hash[ii][0]) {
-                ret << "\thash[" << static_cast<int>(ii + min_relative)
-                    << "][0] \t\t" << fields_base_hash[ii][0] << std::endl
-                    << "\thash[" << static_cast<int>(ii + min_relative)
-                    << "][1] \t\t" << fields_base_hash[ii][1] << std::endl
-                    << "\thash[" << static_cast<int>(ii + min_relative)
-                    << "][2] \t\t" << fields_base_hash[ii][2] << std::endl;
+        rep(ii, FIELD_STATES) {
+            ret << "STATE " << ii << std::endl;
+            rep(jj, 2 * Hex::kBoardSizeAligned - 1) {
+                rep(kk, 2 * Hex::kBoardSizeAligned - 1)
+                    if (field_hashes[jj][kk][ii])
+                        ret << "\thash["
+                            << static_cast<int>(jj - Hex::kBoardSizeAligned + 1)
+                            << "]["
+                            << static_cast<int>(kk - Hex::kBoardSizeAligned + 1)
+                            << "] \t\t"
+                            << field_hashes[jj][kk][ii] << std::endl;
             }
+            ret << std::endl;
+        }
 
         return ret.str();
     }
