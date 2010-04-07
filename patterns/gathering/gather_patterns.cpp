@@ -36,6 +36,10 @@ using HexPatterns::HashBoard_13;
  *
  */
 
+uint round;
+Hex::Player save_player = Hex::Player::First();
+uint save_location;
+
 struct SimpleStatsComputer{
   
     SimpleStatsComputer(){
@@ -111,6 +115,7 @@ private:
     delete board;
     board = new HashBoard_13(HashBoard_13::EmptyHashBoard());
     initPlayed();
+    round = 1;
   }
   
   void initPlayed(){
@@ -130,28 +135,55 @@ private:
     }  
   }
 
-  void CPlay(Gtp::Io& io) {
-      std::string playerStr;
-      std::string locCoordsStr;
+    void UpdateBoard(uint location, Hex::Player player)
+    {
+        const uint *allBoardHashes = board->GetAllHashes();
+        size_t allBoardHashesSize = board->GetBoardSize();
+        uint playHash = board->GetHash(location);
 
-      io.in >> playerStr;
-      io.in >> locCoordsStr;
-      
-      Hex::Player player = Hex::Player::OfString(playerStr);
-      uint location = HashBoard_13::GetLocation(locCoordsStr);
+        statsComp.reportPatternUse(&playHash, 1, allBoardHashes, allBoardHashesSize, played);
 
-      //Hex::Location location = Hex::Location::OfCoords(locCoordsStr);
-      //stara werja - nie można użyc bo zmieniony rozmiar planszy do zbierania patternów
+        board->Play(location, player.GetVal());
+        played[location] = true;
 
-      const uint *allBoardHashes = board->GetAllHashes();
-      size_t allBoardHashesSize = board->GetBoardSize();
+        return;
+    }
 
-      uint playHash = board->GetHash(location);
+    void CPlay(Gtp::Io& io)
+    {
+        std::string playerStr;
+        std::string locCoordsStr;
 
-      statsComp.reportPatternUse(&playHash, 1, allBoardHashes, allBoardHashesSize, played);
-		
-		board->Play(location, player.GetVal());
-		played[location] = true;
+        io.in >> playerStr;
+        io.in >> locCoordsStr;
+
+        Hex::Player player = Hex::Player::OfString(playerStr);
+        uint location = HashBoard_13::GetLocation(locCoordsStr);
+
+        switch (round) {
+            case 1:
+                save_player = player;
+                save_location = location;
+                break;
+            case 2:
+                if (locCoordsStr == "swap") {
+                    /* change save_location */
+                    /* the following is a mirror with respect to the long diagonal */
+                    save_location = ((save_location & 15) << 4) + (save_location >> 4);
+                    /* change save_player */
+                    save_player = save_player.Opponent();
+                    UpdateBoard(save_location, save_player);
+                } else {
+                    UpdateBoard(save_location, save_player);
+                    UpdateBoard(location, player);
+                }
+                break;
+            default:
+                UpdateBoard(location, player);
+                break;
+        }
+
+        ++round;
   }
 
   void CPrint(Gtp::Io& io){
