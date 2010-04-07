@@ -1,7 +1,7 @@
 /*******************************************************************************
- *                              Bartosz Borkowski                              *
+ *                   Bartosz Borkowski, Michal Albrycht                        *
  *              Faculty of Mathematics, Informatics and Mechanics              *
- *                              Warsaw University                              *
+ *                            Warsaw University                                *
  *                             9th March 2010                                  *
  *******************************************************************************/
 
@@ -32,14 +32,16 @@ Hash CalculateHash(Hash h[][FIELD_STATES],
 }
 
 int main(int, char **){
-    map<uint, Hash> pattern_conv;
-    map<uint, Hash> pattern_appearance;
-    map<uint, Hash> min_pattern_appearance;
+    map<Hash, Hash> pattern_conv;
+    map<Hash, bool> pattern_appearance;
+    map<Hash, bool> min_pattern_appearance;
+    map<Hash, uint> ordinal_no;
     Hash field_base_hash[6][FIELD_STATES];
 
     pattern_conv.clear();
     pattern_appearance.clear();
     min_pattern_appearance.clear();
+    ordinal_no.clear();
 
     rep(i, FIELD_STATES) {
         field_base_hash[0][i] = templates[0].GetHash(-1, 0, i);
@@ -74,55 +76,39 @@ int main(int, char **){
 	ofstream out2("pattern_numb.txt", ios_base::out);
 
 	uint line_no = 0;
+	uint ordinal=0;
 	string line;
+
 	while (!in.eof()){
 		getline(in, line);
 		istringstream line_stream;
 		line_stream.str(line);
 		uint pattern;
 		while (line_stream >> pattern){
-			min_pattern_appearance[pattern_conv[pattern]] = 1;
-			pattern_appearance[pattern] = 1;
+			uint minHash = pattern_conv[pattern];
+			min_pattern_appearance[minHash] = true;
+			pattern_appearance[pattern] = true;
+			if (!ordinal_no[minHash]) //assing orindal number if hasn't one
+				ordinal_no[minHash] = ++ordinal;
+			out1 << ordinal_no[minHash];
+			if (!line_stream.eof())
+				out1 << " ";
 		}
+		out1 << endl;
 		line_no ++;
 	}
 
 	// iterate over pattern_appearance and and write pattern -> min_patterns
-    map<uint, Hash>::iterator it_pc = pattern_conv.begin();
-    while (it_pc != pattern_conv.end()){
-        uint indx = it_pc->first;
-		out0 << indx << " " << pattern_conv[indx] << endl; // pattern -> minPattern
-        ++it_pc;
+    for (map<Hash, bool>::iterator it_pc = pattern_appearance.begin(); it_pc != pattern_appearance.end(); ++it_pc){
+        uint pattern = it_pc->first;
+		out0 << pattern << " " << pattern_conv[pattern] << endl; // pattern -> minPattern
     }
 
-    uint oridnal_no = 0;
     // iterater over min_pattern_appearanve and for each assign ordinal number
-    map<uint, Hash>::iterator it_mpa = min_pattern_appearance.begin();
-    while (it_mpa != min_pattern_appearance.end()){
-        uint indx = it_mpa->first;
-		out2 << oridnal_no << " " << indx << endl; // ordinal number -> minPattern
-        min_pattern_appearance[indx] = oridnal_no++; //minPattern -> ordinal number
-        ++it_mpa;
+    for (map<Hash, bool>::iterator it_mpa = min_pattern_appearance.begin(); it_mpa != min_pattern_appearance.end(); ++it_mpa){
+        uint minHash = it_mpa->first;
+		out2 << ordinal_no[minHash] << " " << minHash << endl; // ordinal number -> minPattern
     }
-
-	in.close();
-	in.open("pattern_teams.txt", fstream::in);
-
-	while (!in.eof()){
-		getline(in, line);
-		istringstream line_stream;
-		line_stream.str(line);
-		uint pattern;
-		while (line_stream >> pattern){
-			out1 << min_pattern_appearance[pattern_conv[pattern]];
-			if (!line_stream.eof())
-
-				out1 << " ";
-			pattern_appearance[pattern] = 1;
-		}
-		out1 << endl;
-
-	}
 
 	in.close();
 	out0.close();

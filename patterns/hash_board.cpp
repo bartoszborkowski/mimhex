@@ -90,4 +90,5 @@ namespace HexPatterns
 
         return ret.str();
     }
+
 } // namespace HexPatterns

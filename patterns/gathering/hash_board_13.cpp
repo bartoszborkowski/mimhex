@@ -11,6 +11,7 @@
 #include "hash_board_13.h"
 
 #define GATHER_SIZE 13
+#define GUARDS_SIZE 1 // used only in GetLocation - FIXME to use in all HashBoard
 
 namespace HexPatterns
 {
@@ -147,5 +148,17 @@ namespace HexPatterns
         }
 
         return ret.str();
+    }
+
+    // Converts string Coords to LocationNumber in HashBoard
+    uint HashBoard_13::GetLocation(string coords)
+    {
+        uint x = coords[0] >= 'a' ? coords[0] - 'a' : coords[0] - 'A';
+        ++x;
+        uint y = coords[1] - '0';
+        if (coords.size() > 2)
+            y = y * 10 + coords[2] - '0';
+        uint res = (y + GUARDS_SIZE -1 ) * (Hex::kBoardSizeAligned) + x + GUARDS_SIZE - 1;
+        return res;
     }
 } // namespace HexPatterns

@@ -27,4 +27,4 @@ while test -n "$1" ; do
     shift
 done
 
-echo "print_verbose"
+echo "print"

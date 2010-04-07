@@ -24,19 +24,6 @@
 
 #include "pattern_data.cpp"
 
-// prints 7-elem hash
-
-void printHash(uint hash, std::ostream &out){
-//#define GETNUM(x, pos) ".#oX"[(((x) >> (pos)) & 15) >> 2]
-
-//    out << "RYSOWANIE PATTERNÓW NIE DZIAŁA BO ZMIENIŁ SIĘ SPOSÓB HASHOWANIA!! \n"; //TODO albo poprawić albo wywalić całe rysowanie
-
-//    out << " " << GETNUM(hash, 10) << " " << GETNUM(hash, 0) << std::endl
-//       << GETNUM(hash, 8) << " " << ".#oX"[hash & 3] << " " << GETNUM(hash, 2) << std::endl
-//       << " " << GETNUM(hash, 6) << " " << GETNUM(hash, 4) << std::endl;
-//
-}
-
 using HexPatterns::HashBoard_13;
 
 /* StatsComputer concept:
@@ -63,18 +50,19 @@ struct SimpleStatsComputer{
         const uint *used_patterns_end = used_patterns + n_used_patterns;
         while (used_patterns != used_patterns_end){
             uint pattern = *used_patterns;
-
-            ++used_patterns;
+            uses[pattern]++;
 // the important part: outputting the chosen pattern hash
 				std::cerr << pattern;
+
         }
 
         const uint *existing_patterns_end = existing_patterns + n_existing_patterns;
         while (existing_patterns != existing_patterns_end){
             if (!*played_positions){
-                occurences[*existing_patterns]++;
+            	uint pattern = *existing_patterns;
+                occurences[pattern]++;
                 //the important part: outputting all patterns present
-				std::cerr << " " << *existing_patterns;
+				std::cerr << " " << pattern;
 
             }
             ++existing_patterns;
@@ -84,7 +72,7 @@ struct SimpleStatsComputer{
 			std::cerr << std::endl;
     }
 
-    void print(std::ostream &out, bool verbose = false){
+    void print(std::ostream &out){
         map<uint, uint32_t>::iterator it = occurences.begin();
         int i = 0;
         while (it != occurences.end()){
@@ -97,7 +85,7 @@ struct SimpleStatsComputer{
         }
     }
 private:
-    void increment(const uint *dataBegin, const uint *dataEnd, uint32_t *array){}
+    //void increment(const uint *dataBegin, const uint *dataEnd, uint32_t *array){}
     map<uint, uint32_t> occurences;
     map<uint, uint32_t> uses;
 };
@@ -109,7 +97,6 @@ struct GtpController {
     gtp.Register("newgame"       , this, &GtpController::CNewGame);
     gtp.Register("play"          , this, &GtpController::CPlay);
     gtp.Register("print"         , this, &GtpController::CPrint);
-    gtp.Register("print_verbose" , this, &GtpController::CPrintVerbose);
 
     board = new HashBoard_13;
     
@@ -151,25 +138,24 @@ private:
       io.in >> locCoordsStr;
       
       Hex::Player player = Hex::Player::OfString(playerStr);
-      Hex::Location location = Hex::Location::OfCoords(locCoordsStr);
+      uint location = HashBoard_13::GetLocation(locCoordsStr);
+
+      //Hex::Location location = Hex::Location::OfCoords(locCoordsStr);
+      //stara werja - nie można użyc bo zmieniony rozmiar planszy do zbierania patternów
 
       const uint *allBoardHashes = board->GetAllHashes();
       size_t allBoardHashesSize = board->GetBoardSize();
 
-      uint playHash = board->GetHash(location.GetPos());
+      uint playHash = board->GetHash(location);
 
       statsComp.reportPatternUse(&playHash, 1, allBoardHashes, allBoardHashesSize, played);
 		
-		board->Play(location.GetPos(), player.GetVal());
-		played[location.GetPos()] = true;
+		board->Play(location, player.GetVal());
+		played[location] = true;
   }
 
   void CPrint(Gtp::Io& io){
       statsComp.print(io.out);
-  }
-
-  void CPrintVerbose(Gtp::Io& io){
-      statsComp.print(io.out, true);
   }
 
   HashBoard_13 *board;
@@ -184,6 +170,6 @@ try {
     gtp.Run(std::cin, std::cout);
     return 0;
 } catch (std::exception &e) {
-    std::cerr << "exception caught: " << e.what();
+    std::cout << "exception caught: " << e.what();
     return 1;
 }

@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Script calculates occurences of pattern. It checks if used pattern (first in each line) exist at least twice in each line.
-# First occurance is begining of line (where used Patterns are listed), second should be at list of all patterns existing in this
-# situation.
-#
-# by Michał Albrycht
 
 if [ -z $1 ] ; then
   echo "Error: No argument. "

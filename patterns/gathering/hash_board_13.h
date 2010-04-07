@@ -20,6 +20,7 @@ namespace HexPatterns
     {
         public:
             static const HashBoard_13 EmptyHashBoard();
+            static uint GetLocation(string position);
 
             HashBoard_13();
             HashBoard_13(const HashBoard_13 &board);
