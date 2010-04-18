@@ -3,7 +3,7 @@
 #include <map>
 #include "mm.h"
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 4096
 
 int main() {
 
@@ -11,6 +11,8 @@ int main() {
 	std::ifstream in("comp.txt", std::ifstream::in);
 
 	MM::BtModel model;
+
+	std::cerr << "Reading input file..." << std::endl;
 
 	while (in.good()) {
 		in.getline(buffer, BUFFER_SIZE);
@@ -24,8 +26,6 @@ int main() {
 		while (str.good()) {
 			unsigned hash;
 			str >> hash;
-			if (!str.good())
-				break;
 			MM::Team& team = match.NewTeam();
 			team.SetFeatureLevel(MM::kPatternFeature, hash);
 			if (hash == chosen  && !winnerSet) {
@@ -36,9 +36,17 @@ int main() {
 	}
 	in.close();
 
+	std::cerr << "Input file read. Calculating gammas..." << std::endl;
+
+	const int iterations = 10000;
 	model.PreprocessData();
-	for (int i = 0; i < 10000; ++i)
+	for (int i = 0; i < iterations; ++i) {
+		if ((i * 100) % iterations == 0)
+			std::cerr << i * 100 / iterations << "%...";
 		model.TrainFeature(MM::kPatternFeature);
+	}
+
+	std::cerr << std::endl << "Gammas calculated. Preparing output..." << std::endl;
 
 	std::map<unsigned, unsigned> hash_numbers;
 	std::map<unsigned, unsigned> min_hashes;
@@ -71,6 +79,8 @@ int main() {
 		gammas_out << std::endl;
 	}
 	gammas_out.close();
+
+	std::cerr << "Output prepared. Nothing more to do." << std::endl;
 
 	return 0;
 }
