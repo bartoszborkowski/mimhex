@@ -194,7 +194,7 @@ inline void Board::PlayLegal (const Move& move) {
 
     /* Patterns move */
     if (Sampler::use_patterns)
-        return sampler.Play(move);
+        sampler.Play(move);
     /* Patterns move */
 
 	uint pos = move.GetLocation().GetPos();

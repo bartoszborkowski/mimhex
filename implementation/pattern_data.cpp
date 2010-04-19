@@ -45,6 +45,7 @@ namespace Hex
     {
         std::map<HexPatterns::Hash, double>::iterator it = strengths.find(hash);
 
+	if (it == PatternData::strengths.end()) return 0.00001;
         ASSERT(it != PatternData::strengths.end());
 
         return it->second;
