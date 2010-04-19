@@ -15,9 +15,10 @@
 
 namespace Hex
 {
-    boost::rand48 SamplerRandom::base_generator;
+    boost::rand48 SamplerRandom::base_generator(static_cast<int32_t>(time(0)));
     boost::uniform_01<boost::rand48>
         SamplerRandom::random_generator(base_generator);
+
     bool Sampler::use_patterns = true;
 
     Sampler::Sampler() : hash_board(HexPatterns::HashBoard::EmptyHashBoard())
@@ -108,11 +109,6 @@ namespace Hex
                 //row_sums[changed_positions[i] >> 4] = 0.0;
             /* Amending double's lack of precision.                             */
         }
-
-        /* Zeroing out of bounds row sums */
-//         row_sums[0] = row_sums[1] = row_sums[kBoardSizeAligned - 1] =
-//             row_sums[kBoardSizeAligned - 2] = row_sums[kBoardSizeAligned - 3] = 0.0;
-        /* Zeroing out of bounds row sums */
 
         return;
     }

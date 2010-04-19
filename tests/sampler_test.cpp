@@ -34,12 +34,11 @@ int main(int argc, char *argv[])
  */
 {
     Hex::Sampler sampler;
-    uint loops = 1000000;
+    uint loops = 10000;
     uint pos;
-    double all;
     Hex::Player player(Hex::Player::First());
-    std::map<HexPatterns::Hash, uint> choices;
-    std::vector<HexPatterns::Hash> xors, aux;
+    std::map<HexPatterns::Hash, uint> choices, occurences;
+    std::vector<HexPatterns::Hash> xors, aux, possible;
 
     if (argc == 2)
         try {
@@ -49,23 +48,32 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
-    all = loops * Hex::kBoardSize * Hex::kBoardSize;
-
     rep(ii, TEMPLATES_AMOUNT) {
         aux = HexPatterns::templates[ii].GetAllHashes();
         xors.insert(xors.begin(), aux.begin(), aux.end());
     }
 
-    rep(ii, xors.size())
+    rep(ii, xors.size()) {
         choices.insert(pair<HexPatterns::Hash, uint>(xors[ii], 0));
+        occurences.insert(pair<HexPatterns::Hash, uint>(xors[ii], 0));
+    }
 
     rep(ii, loops) {
         player = Hex::Player::First();
         sampler = Hex::Sampler();
+
         rep(jj, Hex::kBoardSize * Hex::kBoardSize) {
+            possible.clear();
+
             pos = sampler.RandomMove();
+            sampler.GetPlayableHashes(possible);
+
             ASSERT(Valid(pos));
-            choices[sampler.GetHash(pos)]++;
+
+           ++choices[sampler.GetHash(pos)];
+            rep(kk, possible.size())
+                ++occurences[possible[kk]];
+
             sampler.Play(Hex::Move(player, Hex::Location(pos)));
             player = player.Opponent();
         }
@@ -75,7 +83,8 @@ int main(int argc, char *argv[])
         it != choices.end(); ++it)
         if (it->second)
             std::cout << it->first << "\t\t"
-                        << static_cast<double>(it->second) / all << "\t\t"
+                        << static_cast<double>(it->second) / occurences[it->first]
+                        << "\t\t"
                         << Hex::PatternData::GetStrength(it->first)
                         << std::endl;
 

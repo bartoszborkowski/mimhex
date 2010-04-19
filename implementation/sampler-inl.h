@@ -40,4 +40,18 @@ inline HexPatterns::Hash Sampler::GetHash(uint position) const
     return hash_board.GetHash(position);
 }
 
+inline void Sampler::GetPlayableHashes(std::vector<HexPatterns::Hash> &out) const
+{
+    const HexPatterns::Hash *hashes = hash_board.GetAllHashes();
+
+    rep(ii, kBoardSize)
+        rep(jj, kBoardSize) {
+            uint kk = NORMALISED_POSITION(ii, jj);
+            if (used_fields[kk])
+                out.push_back(hashes[kk]);
+        }
+
+    return;
+}
+
 #endif

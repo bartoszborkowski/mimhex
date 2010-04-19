@@ -12,11 +12,8 @@
 
 namespace HexPatterns
 {
-    const HashBoard HashBoard::EmptyHashBoard(const char */*hash_board_file*/)
+    const HashBoard HashBoard::EmptyHashBoard()
     {
-        // TODO: read from file
-        //std::ifstream ifs(hash_board_file, std::ifstream::in);
-
         HashBoard board;
 
         rep(ii, Hex::kFieldsAlignedAmount)

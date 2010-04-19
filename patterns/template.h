@@ -31,7 +31,7 @@ namespace HexPatterns
      * [column_relative_to_center + Hex::kBoardSizeAligned - 1][field_state]    *
      */
         public:
-            static uint InitialiseTemplates(const char *template_file = TEMPLATES_FILE);
+            static uint InitialiseTemplates();
 
             Template();
             Template(uint id, Hash base_hash, uint size,

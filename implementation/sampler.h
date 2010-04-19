@@ -9,6 +9,7 @@
 #define MIMHEX_SAMPLER_H_
 
 #include <string>
+#include <vector>
 
 #include <boost/random/uniform_01.hpp>
 #include <boost/random/linear_congruential.hpp>
@@ -24,8 +25,6 @@ namespace Hex
     class SamplerRandom
     {
         public:
-            static void InitialiseSamplerRandom();
-
             static boost::rand48 base_generator;
             static boost::uniform_01<boost::rand48> random_generator;
         private:
@@ -45,7 +44,9 @@ namespace Hex
             uint RandomMove() const;
 
             double GetSum() const;
+
             HexPatterns::Hash GetHash(uint position) const;
+            void GetPlayableHashes(std::vector<HexPatterns::Hash> &out) const;
 
             std::string ToAsciiArt() const;
 
