@@ -8,7 +8,7 @@ do
     echo games/$filename
 done > $filenames
 
-./hsgf2gtp.sh `cat $filenames` | ../main/gather_patterns | grep : | sed 's= /==' | sed 's=:==' > $result
+./hsgf2gtp.sh `cat $filenames` | ./gather_patterns | grep : | sed 's= /==' | sed 's=:==' > $result
 
 echo `cat $result | wc -l`
 cat $result

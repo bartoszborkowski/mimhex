@@ -75,10 +75,12 @@ namespace Hex
     {
         uint position = move.GetLocation().GetPos();
         uint player = move.GetPlayer().GetVal();
+
         uint changed_positions_amount;
         const uint *changed_positions;
 
         hash_board.Play(position, player);
+
         changed_positions_amount = hash_board.GetChangedPositionsAmount(position);
         changed_positions = hash_board.GetChangedPositions(position);
 

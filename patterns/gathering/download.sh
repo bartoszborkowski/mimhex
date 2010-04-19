@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MIN_RATING=2000
+MIN_RATING=1400
 
 mkdir -p games
 mkdir -p logs
@@ -74,6 +74,22 @@ downloadGamesForPlayers()
 	done
 }
 
-downloadGamesForPlayers `getPlayersFromFile players.html`
+downloadGamesForPlayers `getPlayersFromFile players/players01.html`
+downloadGamesForPlayers `getPlayersFromFile players/players02.html`
+downloadGamesForPlayers `getPlayersFromFile players/players03.html`
+downloadGamesForPlayers `getPlayersFromFile players/players04.html`
+downloadGamesForPlayers `getPlayersFromFile players/players05.html`
+downloadGamesForPlayers `getPlayersFromFile players/players06.html`
+downloadGamesForPlayers `getPlayersFromFile players/players07.html`
+downloadGamesForPlayers `getPlayersFromFile players/players08.html`
+downloadGamesForPlayers `getPlayersFromFile players/players09.html`
+downloadGamesForPlayers `getPlayersFromFile players/players10.html`
+downloadGamesForPlayers `getPlayersFromFile players/players11.html`
+downloadGamesForPlayers `getPlayersFromFile players/players12.html`
+downloadGamesForPlayers `getPlayersFromFile players/players13.html`
+downloadGamesForPlayers `getPlayersFromFile players/players14.html`
+downloadGamesForPlayers `getPlayersFromFile players/players15.html`
+downloadGamesForPlayers `getPlayersFromFile players/players16.html`
+
 
 

@@ -16,8 +16,10 @@ namespace HexPatterns
     {
         HashBoard board;
 
-        rep(ii, Hex::kFieldsAlignedAmount)
+        rep(ii, Hex::kFieldsAlignedAmount) {
             board.pattern_count[ii] = 0;
+            board.position_hash[ii] = 0;
+        }
 
         rep(ii, Hex::kBoardSize + 2)
             rep(jj, Hex::kBoardSize + 2) {
@@ -29,7 +31,6 @@ namespace HexPatterns
                 board.patterns_at[kk][3] = kk + 1;
                 board.patterns_at[kk][4] = kk + Hex::kBoardSizeAligned - 1;
                 board.patterns_at[kk][5] = kk + Hex::kBoardSizeAligned;
-                board.position_hash[kk] = 0;
             }
 
         /* Adding guardians to two topmost and bottommost rows */
@@ -89,4 +90,5 @@ namespace HexPatterns
 
         return ret.str();
     }
+
 } // namespace HexPatterns

@@ -1,0 +1,6 @@
+# templates data
+# format:
+# template_id template_base_hash template_size
+# afterwards size times the following:
+# relative_field_position field_hash_for_player_0 field_hash_for_player_1 hash_for_empty_field
+0 0 6 -16 1858371402 637933676 1993303069 -15 2029330270 1495175269 1134523642 -1 608453654 2081962756 792820039 +1 290675495 1419729510 1768091954 +15 336599391 1251852077 927732484 +16 1933830382 260111653 2066513445

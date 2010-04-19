@@ -24,12 +24,12 @@ namespace HexPatterns
         ((row + 2) * Hex::kBoardSizeAligned + (column + 2))
 
     #define TEMPLATES_AMOUNT        1
+
     #define PATTERNS_AMOUNT         (Hex::kFieldsAlignedAmount)
 
     #define PATTERN_DATA_FILE       "pattern_strength.data"
 
     #define MAX_PATTERNS            8
-
     #define DIMENSIONS              2
     #define FIELD_STATES            4
     #define FIELD_STATES_SIZE       (FIELD_STATES * sizeof(uint))

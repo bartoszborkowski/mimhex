@@ -1,13 +1,14 @@
 /*******************************************************************************
- *                              Bartosz Borkowski                              *
+ *                   Bartosz Borkowski, Michal Albrycht                        *
  *              Faculty of Mathematics, Informatics and Mechanics              *
- *                              Warsaw University                              *
+ *                            Warsaw University                                *
  *                             9th March 2010                                  *
  *******************************************************************************/
 
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <map>
 
 #include <boost/lexical_cast.hpp>
 
@@ -20,6 +21,7 @@
 
 #define BUFF_SIZE 1024
 
+
 using namespace std;
 using namespace HexPatterns;
 
@@ -29,26 +31,26 @@ Hash CalculateHash(Hash h[][FIELD_STATES],
     return h[0][f0] ^ h[1][f1] ^ h[2][f2] ^ h[3][f3] ^ h[4][f4] ^ h[5][f5];
 }
 
-int main(int, char **)
-{
-    //const uint max_patterns = 3000000000;
-	const uint max_patterns = 300000;
-    Hash pattern_conv[max_patterns];
-    Hash pattern_appearance[max_patterns];
-    Hash min_pattern_appearance[max_patterns];
+
+int main(int, char **){
+    map<Hash, Hash> pattern_conv;
+    map<Hash, bool> pattern_appearance;
+    map<Hash, bool> min_pattern_appearance;
+    map<Hash, uint> ordinal_no;
     Hash field_base_hash[6][FIELD_STATES];
 
-    memset(pattern_conv, 0, max_patterns * sizeof(Hash));
-    memset(pattern_appearance, 0, max_patterns * sizeof(Hash));
-    memset(min_pattern_appearance, 0, max_patterns * sizeof(Hash));
+    pattern_conv.clear();
+    pattern_appearance.clear();
+    min_pattern_appearance.clear();
+    ordinal_no.clear();
 
     rep(i, FIELD_STATES) {
         field_base_hash[0][i] = templates[0].GetHash(-1, 0, i);
         field_base_hash[1][i] = templates[0].GetHash(-1, 1, i);
-        field_base_hash[2][i] = templates[0].GetHash(0, -1, i);
-        field_base_hash[3][i] = templates[0].GetHash(0, 1, i);
+        field_base_hash[2][i] = templates[0].GetHash(0, 1, i);
+        field_base_hash[3][i] = templates[0].GetHash(1, 0, i);
         field_base_hash[4][i] = templates[0].GetHash(1, -1, i);
-        field_base_hash[5][i] = templates[0].GetHash(1, 0, i);
+        field_base_hash[5][i] = templates[0].GetHash(0, -1, i);
     }
 
     rep(f0, FIELD_STATES) // for every possible state of field 0
@@ -73,76 +75,41 @@ int main(int, char **)
 	ofstream out0("min_hash.txt", ios_base::out);
 	ofstream out1("comp.txt", ios_base::out);
 	ofstream out2("pattern_numb.txt", ios_base::out);
-	char buffer[BUFF_SIZE];
-	string split;
-	string part;
-	size_t pos, end;
 
-	while (in.good()) {
-		in.getline(buffer, BUFF_SIZE);
-		split = buffer;
-		pos = 0;
+	uint line_no = 0;
+	uint ordinal=0;
+	string line;
 
-		while (pos !=string::npos) {
-			end = split.find_first_of(' ', pos);
-			part = split.substr(pos, end == string::npos ? end : end - pos);
-
-			try {
-				uint p = boost::lexical_cast<uint>(part);
-
-				min_pattern_appearance[pattern_conv[p]] = 1;
-				pattern_appearance[p] = 1;
-
-			} catch (boost::bad_lexical_cast &) {
-			}
-
-			if (end == string::npos)
-				break;
-			else
-				pos = end + 1;
-		}
-	}
-
-	for (uint i = 0; i < max_patterns; ++i)
-		if (pattern_appearance[i])
-			out0 << i << " " << pattern_conv[i] << endl; // pattern -> minPattern
-
-	for (uint i = 0, j = 0; i < max_patterns; ++i)
-		if (min_pattern_appearance[i]) {
-			out2 << j << " " << i << endl; // ordinal number -> minPattern
-			min_pattern_appearance[i] = j++; //minPattern -> ordinal number
-		}
-
-	in.close();
-	in.open("pattern_teams.txt", fstream::in);
-
-	while (in.good()) {
-		in.getline(buffer, BUFF_SIZE);
-		split = buffer;
-		pos = 0;
-
-		while (pos !=string::npos) {
-			end = split.find_first_of(' ', pos);
-			part = split.substr(pos, end == string::npos ? end : end - pos);
-
-			try {
-				uint p = boost::lexical_cast<uint>(part);
-
-				out1 << min_pattern_appearance[pattern_conv[p]];
-			} catch (boost::bad_lexical_cast &) {
-			}
-
-			if (end == string::npos)
-				break;
-			else {
+	while (!in.eof()){
+		getline(in, line);
+		istringstream line_stream;
+		line_stream.str(line);
+		uint pattern;
+		while (line_stream >> pattern){
+			uint minHash = pattern_conv[pattern];
+			min_pattern_appearance[minHash] = true;
+			pattern_appearance[pattern] = true;
+			if (!ordinal_no[minHash]) //assing orindal number if hasn't one
+				ordinal_no[minHash] = ++ordinal;
+			out1 << ordinal_no[minHash];
+			if (!line_stream.eof())
 				out1 << " ";
-				pos = end + 1;
-			}
 		}
-
 		out1 << endl;
-
+		line_no ++;
 	}
+
+	// iterate over pattern_appearance and and write pattern -> min_patterns
+    for (map<Hash, bool>::iterator it_pc = pattern_appearance.begin(); it_pc != pattern_appearance.end(); ++it_pc){
+        uint pattern = it_pc->first;
+		out0 << pattern << " " << pattern_conv[pattern] << endl; // pattern -> minPattern
+    }
+
+    // iterater over min_pattern_appearanve and for each assign ordinal number
+    for (map<Hash, bool>::iterator it_mpa = min_pattern_appearance.begin(); it_mpa != min_pattern_appearance.end(); ++it_mpa){
+        uint minHash = it_mpa->first;
+		out2 << ordinal_no[minHash] << " " << minHash << endl; // ordinal number -> minPattern
+    }
 
 	in.close();
 	out0.close();
