@@ -56,8 +56,8 @@ namespace HexPatterns
             uint id;
             Hash base_hash;
             uint size;
-            Hash field_hashes[2 * Hex::kBoardSizeAligned - 1]
-                [2 * Hex::kBoardSizeAligned - 1][FIELD_STATES];
+            Hash field_hashes[2 * Hex::Dim::actual_size - 1]
+                [2 * Hex::Dim::actual_size - 1][FIELD_STATES];
     };
 
     Template templates[TEMPLATES_AMOUNT];

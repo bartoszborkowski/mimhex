@@ -14,6 +14,13 @@
 #include <boost/lexical_cast.hpp>
 
 #include "board.cpp"
+#include "board_location.cpp"
+#include "board_move.cpp"
+#include "board_player.cpp"
+#include "board_dim.cpp"
+#include "random.cpp"
+#include "params.cpp"
+#include "switches.cpp"
 #include "template.cpp"
 #include "pattern.cpp"
 #include "hash_board.cpp"

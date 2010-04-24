@@ -14,6 +14,13 @@
 #include <inttypes.h>
 
 #include "board.cpp"
+#include "board_move.cpp"
+#include "board_location.cpp"
+#include "board_player.cpp"
+#include "board_dim.cpp"
+#include "random.cpp"
+#include "params.cpp"
+#include "switches.cpp"
 #include "gtp.hpp"
 #include "gtp.cpp"
 #include "template.cpp"
@@ -120,18 +127,18 @@ private:
   
   void initPlayed(){
     //set all to false
-    memset(played, 0, Hex::kBoardSizeAligned * Hex::kBoardSizeAligned * sizeof(bool)); 
+    memset(played, 0, Hex::Dim::actual_size * Hex::Dim::actual_size * sizeof(bool));
     
     
     //TODO here is initialization of GUARDS but only 1 line!! Now we have two line of GUARDS!
     // initialize GUARDS as true
-    for (uint i = 0; i < Hex::kBoardSizeAligned; ++i) {
-      played[i] = played[Hex::kBoardSizeAligned * Hex::kBoardSizeAligned - 1 - i] = true;
+    for (uint i = 0; i < Hex::Dim::actual_size; ++i) {
+      played[i] = played[Hex::Dim::actual_size * Hex::Dim::actual_size - 1 - i] = true;
     }
     // TODO two lines of GUARDS
     // initialize GUARDS as true
-    for (uint i = 1; i <= Hex::kBoardSize; ++i) {
-      played[i * Hex::kBoardSizeAligned] = played[(i+1) * Hex::kBoardSizeAligned - 1] = true;
+    for (uint i = 1; i <= Hex::Dim::board_size; ++i) {
+      played[i * Hex::Dim::actual_size] = played[(i+1) * Hex::Dim::actual_size - 1] = true;
     }  
   }
 
@@ -192,7 +199,7 @@ private:
 
   HashBoard_13 *board;
   StatsComputerType statsComp;
-  bool played[Hex::kBoardSizeAligned * Hex::kBoardSizeAligned];
+  bool played[Hex::Dim::actual_size * Hex::Dim::actual_size];
 };
 
 int main(int, char**)

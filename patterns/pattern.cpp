@@ -13,9 +13,9 @@ namespace HexPatterns
 {
     uint Pattern::InitialisePatterns()
     {
-        rep(ii, Hex::kBoardSizeAligned)
-            rep(jj, Hex::kBoardSizeAligned) {
-                uint kk = ii * Hex::kBoardSizeAligned + jj;
+        rep(ii, Hex::Dim::actual_size)
+            rep(jj, Hex::Dim::actual_size) {
+                uint kk = ii * Hex::Dim::actual_size + jj;
                 patterns[kk] = Pattern(kk, 0, ii, jj);
             }
 

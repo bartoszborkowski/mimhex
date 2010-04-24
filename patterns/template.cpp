@@ -66,8 +66,8 @@ namespace HexPatterns
         rep(ii, size)
             memcpy(
                 field_hashes
-                [relative_positions[ii][ROW] + Hex::kBoardSizeAligned - 1]
-                [relative_positions[ii][COLUMN] + Hex::kBoardSizeAligned - 1],
+                [relative_positions[ii][ROW] + Hex::Dim::actual_size - 1]
+                [relative_positions[ii][COLUMN] + Hex::Dim::actual_size - 1],
                 _field_hashes[ii], FIELD_STATES_SIZE);
     }
 
@@ -85,12 +85,12 @@ namespace HexPatterns
     Template Template::GetMirrorX() const
     {
         Template ret = Template(*this);
-        Hash aux[2 * Hex::kBoardSizeAligned - 1][FIELD_STATES];
+        Hash aux[2 * Hex::Dim::actual_size - 1][FIELD_STATES];
         size_t row_size =
-            (2 * Hex::kBoardSizeAligned - 1) * FIELD_STATES * sizeof(Hash);
-        uint offset = 2 * (Hex::kBoardSizeAligned - 1);
+            (2 * Hex::Dim::actual_size - 1) * FIELD_STATES * sizeof(Hash);
+        uint offset = 2 * (Hex::Dim::actual_size - 1);
 
-        rep(ii, Hex::kBoardSizeAligned - 1) {
+        rep(ii, Hex::Dim::actual_size - 1) {
             memcpy(aux, ret.field_hashes[ii], row_size);
             memcpy(ret.field_hashes[ii],
                 ret.field_hashes[offset - ii], row_size);
@@ -105,10 +105,10 @@ namespace HexPatterns
         Template ret = Template(*this);
         Hash aux[FIELD_STATES];
         size_t field_size = FIELD_STATES * sizeof(Hash);
-        uint offset = 2 * (Hex::kBoardSizeAligned - 1);
+        uint offset = 2 * (Hex::Dim::actual_size - 1);
 
-        rep(ii, 2 * Hex::kBoardSizeAligned - 1)
-            rep(jj, Hex::kBoardSizeAligned - 1) {
+        rep(ii, 2 * Hex::Dim::actual_size - 1)
+            rep(jj, Hex::Dim::actual_size - 1) {
                 memcpy(aux, ret.field_hashes[ii][jj], field_size);
                 memcpy(ret.field_hashes[ii][jj],
                     ret.field_hashes[ii][offset - jj], field_size);
@@ -138,8 +138,8 @@ namespace HexPatterns
             hashes[ii] = new Hash[FIELD_STATES];
 
         uint kk = 0;
-        rep(ii, 2 * Hex::kBoardSizeAligned - 1)
-            rep(jj, 2 * Hex::kBoardSizeAligned - 1)
+        rep(ii, 2 * Hex::Dim::actual_size - 1)
+            rep(jj, 2 * Hex::Dim::actual_size - 1)
                 if (field_hashes[ii][jj][0])
                     memcpy(hashes[kk++], field_hashes[ii][jj],
                         FIELD_STATES * sizeof(Hash));
@@ -171,13 +171,13 @@ namespace HexPatterns
 
         rep(ii, FIELD_STATES) {
             ret << "STATE " << ii << std::endl;
-            rep(jj, 2 * Hex::kBoardSizeAligned - 1) {
-                rep(kk, 2 * Hex::kBoardSizeAligned - 1)
+            rep(jj, 2 * Hex::Dim::actual_size - 1) {
+                rep(kk, 2 * Hex::Dim::actual_size - 1)
                     if (field_hashes[jj][kk][ii])
                         ret << "\thash["
-                            << static_cast<int>(jj - Hex::kBoardSizeAligned + 1)
+                            << static_cast<int>(jj - Hex::Dim::actual_size + 1)
                             << "]["
-                            << static_cast<int>(kk - Hex::kBoardSizeAligned + 1)
+                            << static_cast<int>(kk - Hex::Dim::actual_size + 1)
                             << "] \t\t"
                             << field_hashes[jj][kk][ii] << std::endl;
             }

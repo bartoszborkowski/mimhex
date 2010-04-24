@@ -13,15 +13,15 @@ inline uint Sampler::RandomMove() const
     double r = SamplerRandom::random_generator() * all_sum;
     uint i, j;
 
-    for (i = 2; i <= kBoardSize; ++i)
+    for (i = 2; i <= Dim::board_size; ++i)
         if (r < row_sums[i])
             break;
         else
             r -= row_sums[i];
 
-    i *= kBoardSizeAligned;
+    i *= Dim::actual_size;
 
-    for (j = 2; j <= kBoardSize; ++j)
+    for (j = 2; j <= Dim::board_size; ++j)
         if (r < gammas[i + j])
             break;
         else
@@ -44,8 +44,8 @@ inline void Sampler::GetPlayableHashes(std::vector<HexPatterns::Hash> &out) cons
 {
     const HexPatterns::Hash *hashes = hash_board.GetAllHashes();
 
-    rep(ii, kBoardSize)
-        rep(jj, kBoardSize) {
+    rep(ii, Dim::board_size)
+        rep(jj, Dim::board_size) {
             uint kk = NORMALISED_POSITION(ii, jj);
             if (used_fields[kk])
                 out.push_back(hashes[kk]);

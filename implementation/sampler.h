@@ -50,13 +50,11 @@ namespace Hex
 
             std::string ToAsciiArt() const;
 
-            static bool use_patterns;
-
         private:
-            double gammas[kFieldsAlignedAmount];
-            double row_sums[kBoardSizeAligned];
+            double gammas[Dim::actual_field_count];
+            double row_sums[Dim::actual_size];
             double all_sum;
-            uchar used_fields[kFieldsAlignedAmount];
+            uchar used_fields[Dim::actual_field_count];
 
             HexPatterns::HashBoard hash_board;
     };

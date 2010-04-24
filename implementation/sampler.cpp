@@ -19,21 +19,19 @@ namespace Hex
     boost::uniform_01<boost::rand48>
         SamplerRandom::random_generator(base_generator);
 
-    bool Sampler::use_patterns = true;
-
     Sampler::Sampler() : hash_board(HexPatterns::HashBoard::EmptyHashBoard())
     {
         uint kk;
 
         all_sum = 0.0;
 
-        memset(gammas, 0, kFieldsAlignedAmount * sizeof(double));
-        memset(row_sums, 0, kBoardSizeAligned * sizeof(double));
-        memset(used_fields, 0, kFieldsAlignedAmount * sizeof(uchar));
+        memset(gammas, 0, Dim::actual_field_count * sizeof(double));
+        memset(row_sums, 0, Dim::actual_size * sizeof(double));
+        memset(used_fields, 0, Dim::actual_field_count * sizeof(uchar));
 
-        for (uint ii = 0; ii < kBoardSize; ++ii)
-            for (uint jj = 0; jj < kBoardSize; ++jj) {
-                kk = (ii + 2) * kBoardSizeAligned + (jj + 2);
+        for (uint ii = 0; ii < Dim::board_size; ++ii)
+            for (uint jj = 0; jj < Dim::board_size; ++jj) {
+                kk = (ii + 2) * Dim::actual_size + (jj + 2);
                 used_fields[kk] = 1;
                 gammas[kk] = PatternData::GetStrength(hash_board.GetHash(kk));
                 row_sums[ii + 2] += gammas[kk];
@@ -60,9 +58,9 @@ namespace Hex
         ret.precision(4);
         ret.width(6);
 
-        for (uint ii = 0; ii < kBoardSizeAligned; ++ii) {
-            for (uint jj = 0; jj < kBoardSizeAligned; ++jj)
-                ret << gammas[ii * kBoardSizeAligned + jj] << " ";
+        for (uint ii = 0; ii < Dim::actual_size; ++ii) {
+            for (uint jj = 0; jj < Dim::actual_size; ++jj)
+                ret << gammas[ii * Dim::actual_size + jj] << " ";
             ret << "sum = " << row_sums[ii] << std::endl;
         }
 

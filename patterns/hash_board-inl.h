@@ -39,7 +39,7 @@ inline const uint * HashBoard::GetChangedPositions(uint position) const
 
 inline uint HashBoard::GetBoardSize() const
 {
-    return Hex::kFieldsAlignedAmount;
+    return Hex::Dim::actual_field_count;
 }
 
 #endif

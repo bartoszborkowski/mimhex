@@ -8,7 +8,7 @@
 #ifndef MIMHEX_MACRO_DEFINITIONS_H_
 #define MIMHEX_MACRO_DEFINITIONS_H_
 
-#include "board.h"
+#include "board_dim.h"
 #include "rep.h"
 
 namespace HexPatterns
@@ -18,14 +18,14 @@ namespace HexPatterns
         for (uint iterator = lower_bound; iterator < upper_bound; ++iterator)
 
     #define GUARDED_POSITION(row, column)                                           \
-        ((row + 1) * Hex::kBoardSizeAligned + (column + 1))
+        ((row + 1) * Hex::Dim::actual_size + (column + 1))
 
     #define NORMALISED_POSITION(row, column)                                        \
-        ((row + 2) * Hex::kBoardSizeAligned + (column + 2))
+        ((row + 2) * Hex::Dim::actual_size + (column + 2))
 
     #define TEMPLATES_AMOUNT        1
 
-    #define PATTERNS_AMOUNT         (Hex::kFieldsAlignedAmount)
+    #define PATTERNS_AMOUNT         (Hex::Dim::actual_field_count)
 
     #define PATTERN_DATA_FILE       "pattern_strength.data"
 
@@ -43,10 +43,10 @@ namespace HexPatterns
     typedef unsigned long ulong;
 
     const uint kTemplateHashMemory =
-        (2 * Hex::kBoardSizeAligned - 1) * (2 * Hex::kBoardSizeAligned - 1) *
+        (2 * Hex::Dim::actual_size - 1) * (2 * Hex::Dim::actual_size - 1) *
         FIELD_STATES * sizeof(Hash);
     const uint kPatternHashMemory =
-        Hex::kFieldsAlignedAmount * FIELD_STATES * sizeof(Hash);
+        Hex::Dim::actual_field_count * FIELD_STATES * sizeof(Hash);
 } // namespace HexPatterns
 
 #endif

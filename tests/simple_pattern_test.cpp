@@ -14,6 +14,13 @@
 #include <boost/random/linear_congruential.hpp>
 
 #include "board.cpp"
+#include "board_location.cpp"
+#include "board_move.cpp"
+#include "board_player.cpp"
+#include "board_dim.cpp"
+#include "random.cpp"
+#include "params.cpp"
+#include "switches.cpp"
 #include "template.cpp"
 #include "pattern.cpp"
 #include "hash_board.cpp"
@@ -38,16 +45,16 @@ int main()
  */
 {
     boost::rand48 random_generator;
-    const uint size = Hex::kBoardSize * Hex::kBoardSize;
+    const uint size = Hex::Dim::board_size * Hex::Dim::board_size;
     uint board[size];
 
     random_generator.seed(static_cast<int32_t>(time(0)));
 
-    rep(ii, Hex::kBoardSize)
-        rep(jj, Hex::kBoardSize)
-            board[ii * Hex::kBoardSize + jj] = NORMALISED_POSITION(ii, jj);
+    rep(ii, Hex::Dim::board_size)
+        rep(jj, Hex::Dim::board_size)
+            board[ii * Hex::Dim::board_size + jj] = NORMALISED_POSITION(ii, jj);
 
-    rep(ii, Hex::kFieldsAlignedAmount * Hex::kFieldsAlignedAmount * 100) {
+    rep(ii, Hex::Dim::actual_field_count * Hex::Dim::actual_field_count * 100) {
         uint f1 = board[random_generator() % size];
         uint f2 = board[random_generator() % size];
 

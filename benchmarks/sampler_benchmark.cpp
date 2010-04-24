@@ -9,6 +9,13 @@
 #include <time.h>
 
 #include "board.cpp"
+#include "board_location.cpp"
+#include "board_move.cpp"
+#include "board_player.cpp"
+#include "board_dim.cpp"
+#include "random.cpp"
+#include "params.cpp"
+#include "switches.cpp"
 #include "template.cpp"
 #include "pattern.cpp"
 #include "hash_board.cpp"
@@ -40,7 +47,7 @@ int main(int argc, char *argv[])
         player = Hex::Player::First();
         sampler = Hex::Sampler();
 
-        rep(jj, Hex::kBoardSize * Hex::kBoardSize) {
+        rep(jj, Hex::Dim::actual_size * Hex::Dim::actual_size) {
             pos = sampler.RandomMove();
             sampler.Play(Hex::Move(player, Hex::Location(pos)));
             player = player.Opponent();

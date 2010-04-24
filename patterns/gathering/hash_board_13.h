@@ -39,9 +39,9 @@ namespace HexPatterns
             std::string ToAsciiArt() const;
 
         private:
-            uint pattern_count[Hex::kFieldsAlignedAmount];
-            uint patterns_at[Hex::kFieldsAlignedAmount][MAX_PATTERNS];
-            Hash position_hash[Hex::kFieldsAlignedAmount];
+            uint pattern_count[Hex::Dim::actual_field_count];
+            uint patterns_at[Hex::Dim::actual_field_count][MAX_PATTERNS];
+            Hash position_hash[Hex::Dim::actual_field_count];
     };
 
     #include "hash_board-inl_13.h"

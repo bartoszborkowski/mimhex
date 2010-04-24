@@ -25,8 +25,8 @@ inline uint Template::GetSize() const
 
 inline Hash Template::GetHash(int relative_row, int relative_column, uint state) const
 {
-    return field_hashes[relative_row + Hex::kBoardSizeAligned - 1]
-        [relative_column + Hex::kBoardSizeAligned - 1][state];
+    return field_hashes[relative_row + Hex::Dim::actual_size - 1]
+        [relative_column + Hex::Dim::actual_size - 1][state];
 }
 
 #endif

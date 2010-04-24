@@ -13,6 +13,13 @@
 #include <vector>
 
 #include "board.cpp"
+#include "board_location.cpp"
+#include "board_move.cpp"
+#include "board_player.cpp"
+#include "board_dim.cpp"
+#include "random.cpp"
+#include "params.cpp"
+#include "switches.cpp"
 #include "template.cpp"
 #include "pattern.cpp"
 #include "hash_board.cpp"
@@ -22,10 +29,10 @@
 bool Valid(uint position)
 {
     uint row = position >> 4;
-    uint column = position & (Hex::kBoardSizeAligned - 1);
+    uint column = position & (Hex::Dim::actual_size - 1);
 
-    return (row > 1) && (row < Hex::kBoardSize + 2) &&
-        (column > 1) && (column < Hex::kBoardSize + 2);
+    return (row > 1) && (row < Hex::Dim::board_size + 2) &&
+        (column > 1) && (column < Hex::Dim::board_size + 2);
 }
 
 int main(int argc, char *argv[])
@@ -62,7 +69,7 @@ int main(int argc, char *argv[])
         player = Hex::Player::First();
         sampler = Hex::Sampler();
 
-        rep(jj, Hex::kBoardSize * Hex::kBoardSize) {
+        rep(jj, Hex::Dim::board_size * Hex::Dim::board_size) {
             possible.clear();
 
             pos = sampler.RandomMove();
