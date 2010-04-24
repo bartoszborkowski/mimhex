@@ -11,6 +11,7 @@ fi
 echo $1;
 
 lineNo=0;
+errorsCount=0;
 cat $1 | while read line; do
   let "lineNo += 1";
   
@@ -24,5 +25,8 @@ cat $1 | while read line; do
  # echo "Line: $lineNo    Count: $count";
   if [ $count -le 1 ] ; then
 	 echo "Line $lineNo contains only $count occurences of used pattern!";
+	 let "errorsCount += 1";
   fi
 done
+
+echo "Errors Found: $errorsCount";

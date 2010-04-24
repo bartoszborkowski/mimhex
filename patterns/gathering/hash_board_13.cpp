@@ -10,10 +10,6 @@
 
 #include "hash_board_13.h"
 
-#define GATHER_SIZE 13
-#define GUARDS_SIZE 1 // used only in GetLocation - FIXME to use in all HashBoard
-
-
 namespace HexPatterns
 {
     const HashBoard_13 HashBoard_13::EmptyHashBoard()
@@ -142,9 +138,9 @@ namespace HexPatterns
     {
         std::stringstream ret;
 
-        rep(ii, Hex::kBoardSize) {
-            rep(jj, Hex::kBoardSize)
-                ret << position_hash[NORMALISED_POSITION(ii, jj)] << " ";
+        rep(ii, Hex::kBoardSize + 2) {
+            rep(jj, Hex::kBoardSize + 2)
+                ret << position_hash[GUARDED_POSITION(ii, jj)] << " ";
             ret << std::endl;
         }
 
@@ -152,13 +148,14 @@ namespace HexPatterns
     }
 
     // Converts string Coords to LocationNumber in HashBoard
-	uint HashBoard_13::GetLocation(string coords){
-			uint x = coords[0] >= 'a' ? coords[0] - 'a' : coords[0] - 'A';
-			++x;
-			uint y = coords[1] - '0';
-			if (coords.size() > 2)
-				y = y * 10 + coords[2] - '0';
-			uint res = (y + GUARDS_SIZE -1 ) * (Hex::kBoardSizeAligned) + x + GUARDS_SIZE;
-			return res;
-	}
+    uint HashBoard_13::GetLocation(string coords)
+    {
+        uint x = coords[0] >= 'a' ? coords[0] - 'a' : coords[0] - 'A';
+        ++x;
+        uint y = coords[1] - '0';
+        if (coords.size() > 2)
+            y = y * 10 + coords[2] - '0';
+        uint res = (y + GUARDS_SIZE -1 ) * (Hex::kBoardSizeAligned) + x + GUARDS_SIZE - 1;
+        return res;
+    }
 } // namespace HexPatterns

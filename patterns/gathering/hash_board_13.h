@@ -14,6 +14,11 @@
 #include "pattern.h"
 #include "macro_definitions.h"
 
+#define GATHER_SIZE 13
+#define GUARDS_SIZE 1
+#define FULL_SIZE (GATHER_SIZE + 2*GUARDS_SIZE)
+
+
 namespace HexPatterns
 {
     class HashBoard_13
