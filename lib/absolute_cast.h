@@ -5,7 +5,7 @@
 
 template <typename Dest, typename Src>
 inline Dest& absolute_cast(Src &v) {
-	return reinterpret_cast<Dest&>(v);
+    return reinterpret_cast<Dest&>(v);
 }
 
 #endif /* ABSOLUTE_CAST_H_ */

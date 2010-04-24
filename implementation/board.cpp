@@ -1,456 +1,810 @@
-/*uber*/
-
 #include "board.h"
 #include "random.h"
 #include "conditional_assert.h"
+#include "boost/foreach.hpp"
+#include "board_dim.h"
 #include <cstring>
 #include <sstream>
-
-#define SHORT_BIT_SIZE (sizeof(short) * 8)
+#include <iostream>
 
 namespace Hex {
 
-// -----------------------------------------------------------------------------
+#define FOR_SIX(x)  BOOST_FOREACH(x, Dim::neighbours)
+#define FOR_SIX2(x)  BOOST_FOREACH(x, Dim::other_bridge_ends)
 
-inline Player Player::First() { return Player(0); }
-
-inline Player Player::Second() { return Player(1); }
-
-inline Player Player::OfString (std::string player) {
-	ASSERT(ValidPlayer(player));
-	if (player == "black")
-		return Player::First();
-	else return Player::Second();
+uint Board::ToPos(ushort val) {
+    if (Switches::DetectWins())
+        return val & ~board_second;
+    else
+        return val;
 }
 
-inline Player Player::Opponent() const {
-	return Player(_val ^ 1);
+ushort Board::ToFirst(ushort pos) {
+    return pos;
 }
 
-inline bool Player::operator== (const Player& player) {
-	return player._val == _val;
+ushort Board::ToSecond(ushort pos) {
+    if (Switches::DetectWins())
+        return pos | board_second;
+    else
+        return board_second + 1;
 }
 
-inline bool Player::operator!= (const Player& player) {
-	return player._val != _val;
+uint Board::BridgeToPos(ushort val) {
+    return val & ~board_second;
 }
 
-inline Player::Player(uint val) : _val(val) {}
-
-inline uint Player::GetVal() const { return _val; }
-
-inline bool Player::ValidPlayer(const std::string& player) {
-	return player == "black" || player == "white";
+ushort Board::ToBridge(ushort pos, ushort owner) {
+    return pos | (owner & board_second);
 }
 
-// -----------------------------------------------------------------------------
-
-inline Location Location::OfCoords (std::string coords) {
-	ASSERT(ValidLocation(coords));
-	uint x = coords[0] >= 'a' ? coords[0] - 'a' : coords[0] - 'A';
-	uint y = coords[1] - '0';
-	if (coords.size() > 2)
-		y = y * 10 + coords[2] - '0';
-	return Location(++x, y);
+bool Board::IsFirst(ushort val) {
+    return !((val - 1) & board_second);
 }
 
-inline Location::Location(uint x, uint y) : _pos(ToTablePos(x, y)) { }
-inline Location::Location(uint pos) : _pos(pos) {}
-
-inline Location::Location() {}
-
-inline uint Location::GetPos() const { return _pos; }
-
-inline std::string Location::ToCoords() const {
-	std::stringstream coords;
-	coords << static_cast<char>(_pos % kBoardSizeAligned + 'a' - 2);
-	coords << _pos / kBoardSizeAligned - 1;
-	return coords.str();
+bool Board::IsSecond(ushort val) {
+    return val & board_second;
 }
 
-inline uint Location::ToTablePos(uint x, uint y) {
-	ASSERT (ValidLocation(x, y));
-	return (++y) * (kBoardSizeAligned) + x + 1;
+bool Board::IsEmpty(ushort val) {
+    return val == 0;
 }
 
-inline bool Location::operator==(Location loc) const {
-	return loc._pos == _pos;
+bool Board::SamePlayer(ushort val, ushort val2) {
+    return (val & board_second) == (val2 & board_second) && val2 != 0;
 }
 
-inline bool Location::operator!=(Location loc) const {
-	return loc._pos != _pos;
+bool Board::OppPlayer(ushort val, ushort val2) {
+    return (val & board_second) ^ (val2 & board_second);
 }
-
-inline bool Location::ValidLocation(const std::string& location) {
-	if (location.size() == 0 || location.size() > 3)
-		return false;
-	uint x = location[0] >= 'a' ? location[0] - 'a' : location[0] - 'A';
-	uint y = location[1] - '0';
-	if (location.size() > 2)
-		y = y * 10 + location[2] - '0';
-	return ValidLocation(++x, y);
-}
-
-inline bool Location::ValidPosition(uint pos) {
-	uint x, y;
-	ToCoords(pos, x, y);
-	return ValidLocation(x, y);
-}
-
-inline bool Location::ValidLocation(uint x, uint y) {
-	return x > 0 && y > 0 && x <= kBoardSize && y <= kBoardSize;
-}
-
-inline void Location::ToCoords(uint pos, uint& x, uint& y) {
-	x = pos % kBoardSizeAligned - 1;
-	y = pos / kBoardSizeAligned - 1;
-}
-
-// -----------------------------------------------------------------------------
-
-inline Move::Move (const Player& player, const Location& location)
-	: _player(player), _location(location) {}
-
-inline Move::Move() :_player(Player::First()), _location(0) {}
-
-inline Location Move::GetLocation() const { return _location; }
-
-inline Player Move::GetPlayer() const { return _player; }
-
-// -----------------------------------------------------------------------------
-
-const uint Board::guarded_board_size = kBoardSize + 4;
-const uint Board::table_size = kBoardSizeAligned * kBoardSizeAligned;
 
 const Board Board::Empty() {
 
-	Board board;
+    Board board;
 
-	uint counter = 0;
-	for (uint i = 0; i < table_size; ++i)
-		board._reverse_fast_field_map[i] = -1;
-	for (uint i = 2; i <= kBoardSize + 1; ++i) {
-		for (uint j = 2; j <= kBoardSize + 1; ++j) {
-			uint field = i * kBoardSizeAligned + j;
-			board._fast_field_map[counter] = field;
-			board._reverse_fast_field_map[field] = counter++;
-		}
-	}
+    uint counter = 0;
+    for (uint i = 0; i < Dim::actual_field_count; ++i)
+        board.rev_map[i] = -1;
+    for (uint i = 1; i <= Dim::board_size; ++i) {
+        for (uint j = 1; j <= Dim::board_size; ++j) {
+            signed int field = Dim::OfPos(i, j);
+            board.field_map[counter] = field;
+            board.rev_map[field] = counter++;
+        }
+    }
 
-	for (uint i = 0; i < table_size; ++i)
-		board._board[i] = 0;
-	for (uint i = 2; i <= kBoardSize + 1; ++i)
-		board._board[i + kBoardSizeAligned] = 2 + kBoardSizeAligned;
-	for (uint i = (guarded_board_size - 2) * kBoardSizeAligned + 2;
-			i < (guarded_board_size - 2) * (kBoardSizeAligned + 1); ++i) {
-		board._board[i] = (guarded_board_size - 2) * kBoardSizeAligned + 2;
-	}
-	for (uint i = 2 * kBoardSizeAligned + 1, j = 0; j < guarded_board_size - 4;
-			i += kBoardSizeAligned, j++) {
-		board._board[i] = -1;
-		board._board[i + kBoardSize + 1] = -1;
-	}
+    for (uint i = 0; i < Dim::actual_field_count; ++i)
+        board.board[i] = board_empty;
+    for (uint i = 1; i <= Dim::board_size; ++i) {
+        board.board[Dim::OfPos(i, 0)] = ToFirst(root_up);
+        board.board[Dim::OfPos(i, Dim::board_size + 1)] = ToFirst(root_down);
+        board.board[Dim::OfPos(0, i)] = ToSecond(root_left);
+        board.board[Dim::OfPos(Dim::board_size + 1, i)] = ToSecond(root_right);
+    }
 
+    board.ClearShortestPathsStats();
 
-	return board;
+    return board;
 }
 
-inline Player Board::CurrentPlayer() const {
-	return _current;
+void Board::ClearShortestPathsStats() {
+
+    for(uint i = 0; i < Dim::actual_field_count; i++)
+        timesOfBeingOnShortestPath[i]=0;
+}
+
+
+void Board::UpdatePathsStatsAllShortestPathsBFS(Board& aBoard, const Player& winner) {
+
+    // bfs queue
+    short queue[Dim::actual_field_count / 2 + 1];
+    // marks in which step node was visited
+    unsigned short visited[Dim::actual_field_count];
+    // queue markings
+    short beg = 0, end = -1;
+
+    memset(visited, 0, Dim::actual_field_count * sizeof(visited[0]));
+
+    if (Player::First() == winner) {
+        for (uint i = Dim::OfPos(1, 1); i <= Dim::OfPos(Dim::board_size, 1); i = i + Dim::right)
+            if (IsFirst(board[i])) {
+                // I put to queue every node by the edge
+                queue[++end]=i;
+                //and mark it as visited in first step
+                visited[i]=1;
+            }
+
+        /*
+         * Standard BFS:
+         * I try to reach the other edge of the board using nodes
+         * that belong to the first player. I know that is possible because
+         * first player is the winner. For each visited guy I count length of
+         * a shotrest path leading from first edge to him.
+         */
+        for (; beg <= end; ++beg)
+            FOR_SIX(int dir)
+                if ((visited[queue[beg] + dir] == 0) && IsFirst(board[queue[beg] + dir])){
+                    queue[++end] = queue[beg] + dir;
+                    visited[queue[end]] = visited[queue[beg]] + 1;
+                }
+
+        /*
+         * Now I have to find the shortest paths.
+         * I find out which nodes by the other edge were visited as first ones
+         */
+        uint min = (uint) - 1;
+        for (uint i = Dim::OfPos(1,Dim::board_size); i <= Dim::OfPos(Dim::board_size,Dim::board_size); i = i + Dim::right)
+            if(visited[i] > 0 && visited[i] < min)
+                min = visited[i];
+
+        // cleaning queue
+        beg = 0;
+        end = -1;
+        /*
+         * Have to be prepared for second BFS. It shall start from the other edge
+         * and shall be done backwards. We add to the queue neighbor(actual) if
+         * player(actual)==player(neighbor(actual)) and if visited(actual)==visited(neighbor(actual))+1.
+         * It guarantee that we visit only those nodes that are placed on a shortest path.
+         * actual_mins says "how much nodes are waiting in queue to be expand and visited(those nodes)
+         * was equal to min before it has been zeroed"
+         * next_mins says "how much nodes are waiting in queue to be expand and visited(those nodes)
+         * was equal to (min-1) before it has been zeroed"
+         * I need those two variables to get know when decrease min.
+         */
+        int actual_mins = 0;
+        int next_mins = 0;
+        for (uint i = Dim::OfPos(1,Dim::board_size); i <= Dim::OfPos(Dim::board_size,Dim::board_size); i = i + Dim::right)
+            if (visited[i] == min){
+                queue[++end] = i;
+                aBoard.timesOfBeingOnShortestPath[i]++;
+                visited[i] = 0;
+                actual_mins++;
+            }
+
+        for(; beg <= end; beg++) {
+            FOR_SIX(int dir)
+                if (visited[queue[beg] + dir] == min - 1 && visited[queue[beg] + 1]) {
+                    next_mins++;
+                    queue[++end]=queue[beg] + dir;
+                    visited[queue[end]] = 0;
+                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+                }
+            if (--actual_mins == 0){
+                actual_mins =next_mins;
+                next_mins = 0;
+                min--;
+            }
+        }
+
+    } else {
+        /*
+         * Analogically for the other player marked with values < 0
+         * there are changes in 'for' statements (vertically, not horizontally)
+         * and in checking if player is second, not first
+         */
+
+        for (uint i = Dim::OfPos(1,1); i <= Dim::OfPos(1,Dim::board_size); i = i + Dim::down)
+            if (IsSecond(board[i])) {
+                queue[++end] = i;
+                visited[i] = 1;
+            }
+
+        for(; beg <= end; beg++)
+            FOR_SIX(int dir)
+                if ((visited[queue[beg] + dir] == 0) && IsSecond(board[queue[beg] + dir])){
+                    queue[++end] = queue[beg] + dir;
+                    visited[queue[end]] = visited[queue[beg]] + dir;
+                }
+
+        uint min = (uint) -1;
+        for (uint i = Dim::OfPos(Dim::board_size,1); i <= Dim::OfPos(Dim::board_size,Dim::board_size); i = i + Dim::down)
+            if (visited[i] > 0 && visited[i] < min)
+                min = visited[i];
+
+        beg = 0;
+        end = -1;
+        int actual_mins = 0;
+        int next_mins = 0;
+        for (uint i = Dim::OfPos(Dim::board_size,1); i <= Dim::OfPos(Dim::board_size,Dim::board_size); i = i + Dim::down)
+            if (visited[i] == min) {
+                queue[++end] = i;
+                aBoard.timesOfBeingOnShortestPath[i]++;
+                visited[i] = 0;
+                actual_mins++;
+            }
+
+        for (; beg <= end; beg++) {
+            FOR_SIX(int dir)
+                if (visited[queue[beg] + dir] == min - 1 && visited[queue[beg] + dir]) {
+                    next_mins++;
+                    queue[++end]=queue[beg] + dir;
+                    visited[queue[end]] = 0;
+                    aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+                }
+
+            if (--actual_mins == 0) {
+                actual_mins = next_mins;
+                next_mins = 0;
+                min--;
+            }
+        }
+    }
+}
+
+// FIXME: Ensure variable guards are handled correctly.
+// NOTE: This code should work for Dim::guard_count == 2.
+// TODO: Add comments to each loop explaining briefly what it is doing.
+// Explain what is kept in visited[] table, what kind of initialization of the
+// table is performed. See UpdatePathsStatsAllShortestPathsBFS() for details.
+void Board::UpdatePathsStatsOneShortestPathBFS(Board& aBoard, const Player& winner) {
+
+    short queue[Dim::actual_field_count / 2 + 1];
+    unsigned short visited[Dim::actual_field_count];
+    short beg = 0, end = -1;
+
+    memset(visited, 0, Dim::actual_field_count * sizeof(visited[0]));
+
+    // FIXME: Please merge both branches of this if into a single code snippet.
+    // They are both very similar.
+    if (Player::First() == winner) {
+        // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
+        for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
+                  i < Dim::guard_count * Dim::down + Dim::board_size + Dim::guard_count;
+                  i += Dim::right)
+            if (IsFirst(board[i])) {
+                queue[++end] = i;
+                visited[i] = 1;
+            }
+
+        for (; beg<=end; beg++)
+            FOR_SIX(int dir)
+                if ((visited[queue[beg] + dir] == 0) && IsFirst(board[queue[beg] + dir])){
+                    queue[++end] = queue[beg] + dir;
+                    visited[queue[end]] = visited[beg] + 1;
+                }
+
+        // avoiding warnings
+        uint current = 0;
+        uint min = (uint) -1;
+        // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
+        for (uint i = (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count;
+                  i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size;
+                  i += Dim::right) {
+            if (visited[i] > 0 && visited[i] < min) {
+                min = visited[i];
+                current = i;
+            }
+        }
+        aBoard.timesOfBeingOnShortestPath[current]++;
+
+        for (;;) {
+            loop: FOR_SIX (int dir)
+                if (visited[current + dir] == visited[current] - 1){
+                    current = current + dir;
+                    aBoard.timesOfBeingOnShortestPath[current]++;
+                    goto loop;
+                }
+            break;
+        }
+
+    } else {
+
+        // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
+        for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
+                  i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count;
+                  i = i + Dim::down)
+            if (IsSecond(board[i])) {
+                queue[++end] = i;
+                visited[i] = 1;
+            }
+
+        for(; beg <= end; beg++)
+            FOR_SIX(int dir)
+                if ((visited[queue[beg] + dir] == 0) && IsSecond(board[queue[beg] + dir])) {
+                    queue[++end]=queue[beg] + dir;
+                    visited[queue[end]] = visited[beg] + 1;
+                }
+
+        //avoiding warnings
+        uint current = 0;
+        uint min = (uint) -1;
+        // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
+        for (uint i = Dim::guard_count * Dim::down + Dim::guard_count - 1 + Dim::board_size;
+                  i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size;
+                  i = i + Dim::down) {
+            if (visited[i] > 0 && visited[i] < min) {
+                min = visited[i];
+                current = i;
+            }
+        }
+
+        aBoard.timesOfBeingOnShortestPath[current]++;
+        for (;;) {
+            loop2: FOR_SIX (int dir)
+                if (visited[current + dir] == visited[current] - 1){
+                    current = current + dir;
+                    aBoard.timesOfBeingOnShortestPath[current]++;
+                    goto loop2;
+                }
+            break;
+        }
+    }
+
+}
+
+/*
+ * FIXME Test this procedure! No testing has been perfomed thus far.
+ */
+void Board::UpdatePathsStatsFloodFillFU(Board& aBoard, const Player& winner){
+    /* first uses positive numbers, second -1s */
+    /* board[(guarded_size - 2) * Dim::actual_size  + 2] is always a guard of a first type */
+    /* board[2 * Dim::actual_size  + 1] is always a guard of a second type */
+
+    // Two-directional F&U is required for the procedure to function.
+    ASSERT(Switches::DetectWins());
+
+    int startingPoint;
+    uint parent;
+
+    if (Player::First() == winner)
+        startingPoint = (Dim::guarded_size - 2) * Dim::down  + 2;
+    else
+        startingPoint = 2 * Dim::down + 1;
+
+    parent = Find(startingPoint);
+
+    for(uint i = 0; i < Dim::actual_field_count; i++)
+        aBoard.timesOfBeingOnShortestPath[i] += (short) (Find(board[i]) == parent);
+}
+
+void Board::ShowPathsStats() {
+
+    cerr << "SHOREST PATHS STATS:\n";
+
+    for (uint i = 0; i < Dim::actual_size; i++){
+        for (uint j = 0; j < Dim::actual_size; j++)
+            cerr << " " << timesOfBeingOnShortestPath[i * Dim::down + j] << " ";
+        cerr << "\n";
+    }
+
+    cerr << "END OF SHOREST PATHS STATS\n";
+}
+
+// FIXME: Ensure variable guards are handled correctly.
+// NOTE: This code should work for Dim::guard_count == 2.
+// TODO: Add comments to each loop explaining briefly what it is doing.
+// Explain what is kept in visited[] table, what kind of initialization of the
+// table is performed. See UpdatePathsStatsAllShortestPathsBFS() for details.
+void Board::UpdatePathsStatsFloodFillBFS(Board& aBoard, const Player& winner){
+
+    // Two-directional F&U is required for this procedure to function.
+    ASSERT(Switches::DetectWins());
+
+    // FIXME: The second branch can be optimized in a manner similar to the first
+    // one in a situation where symmetric F&U is maintained.
+    if (Player::First() == winner) {
+        int startingPoint;
+        uint parent;
+
+        startingPoint = (Dim::guarded_size - 2) * Dim::actual_size + 2;
+
+        parent = Find(startingPoint);
+
+        for (uint i = 0; i < Dim::actual_field_count; i++) {
+            /* this check is necessary due to asymetric FU */
+            if (IsFirst(board[i]))
+                aBoard.timesOfBeingOnShortestPath[i] += (short)(Find(board[i]) == parent);
+        }
+
+    } else {
+        /* FU is not performed for this player, BFS necessary */
+
+        short queue[Dim::actual_field_count / 2 + 1];
+        unsigned short visited[Dim::actual_field_count];
+        short beg = 0, end = -1;
+
+        memset(visited, 0, Dim::actual_field_count * sizeof(visited[0]));
+
+        if (Player::First() == winner){
+            // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
+            for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
+                      i < Dim::guard_count * Dim::down + Dim::board_size + Dim::guard_count;
+                      i += Dim::right)
+                if (IsFirst(board[i])) {
+                    queue[++end] = i;
+                    visited[i] = Dim::actual_size;
+                }
+
+            for (; beg<=end; beg++)
+                FOR_SIX (int dir)
+                    if ((visited[queue[beg] + dir] == 0) && IsFirst(board[queue[beg] + dir])){
+                        queue[++end] = queue[beg] + dir;
+                        visited[queue[end]] = visited[beg];
+                    }
+
+            for(uint i = Dim::down + Dim::guard_count;
+                     i < Dim::down + Dim::board_size + Dim::guard_count;
+                     i += Dim::right)
+                visited[i] = 0;
+
+            beg = 0;
+            end = -1;
+            // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
+            for (uint i = (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count;
+                      i < (Dim::board_size + Dim::guard_count - 1) * Dim::down + Dim::guard_count + Dim::board_size;
+                      i += Dim::right)
+                if (visited[i] > 0) {
+                    queue[++end] = i;
+                    aBoard.timesOfBeingOnShortestPath[i]++;
+                    visited[i] = 0;
+                }
+
+            for(; beg <= end; beg++)
+                FOR_SIX(int dir)
+                    if (visited[queue[beg] + dir] > 0 && visited[queue[beg] + dir] < Dim::actual_size + Dim::board_size) {
+                        queue[++end]=queue[beg] + dir;
+                        visited[queue[end]] = 0;
+                        aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+                    }
+
+        } else {
+
+            // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
+            for (uint i = Dim::guard_count * Dim::down + Dim::guard_count;
+                      i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count;
+                      i = i + Dim::down)
+                if (IsSecond(board[i])) {
+                    queue[++end]=i;
+                    visited[i]=1;
+                }
+
+            for (; beg <= end; beg++)
+                FOR_SIX(int dir)
+                    if((visited[queue[beg] + dir] == 0) && IsSecond(board[queue[beg] + dir])){
+                        queue[++end]=queue[beg] + dir;
+                        visited[queue[end]] = visited[beg] + 1;
+                    }
+
+            // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
+            for (uint i = Dim::guard_count * Dim::down + Dim::guard_count - 1;
+                      i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count - 1;
+                      i = i + Dim::down)
+                visited[i] = 0;
+
+            beg=0;
+            end=-1;
+            // FIXME: Use Dim::OfPos() in order to aquire appropriate iteration range.
+            for (uint i = Dim::guard_count * Dim::down + Dim::guard_count - 1 + Dim::board_size;
+                      i < (Dim::board_size + Dim::guard_count) * Dim::down + Dim::guard_count - 1 + Dim::board_size;
+                      i = i + Dim::down)
+                if (visited[i] > 0) {
+                    queue[++end] = i;
+                    aBoard.timesOfBeingOnShortestPath[i]++;
+                    visited[i] = 0;
+                }
+
+            for(; beg <= end; beg++)
+                FOR_SIX (int dir)
+                    if (visited[queue[beg] + dir] > 0 && visited[queue[beg] + dir] < Dim::actual_size + Dim::board_size){
+                        queue[++end] = queue[beg] + dir;
+                        visited[queue[end]] = 0;
+                        aBoard.timesOfBeingOnShortestPath[queue[end]]++;
+                    }
+        }
+    }
+}
+
+Player Board::CurrentPlayer() const {
+    return current;
 }
 
 Move Board::RandomLegalMove (const Player& player) const {
 
-#define STRANGE_NUMBER 128
+    return Move(player, field_map[Rand::next_rand(moves_left)]);
 
-	// _field_map_bound - last not-bridge
-	// (_field_map_bound + 1) - first field after not-bridge fields == count of not-bridges
-	// (_moves_left - _field_map_bound - 1) - bridges count
-
-	uint rnd = Rand::next_rand((_field_map_bound + 1) * STRANGE_NUMBER + _moves_left - _field_map_bound - 1);
-	uint result;
-
-	if (rnd >= static_cast<unsigned>(_field_map_bound + 1) * STRANGE_NUMBER)
-		result = rnd - (_field_map_bound + 1) * (STRANGE_NUMBER - 1);
-	else 
-		result = rnd / STRANGE_NUMBER;
-
-#undef STRANGE_NUMBER
-
-    /* Patterns random move */
-    if (Sampler::use_patterns)
-        return Move(player, sampler.RandomMove());
-    /* Patterns random move */
-
-	return Move(player, _fast_field_map[result]);
 }
 
-/*Move Board::RandomLegalMoveIgnoreBridges (const Player& player) const {
-	return Move(player, _fast_field_map[Rand::next_rand(_moves_left)]);
-}*/
+Move Board::RandomLegalAvoidBridges (const Player& player) const {
 
-inline void Board::PlayLegal (const Move& move) {
-	ASSERT(IsValidMove(move));
+    // bridge_range - last not-bridge
+    // (bridge_range + 1) - first field after not-bridge fields == count of not-bridges
+    // (moves_left - bridge_range - 1) - bridges count
 
-    /* Patterns move */
-    if (Sampler::use_patterns)
-        sampler.Play(move);
-    /* Patterns move */
+    uint rnd = Rand::next_rand((bridge_range + 1) * Params::bridgeWeight + moves_left - bridge_range - 1);
+    uint result;
 
-	uint pos = move.GetLocation().GetPos();
-	if (move.GetPlayer() == Player::First()) {
-		_board[pos] = pos;
-		MakeUnion(pos);
-	} else {
-		_board[pos] = -1;
-	}
-	uint fast_map_pos = _reverse_fast_field_map[pos];
-	uint replace_pos = _fast_field_map[--_moves_left];
-	_fast_field_map[fast_map_pos] = replace_pos;
-	_reverse_fast_field_map[replace_pos] = fast_map_pos;
-	_current = _current.Opponent();
+    if (rnd >= static_cast<unsigned>(bridge_range + 1) * Params::bridgeWeight)
+        result = rnd - (bridge_range + 1) * (Params::bridgeWeight - 1);
+    else
+        result = rnd / Params::bridgeWeight;
 
-	_reverse_fast_field_map[pos] = _moves_left;			/*WTF?*/
-	if (_field_map_bound >= static_cast<int>(_moves_left))
-		_field_map_bound--;					/*serio - WTF?*/
+    return Move(player, field_map[result]);
 
-	UpdateBridgeBound(replace_pos);
-	UpdateBridges(pos);
 }
 
-/*inline void Board::PlayLegalIgnoreBridges (const Move& move) {
-	ASSERT(IsValidMove(move));
-	uint pos = move.GetLocation().GetPos();
-	if (move.GetPlayer() == Player::First()) {
-		_board[pos] = pos;
-		MakeUnion(pos);
-	} else {
-		_board[pos] = -1;
-	}
-	uint fast_map_pos = _reverse_fast_field_map[pos];
-	uint replace_pos = _fast_field_map[--_moves_left];
-	_fast_field_map[fast_map_pos] = replace_pos;
-	_reverse_fast_field_map[replace_pos] = fast_map_pos;
-	_current = _current.Opponent();
-}*/
+void Board::SwapFree(uint index, uint index2) {
+    uint x = field_map[index];
+    field_map[index] = field_map[index2];
+    field_map[index2] = x;
 
-inline void Board::MakeUnion(uint pos) {
-	uint rep = MakeUnion(pos, pos + 1);
-	rep = MakeUnion(rep, pos - 1);
-	rep = MakeUnion(rep, pos - kBoardSizeAligned);
-	rep = MakeUnion(rep, pos - kBoardSizeAligned + 1);
-	rep = MakeUnion(rep, pos + kBoardSizeAligned);
-	MakeUnion(rep, pos + kBoardSizeAligned - 1);
+    rev_map[field_map[index]] = index;
+    rev_map[field_map[index2]] = index2;
+}
+
+void Board::MoveFree(uint pos, uint index) {
+
+    // The index in the field map containing pos before the update.
+    uint fast_map_pos = rev_map[pos];
+    SwapFree(fast_map_pos, index);
+}
+
+uint Board::RemoveFree(uint pos) {
+
+    // The index in the field map containing pos before the update.
+    uint fast_map_pos = rev_map[pos];
+    // The new position to put instead of pos in the field map. It is the last
+    // position in the array, which enables us to trim the array by one position.
+    uint replace_pos = field_map[--moves_left];
+
+    // Replacing pos with replace_pos in the field map.
+    field_map[fast_map_pos] = replace_pos;
+    // Now, new replace_pos index inside field map has to be updated in the
+    // reverse field map.
+    rev_map[replace_pos] = fast_map_pos;
+
+    return replace_pos;
+}
+
+void Board::PlayLegal(const Move& move) {
+
+    ASSERT(IsValidMove(move));
+
+    if (Switches::PatternsUsed())
+    	sampler.Play(move);
+
+    current = current.Opponent();
+    uint pos = move.GetLocation().GetPos();
+
+    if (move.GetPlayer() == Player::First()) {
+        board[pos] = ToFirst(pos);
+        MakeUnion(pos);
+    } else {
+        board[pos] = ToSecond(pos);
+        // No F&U is maintained for the second player if win detection is not
+        // required.
+        if (Switches::DetectWins())
+            MakeUnion(pos);
+    }
+
+    uint replace_pos = RemoveFree(pos);
+
+    if(Switches::IsAvoidingBridges() || Switches::IsDefendingBridges())
+        UpdateBridgeData(pos, replace_pos);
+}
+
+void Board::UpdateBridgeData (uint pos, uint replace_pos) {
+
+    // Ensure that bridge_range points to some valid free position within
+    // the reverse field map.
+    if (bridge_range >= static_cast<int>(moves_left))
+        bridge_range--;
+
+    UpdateBridgeBound(replace_pos);
+    UpdateBridges(pos);
+
+    // Set the value stored in reverse field map for pos as invalid (?).
+    rev_map[pos] = moves_left;
+}
+
+Move Board::RandomLegalUsePatterns (const Player& player) const {
+    return Move(player, sampler.RandomMove());
+}
+
+void Board::MakeUnion(uint pos) {
+    // Perform unions with neighbouring fields as needed.
+    uint rep = MakeUnion(pos, pos + Dim::right);
+    rep = MakeUnion(rep, pos + Dim::left);
+    rep = MakeUnion(rep, pos + Dim::upper_left);
+    rep = MakeUnion(rep, pos + Dim::upper_right);
+    rep = MakeUnion(rep, pos + Dim::lower_left);
+    MakeUnion(rep, pos + Dim::lower_right);
 }
 
 uint Board::MakeUnion(uint pos1, uint pos2) {
-	return _board[pos2] <= 0 ? pos1 : _board[pos1] = Find(pos2);
+    if (Switches::DetectWins()) {
+        // Two F&U trees are maintained. If pos2 is non-empty and pos, pos2 agree in
+        // colour - perform a union.
+        return (IsEmpty(board[pos2]) || IsSecond(board[pos1]) != IsSecond(board[pos2])) ? pos1 : ToPos(board[pos1] = Find(pos2));
+    } else {
+        // A single F&U tree is maintained for the first player. If pos and pos2
+        // both belong to the first player, perform a union.
+        return !IsFirst(board[pos2]) ? pos1 : ToPos(board[pos1] = Find(pos2));
+    }
 }
 
-inline uint Board::Find(uint pos) {
-	while (static_cast<uint>(_board[pos]) != pos)
-		pos = _board[pos] = _board[_board[_board[pos]]];
-	return pos;
+uint Board::Find(uint pos) const {
+    // Simplified quasi-F&U implementation. In each step of finding root, link
+    // node's grandfather and the node itself with the same father node.
+    while (static_cast<uint>(ToPos(board[pos])) != pos)
+        pos = ToPos(board[pos] = board[ToPos(board[ToPos(board[pos])])]);
+    return board[pos];
 }
 
-inline uint Board::ConstFind(uint pos) const {
-	while (static_cast<uint>(_board[pos]) != pos)
-		pos = _board[pos];
-	return pos;
+uint Board::ConstFind(uint pos) const {
+    // Perform a non modifying F&U search.
+    while (static_cast<uint>(ToPos(board[pos])) != pos)
+        pos = ToPos(board[pos]);
+    return board[pos];
 }
 
-inline bool Board::IsFull() const {
-	return _moves_left == 0;
+bool Board::IsFull() const {
+    return moves_left == 0;
 }
 
-inline Player Board::Winner() const {
-	if (ConstFind(kBoardSizeAligned + 2) ==
-		ConstFind((guarded_board_size - 2) * kBoardSizeAligned + 2)) {
-			return Player::First();
-	}
-	else return Player::Second();
+bool Board::IsWon() const {
+    if (Switches::DetectWins())
+        return Find(root_up) == Find(root_down) ||
+               Find(root_left) == Find(root_right);
+    else
+        return IsFull();
 }
 
-inline void Board::Load (const Board& board) {
-	memcpy(this, &board, sizeof(*this));
+Player Board::Winner() const {
+    if (ConstFind(root_up) == ConstFind(root_down))
+        return Player::First();
+    else
+        return Player::Second();
 }
 
-inline Board::Board() : _moves_left(kBoardSize * kBoardSize),
-		_field_map_bound(kBoardSize * kBoardSize - 1), _current(Player::First()) {
-	Rand::init(time(NULL));
+void Board::Load (const Board& board) {
+    memcpy(this, &board, sizeof(*this));
 }
 
-inline uint Board::MovesLeft() const {
-	return _moves_left;
+Board::Board():
+        moves_left(Dim::field_count),
+        bridge_range(Dim::field_count - 1),
+        current(Player::First()) {
+    Rand::init(time(NULL));
 }
 
-inline void Board::GetPossiblePositions(Board::ushort_ptr& locations) {
-	locations = _fast_field_map;
+uint Board::MovesLeft() const {
+    return moves_left;
+}
+
+const ushort* Board::GetEmpty() const {
+    return field_map;
 }
 
 void Board::UpdateBridges(uint pos) {
-/* 	_field_bridge_connections[pos].Clear();
-	_field_bridge_connections[pos + 1].Remove(pos);
-	_field_bridge_connections[pos - 1].Remove(pos);
-	_field_bridge_connections[pos - kBoardSizeAligned].Remove(pos);
-	_field_bridge_connections[pos - kBoardSizeAligned + 1].Remove(pos);
-	_field_bridge_connections[pos + kBoardSizeAligned].Remove(pos);
-	_field_bridge_connections[pos + kBoardSizeAligned - 1].Remove(pos);
-*/
 
-/*instead of those seven lines above developed by krzysiocrash
-'while' by theolol is used. WHY CANNOT I CLEAR THE _field_bridge_connections[pos]??*/
+    ASSERT(!IsEmpty(board[pos]));
 
-	SmallSetIterator<pair<ushort,bool>, 3> it = _field_bridge_connections[pos].GetIterator();
-	while (!it.IsEnd()){
-		uint elem = (*it).first;
+    ushort val = board[pos];
 
-		if((*it).second ^ (_current!=Player::First())) 
-							   
-			attacked_bridges.Insert(elem);
+    // Remove known bridges with position pos.
+    // Iterate over all such bridged positions kept in a set.
+    SmallSetIterator<ushort, 3> it = bridge_conn[pos].GetIterator();
+    for (; !it.IsEnd(); ++it) {
+        uint br = BridgeToPos(*it);
+        // Check if the bridge owner and the new pawn owner are different.
+        if (Switches::IsDefendingBridges()) {
+            if (OppPlayer(*it, val))
+                // An attacked bridge has been detected.
+                attacked_bridges.Insert(br);
+        }
 
-		_field_bridge_connections[elem].Remove(pair<ushort,bool>(pos,(*it).second));
-		it++;										/*to tylko Bóg wie czemu*/
-	}
+        // Remove the bridge from the neighbouring field.
+        bridge_conn[br].Remove(ToBridge(pos, *it));
+    }
 
-	short val = _board[pos];
+    if (Switches::IsDefendingBridges()) {
+        // As the bridges inside the pos are no longer valid remove it also from
+        // the attacked bridges list.
+        attacked_bridges.Remove(pos);
+    }
 
-	short second = _board[pos - 2 * kBoardSizeAligned + 1];
-	if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-			&& _board[pos - kBoardSizeAligned] == 0 &&
-			_board[pos - kBoardSizeAligned + 1] == 0) {
-		_field_bridge_connections[pos - kBoardSizeAligned].Insert(
-				pair<ushort,bool>(pos - kBoardSizeAligned + 1,!(val >> SHORT_BIT_SIZE)));
-		_field_bridge_connections[pos - kBoardSizeAligned + 1].Insert(
-				pair<ushort,bool>(pos - kBoardSizeAligned,!(val >> SHORT_BIT_SIZE)));
-	}
-	second = _board[pos - kBoardSizeAligned + 2];
-	if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-			&& _board[pos - kBoardSizeAligned + 1] == 0 && _board[pos + 1] == 0) {
-		_field_bridge_connections[pos - kBoardSizeAligned + 1].Insert(pair<ushort,bool>(pos + 1,!(val >> SHORT_BIT_SIZE)));
-		_field_bridge_connections[pos + 1].Insert(pair<ushort,bool>(pos - kBoardSizeAligned + 1,!(val >> SHORT_BIT_SIZE)));
-	}
-	second = _board[pos + kBoardSizeAligned + 1];
-	if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-			&& _board[pos + 1] == 0 && _board[pos + kBoardSizeAligned] == 0) {
-		_field_bridge_connections[pos + 1].Insert(pair<ushort,bool>(pos + kBoardSizeAligned,!(val >> SHORT_BIT_SIZE)));
-		_field_bridge_connections[pos + kBoardSizeAligned].Insert(pair<ushort,bool>(pos + 1,!(val >> SHORT_BIT_SIZE)));
-	}
-	second = _board[pos + 2 * kBoardSizeAligned - 1];
-	if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-			&& _board[pos + kBoardSizeAligned] == 0 &&
-			_board[pos + kBoardSizeAligned - 1] == 0) {
-		_field_bridge_connections[pos + kBoardSizeAligned].Insert(
-				pair<ushort,bool>(pos + kBoardSizeAligned - 1,!(val >> SHORT_BIT_SIZE)));
-		_field_bridge_connections[pos + kBoardSizeAligned - 1].Insert(
-				pair<ushort,bool>(pos + kBoardSizeAligned,!(val >> SHORT_BIT_SIZE)));
-	}
-	second = _board[pos + kBoardSizeAligned - 2];
-	if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-			&& _board[pos + kBoardSizeAligned - 1] == 0 && _board[pos - 1] == 0) {
-		_field_bridge_connections[pos + kBoardSizeAligned - 1].Insert(pair<ushort,bool>(pos - 1,!(val >> SHORT_BIT_SIZE)));
-		_field_bridge_connections[pos - 1].Insert(pair<ushort,bool>(pos + kBoardSizeAligned - 1,!(val >> SHORT_BIT_SIZE)));
-	}
-	second = _board[pos - kBoardSizeAligned - 1];
-	if (second != 0 && (second >> SHORT_BIT_SIZE) == (val >> SHORT_BIT_SIZE)
-			&& _board[pos - 1] == 0 &&
-			_board[pos - kBoardSizeAligned] == 0) {
-		_field_bridge_connections[pos - 1].Insert(pair<ushort,bool>(pos - kBoardSizeAligned,!(val >> SHORT_BIT_SIZE)));
-		_field_bridge_connections[pos - kBoardSizeAligned].Insert(pair<ushort,bool>(pos - 1,!(val >> SHORT_BIT_SIZE)));
-	}
+    // Detect bridges around position pos.
+    FOR_SIX(int dir) {
+        // A candidate for the other side of a bridge to be detected.
+        uint pos2 = pos + dir + Dim::Clockwise(dir);
+        // Candidates for bridged fields
+        uint br = pos + dir;
+        uint br2 = pos + Dim::Clockwise(dir);
+        // Test if the candidates are valid.
+        if (IsEmpty(board[br]) && IsEmpty(board[br2]) && SamePlayer(board[pos], board[pos2])) {
+            // Add both bridged fields to approrpriate sets.
+            bridge_conn[br].Insert(ToBridge(br2, val));
+            bridge_conn[br2].Insert(ToBridge(br, val));
+        }
+    }
 
-	UpdateBridgeBound(pos + 1);
-	UpdateBridgeBound(pos - 1);
-	UpdateBridgeBound(pos - kBoardSizeAligned);
-	UpdateBridgeBound(pos - kBoardSizeAligned + 1);
-	UpdateBridgeBound(pos + kBoardSizeAligned);
-	UpdateBridgeBound(pos + kBoardSizeAligned - 1);
-
-/*crucial line from theolol:*/
-
-	attacked_bridges.Remove(pos);
-
+    // Validate the order in the field maps.
+    FOR_SIX(int dir)
+        UpdateBridgeBound(pos + dir);
 }
 
-void Board::UpdateBridgeBound(uint pos) {  /*Jezu*/
-	if (_field_bridge_connections[pos].Size() > 0) {
-		if (_reverse_fast_field_map[pos] <= _field_map_bound) {
-			ushort map_pos = _reverse_fast_field_map[pos];
-			_fast_field_map[map_pos] = _fast_field_map[_field_map_bound];
-			_fast_field_map[_field_map_bound--] = pos;
+void Board::UpdateBridgeBound(uint pos) {
 
-			_reverse_fast_field_map[pos] = _field_map_bound + 1;
-			_reverse_fast_field_map[_fast_field_map[map_pos]] = map_pos;
-		}
-	} else if (_reverse_fast_field_map[pos] < _moves_left) {
-		if (_reverse_fast_field_map[pos] > _field_map_bound) {
-			ushort map_pos = _reverse_fast_field_map[pos];
-			_fast_field_map[map_pos] = _fast_field_map[++_field_map_bound];
-			_fast_field_map[_field_map_bound] = pos;
+    if (bridge_conn[pos].Size() > 0) {
+        // A bridge field might be stored outside the bridge range.
+        if (rev_map[pos] <= bridge_range)
+            // Move the bridge field inside the bridge range and extend the
+            // range.
+            MoveFree(pos, bridge_range--);
+    } else if (rev_map[pos] < moves_left) {
+        // A nonbridge field might be stored inside the bridge range.
+        if (rev_map[pos] > bridge_range)
+            // Move the nonbridge field outside the bridge range and shrink
+            // the range.
+            MoveFree(pos, ++bridge_range);
+    }
+}
 
-			_reverse_fast_field_map[pos] = _field_map_bound;
-			_reverse_fast_field_map[_fast_field_map[map_pos]] = map_pos;
-		}
-	}
+void Board::Show() const {
+    std::cerr << ToAsciiArt(Location(1, 1));
 }
 
 std::string Board::ToAsciiArt(Location last_move) const {
 
-	std::stringstream s;
+    std::stringstream s;
 
-	for (unsigned char x = 'a'; x < 'a' + kBoardSize; ++x)
-		s << " " << x;
-	s << std::endl;
-	for (uint i = 2; i <= kBoardSize + 1; ++i) {
-		for (uint j = 2; j < (i <= 10 ? i : i - 1); ++j)
-			s << " ";
-		s << i - 1;
-		if (i * kBoardSizeAligned + 1 == last_move.GetPos())
-			s << "(";
-		else s << " ";
-		for (uint j = 2; j <= kBoardSize + 1; ++j) {
-			uint pos = i * kBoardSizeAligned + j;
-			if (_board[pos] == 0)
-				s << ".";
-			else if (_board[pos] < 0)
-				s << "#";
-			else s << "O";
-			if (pos == last_move.GetPos())
-				s << ")";
-			else if (pos + 1 == last_move.GetPos())
-				s << "(";
-			else s << " ";
-		}
-		s << i - 1 << std::endl;
-	}
-	for (uint j = 0; j <= kBoardSize; ++j)
-		s << " ";
-	for (unsigned char x = 'a'; x < 'a' + kBoardSize; ++x)
-		s << " " << x;
+    for (unsigned char x = 'a'; x < 'a' + Dim::board_size; ++x)
+        s << " " << x;
+    s << std::endl;
+    for (uint i = 1; i <= Dim::board_size; ++i) {
+        for (uint j = 1; j < (i < 10 ? i : i - 1); ++j)
+            s << " ";
+        s << i;
+        if (Dim::OfPos(1, i) == last_move.GetPos())
+            s << "(";
+        else s << " ";
+        for (uint j = 1; j <= Dim::board_size; ++j) {
+            uint pos = Dim::OfPos(j, i);
+            if (IsEmpty(board[pos]))
+                s << ".";
+            else if (IsFirst(board[pos]))
+                s << "#";
+            else
+                s << "O";
+            if (pos == last_move.GetPos())
+                s << ")";
+            else if (pos + 1 == last_move.GetPos())
+                s << "(";
+            else s << " ";
+        }
+        s << i << std::endl;
+    }
+    for (uint j = 0; j <= Dim::board_size; ++j)
+        s << " ";
+    for (unsigned char x = 'a'; x < 'a' + Dim::board_size; ++x)
+        s << " " << x;
 
-	s << std::endl << "Bridges:";
-	for (unsigned i = static_cast<unsigned>(_field_map_bound + 1); i < _moves_left; i++)
-		s << " " << Location(_fast_field_map[i]).ToCoords();
+    s << std::endl << "Bridges:";
+    for (unsigned i = static_cast<unsigned> (bridge_range + 1); i < moves_left; i++)
+        s << " " << Location(field_map[i]).ToCoords();
 
-	return s.str();
+    return s.str();
 }
 
-bool Board::IsValidMove(const Move& move) {
-	if (!Location::ValidPosition(move.GetLocation().GetPos()))
-		return false;
-	return _board[move.GetLocation().GetPos()] == 0;
+bool Board::IsValidMove(const Move& move) const {
+    return (Location::ValidPosition(move.GetLocation().GetPos())) &&
+            IsEmpty(board[move.GetLocation().GetPos()]) &&
+          ((moves_left % 2 == 0 && move.GetPlayer() == Player::Second()) ||
+           (moves_left % 2 == 1 && move.GetPlayer() == Player::First()));
 }
 
-//If bride exists -> defendig move, else -> random move
-Move Board::DefendBridgeMove(const Player& player) const {
-	if (!attacked_bridges.Empty()){
-		//fprintf(stderr,"niepusty\n");
-		Move m = Move(player, Location(attacked_bridges.RandomElem()));
-		//fprintf(stderr,"%s",ToAsciiArt(m.GetLocation()).c_str());
-		//sleep(10);
-		return m;
-	}
-	return RandomLegalMove(player);
+Move Board::GenerateMoveUsingKnowledge(const Player& player) const {
+    if (Switches::IsDefendingBridges()) {
+        if (!attacked_bridges.Empty()) {
+            Move m = Move(player, Location(attacked_bridges.RandomElem()));
+            return m;
+        }
+    }
+    if (Switches::PatternsUsed())
+        return RandomLegalUsePatterns(player);
+    if (Switches::IsAvoidingBridges())
+        return RandomLegalAvoidBridges(player);
+    return RandomLegalMove(player);
 }
 
 // -----------------------------------------------------------------------------

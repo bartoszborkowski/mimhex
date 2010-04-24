@@ -7,7 +7,7 @@
 
 namespace Gtp {
 
-Io::Io (const string& params_) : params (params_), success(true), quit_gtp (false) { 
+Io::Io (const string& params_) : params (params_), success(true), quit_gtp (false) {
 }
 
 void Io::SetError (const string& message) {
@@ -184,13 +184,14 @@ namespace detail {
     return t;                                           \
   }
 
-  Specialization(bool)
-  Specialization(char)
-  Specialization(int)
-  Specialization(unsigned int)
-  Specialization(float)
-  Specialization(double)
-  Specialization(string)
+  Specialization(bool);
+  Specialization(char);
+  Specialization(int);
+  Specialization(unsigned int);
+  Specialization(float);
+  Specialization(double);
+  Specialization(string);
+  Specialization(unsigned long long);
 #undef Specialization
 
 } // namespace detail

@@ -1,141 +1,249 @@
-#include "mcts_node.h"
-#include "inverse_sqrt.h"
-#include "conditional_assert.h"
 #include <cmath>
 #include <vector>
 #include <map>
+#include "conditional_assert.h"
+#include "inverse_sqrt.h"
+#include "mcts_stats.h"
+#include "mcts_node.h"
 
 namespace Hex {
 
-MCTSNode* MCTSNode::FindChildToSelect(uint children_number) {
-	ASSERT(children_number > 0);
-	MCTSNode* best = &(children[0]);
-	float best_val = best->Eval();
-	for (uint i = 1; i < children_number; ++i) {
-		float current_val = children[i].Eval();
-		if (current_val > best_val) {
-			best = &(children[i]);
-			best_val = current_val;
-		}
-	}
-	return best;
+MCTSNode::MCTSNode():
+    ucb(Params::initialization, 2 * Params::initialization),
+    rave(Params::initialization, 2 * Params::initialization),
+    path(Params::initialization, 2 * Params::initialization),
+    children(NULL),
+    computed(false) {}
+
+MCTSNode::MCTSNode(const Board& board):
+    ucb(Params::initialization, 2 * Params::initialization),
+    rave(Params::initialization, 2 * Params::initialization),
+    path(Params::initialization, 2 * Params::initialization),
+    loc(0),
+    count(board.MovesLeft()),
+    children(NULL),
+    computed(false) {}
+
+MCTSNode* MCTSNode::SelectBestChild() const {
+
+    ASSERT(count > 0);
+
+    MCTSNode* best = &children[0];
+    float best_mu = best->Best();
+    for (uint i = 1; i < count; ++i) {
+        float mu = children[i].Best();
+        if (mu > best_mu) {
+            best = &children[i];
+            best_mu = mu;
+        }
+    }
+    return best;
 }
 
+MCTSNode* MCTSNode::SelectChild() const {
 
-float MCTSNode::Eval() {
-	float ucb_weight = GetUCBWeight();
-	//cerr<<"\n"<<"MCTSNODE. getucb: "<<GetUCB()<<"ucb weight: "<<ucb_weight<<"getrave: "<<GetRAVE()<<"\n";
-	return GetUCB() * ucb_weight + GetRAVE() * (1.0 - ucb_weight);
+    ASSERT(count > 0);
+
+    MCTSNode* best = &children[0];
+    float best_val = best->GetValue();
+    for (uint i = 1; i < count; ++i) {
+        float val = children[i].GetValue();
+        if (val > best_val) {
+            best = &children[i];
+            best_val = val;
+        }
+    }
+    return best;
 }
 
-MCTSNode* MCTSNode::FindBestChild(uint children_number) {
-	ASSERT(children_number > 0);
-	MCTSNode* best = &(children[0]);
-	float best_mu = best->GetMu();
-	for (uint i = 1; i < children_number; ++i) {
-		float current_mu = children[i].GetMu();
-		if (current_mu > best_mu) {
-			best = &(children[i]);
-			best_mu = current_mu;
-		}
-	}
-	return best;
+MCTSNode* MCTSNode::GetChildByPos(uint pos) const {
+    ASSERT(pos < Dim::actual_field_count);
+    ASSERT(pos_to_child[pos] != NULL);
+    return pos_to_child[pos];
 }
 
-inline float MCTSNode::GetMu() {
-	ASSERT(uct_stats.played > 0);
-	return static_cast<float>(uct_stats.won) / static_cast<float>(uct_stats.played);
+Player MCTSNode::GetPlayer() const {
+    // TODO: This could be optimized.
+    ASSERT(count > 0 || IsLeaf());
+    if (count % 2 == Dim::field_count % 2)
+        return Player::Second();
+    else
+        return Player::First();
 }
 
-inline float MCTSNode::GetRAVEMu() {
-	ASSERT(rave_stats.played > 0);
-	return static_cast<float>(rave_stats.won) / static_cast<float>(rave_stats.played);
+Move MCTSNode::GetMove() const {
+    return Move(GetPlayer(), loc);
 }
 
-inline float MCTSNode::GetUCB() {
-	ComputeUCBStats();
-	return ucb;
+float MCTSNode::GetValue() const {
+    if (!computed) {
+        computed = true;
+        value = ucb.GetValue() * GetUcbWeight();
+        if (Switches::Rave())
+            value += rave.GetValue() * GetRaveWeight();
+        if (Switches::PathRave())
+            value += path.GetValue() * GetRaveWeight();
+        if (Switches::PathAmaf())
+            value += path.GetValue() * GetAmafWeight();
+    }
+    return value;
 }
 
-inline float MCTSNode::GetRAVE() {
-	if (valid_rave) return rave;
-	valid_rave = true;
-	return rave = GetRAVEMu() + (Params::alpha * InverseSqrt(rave_stats.played));
+float MCTSNode::Best() const {
+    float r = ucb.GetMu() * GetUcbWeight();
+    if (Switches::Rave())
+        r += rave.GetMu() * GetRaveWeight();
+    if (Switches::PathRave())
+        r += path.GetMu() * GetRaveWeight();
+    if (Switches::PathAmaf())
+        r += path.GetMu() * GetAmafWeight();
+    return r;
 }
 
-inline void MCTSNode::Expand(Board& board) {
-	ASSERT(board.MovesLeft() > 0);
-	unsigned short* locations;
-	children = new MCTSNode[board.MovesLeft()];
-	board.GetPossiblePositions(locations);
-	pos_to_children_mapping = new MCTSNode*[kBoardSizeAligned * kBoardSizeAligned];
-	for (uint i = 0; i < board.MovesLeft(); ++i) {
-		children[i].loc = locations[i];
-		pos_to_children_mapping[locations[i]] = &(children[i]);
-	}
+uint MCTSNode::GetPlayed() const {
+    return ucb.GetPlayed() - 2 * Params::initialization;
 }
 
-float MCTSNode::GetUCBWeight() {
-	ComputeUCBStats();
-	return ucb_weight;
+float MCTSNode::GetUcbWeight() const {
+    ASSERT(ucb.GetPlayed() > 0);
+    /// Use increasing UCB weight if any RAVE or AMAF technique is used.
+    if (Switches::Rave() || Switches::PathRave() || Switches::PathAmaf())
+        return static_cast<float>(ucb.GetPlayed())
+               / (Params::beta + static_cast<float>(ucb.GetPlayed()));
+    else
+        return 1.0f;
 }
 
-inline void MCTSNode::ComputeUCBStats() {
-	//cerr<<"validucb: "<<valid_ucb<<" ";
-	if (valid_ucb) return;
-	//cerr<<"licznik: "<<static_cast<float>(uct_stats.played)<<"mianownik: "<<(Params::beta + static_cast<float>(uct_stats.played))<<"\n";
-	ucb_weight = static_cast<float>(uct_stats.played) /
-				(Params::beta + static_cast<float>(uct_stats.played));
-	//cerr<<"getmu: "<<GetMu()<<"inversesqrt: "<<InverseSqrt(uct_stats.played)<<"alphA: "<<Params::alpha<<"\n";
-	ucb = GetMu() + (Params::alpha * InverseSqrt(uct_stats.played));
+float MCTSNode::GetRaveWeight() const {
+    ASSERT(Switches::PathRave() || Switches::Rave());
+    /// UCB, RAVE and AMAF weights sum to 1.0.
+    float r = 1.0f - GetUcbWeight();
+    if (Switches::PathAmaf())
+        r *= Params::gamma;
+    return r;
 }
 
-void MCTSNode::RecursivePrint(std::ostream& stream, uint max_children,
-		uint current_level, uint children_count, Player player) {
+float MCTSNode::GetAmafWeight() const {
+    ASSERT(Switches::PathAmaf());
+    /// UCB, RAVE and AMAF weights sum to 1.0.
+    float r = 1.0f - GetUcbWeight();
+    if (Switches::PathRave() || Switches::Rave())
+        r *= 1.0f - Params::gamma;
+    return r;
+}
 
-	ASSERT (children == NULL || children_count > 0);
+bool MCTSNode::IsLeaf() const {
+    return children == NULL;
+}
 
-	for (uint i = 0; i < current_level; ++i)
-		stream << "  ";
+void MCTSNode::Expand(const Board& board) {
+    ASSERT(board.MovesLeft() == count);
+    ASSERT(count > 0);
+    ASSERT(children == NULL);
+    const ushort* empty = board.GetEmpty();
+    /// Allocate actual children nodes.
+    children = new MCTSNode[count];
+    /// Allocate the position dictionary.
+    pos_to_child = new MCTSNode*[Dim::actual_field_count];
+    for (uint i = 0; i < count; ++i) {
+        /// Fill in uninitialized fields of a child
+        children[i].loc = empty[i];
+        children[i].count = count - 1;
+        /// Fill in dictionary entry.
+        pos_to_child[empty[i]] = &children[i];
+    }
+}
 
-	if (loc.GetPos() != 0) {
-		if (player == Player::First())
-			stream << "O ";
-		else stream << "# ";
-		stream << loc.ToCoords() << " ";
-	} else {
-		stream << "root ";
-	}
+void MCTSNode::Update(bool won) {
 
-	stream << "EVAL: "<<Eval()<<" GETMU "<<GetMu()<<" ";
+    computed = false;
+    rave.Update(won);
+}
 
-	if ((current_level & 1) == 0) {
-		stream << static_cast<double>(uct_stats.played - uct_stats.won)
-				* 100 / uct_stats.played<<' '<<uct_stats.played<<' '<<uct_stats.won;
-	} else {
-		stream << static_cast<double>(uct_stats.won) * 100 / uct_stats.played;
-	}
-	stream << " " << uct_stats.played;
-	stream << std::endl;
+void MCTSNode::Update(bool won, uint* begin, uint* end) {
 
-	if (children != NULL) {
-		std::map<double, std::vector<uint> > children_indices;
-		for (uint i = 0; i < children_count; ++i) {
-			double val = static_cast<double>(children[i].uct_stats.won) /
-					children[i].uct_stats.played;
-			children_indices[val].push_back(i);
-		}
-		std::map<double, std::vector<uint> >::const_reverse_iterator it
-			= children_indices.rbegin();
-		for (uint i = 0; i < std::min(children_count, max_children); ++it) {
-			std::vector<uint>::const_iterator vec_it;
-			for (vec_it = it->second.begin(); vec_it != it->second.end() &&
-					i < std::min(children_count, max_children); ++vec_it, ++i) {
-				children[*vec_it].RecursivePrint(stream, max_children,
-					current_level + 1, children_count - 1, player.Opponent());
-			}
-		}
-	}
+    computed = false;
+    ucb.Update(won);
+
+    if (Switches::Rave() && !IsLeaf()) {
+
+        ASSERT(end - begin == (int) count);
+        /// Iterate over opponent moves.
+        for (uint* it = begin; it != end && it != end + 1; it += 2) {
+            ASSERT(*it != loc.GetPos());
+            /// Update an immediate child.
+            GetChildByPos(*it)->Update(!won);
+        }
+    }
+
+    // TODO: Implement PATH-RAVE here. Use Switches.
+}
+
+void MCTSNode::ToAsciiArt(std::ostream& stream, uint max_children, uint max_level, Player pl) const {
+
+    RecursivePrint(stream, max_children, max_level, 0, pl);
+}
+
+void MCTSNode::RecursivePrint(std::ostream& stream, uint max_children, uint max_level, uint level, Player player) const {
+
+    ASSERT (IsLeaf() || count > 0);
+
+    if (max_level == 0)
+        return;
+
+    for (uint i = 0; i < level; ++i)
+        stream << "  ";
+
+    if (loc.GetPos() != 0) {
+        if (GetPlayer() == Player::First())
+            stream << "# ";
+        else
+            stream << "O ";
+        stream << loc.ToCoords() << " ";
+    } else {
+        stream << "root ";
+    }
+
+    if (GetPlayer() == player) {
+        stream << "ev: " << 1.0f - GetValue() << " mu: " << 1.0f - ucb.GetMu();
+        stream << " won: " << 1.0f - ucb.GetMu() * 100.0f << "%";
+        if (Switches::Rave())
+            stream << " rave: " << 1.0f - rave.GetMu();
+        if (Switches::PathAmaf())
+            stream << " path: " << 1.0f - path.GetMu();
+    } else {
+        stream << "ev: " << GetValue() << " mu: " << ucb.GetMu();
+        stream << " won: " << ucb.GetMu() * 100.0f << "%";\
+        if (Switches::Rave())
+            stream << " rave: " << rave.GetMu();
+        if (Switches::PathAmaf())
+            stream << " path: " << path.GetMu();
+    }
+    stream << " all: " << ucb.GetPlayed();
+    stream << std::endl;
+
+    if (children != NULL) {
+        std::map<double, std::vector<uint> > children_indices;
+        for (uint i = 0; i < count; ++i) {
+            double val = children[i].Best();
+            children_indices[val].push_back(i);
+        }
+        std::map<double, std::vector<uint> >::const_reverse_iterator it
+            = children_indices.rbegin();
+        for (uint i = 0; i < std::min(count, max_children); ++it) {
+            std::vector<uint>::const_iterator vec_it;
+            for (vec_it = it->second.begin(); vec_it != it->second.end() &&
+                    i < std::min(count, max_children); ++vec_it, ++i) {
+                children[*vec_it].RecursivePrint(
+                    stream,
+                    max_children,
+                    max_level - 1,
+                    level + 1,
+                    player
+                );
+            }
+        }
+    }
 }
 
 } // namespace Hex

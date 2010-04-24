@@ -1,143 +1,123 @@
+#include "hextypes.h"
 #include "mcts_tree.h"
 #include "conditional_assert.h"
 
 namespace Hex {
 
+// TODO: Move these to params.h
 const uint MCTSTree::default_max_depth = -1;
-const uint MCTSTree::default_playouts_per_move = 100000;
-const uint MCTSTree::ultimate_depth = kBoardSize * kBoardSize;
+const uint MCTSTree::ultimate_depth = Dim::field_count;
 const uint MCTSTree::visits_to_expand = 10;
+const uint MCTSTree::amaf_paths_palyouts = 1000;
 
-inline MCTSTree::MCTSTree() : current_player(Player::First()) {
-	Reset();
-	max_depth = default_max_depth;
-	playouts_per_move = default_playouts_per_move;
+MCTSTree::MCTSTree():
+    root(NULL),
+    max_depth(default_max_depth) {}
+
+void MCTSTree::Reset(const Board& board) {
+    root = new MCTSNode(board);
+    ASSERT(root->IsLeaf());
 }
 
-inline void MCTSTree::ClearTree() {
-	root = new MCTSNode();
-	root_children_number = 0;
+Move MCTSTree::BestMove(const Board& board) {
+
+    Reset(board);
+
+    ASSERT(!board.IsWon());
+    ASSERT(root != NULL);
+
+    /// Temporary board to animate playouts
+    Board brd;
+    /// Current node in the MCTS tree.
+    MCTSNode* node;
+    /// All the nodes on the path in the MCTS tree. Valid range: 0..level - 1.
+    MCTSNode* nodes[Dim::field_count + 1];
+    /// Number of moves made so far.
+    uint level = 1;
+    /// All the moves made so far. Valid range: 1..level - 1.
+    uint history[Dim::field_count + 1];
+
+    nodes[0] = root.GetPointer();
+
+    // TODO: If we really want this option than implement it properly.
+    // if (max_depth == 0)
+    //     node = root->GetChild(Rand::next_rand(brd.MovesLeft()));
+
+    time_manager.NewMove();
+    while (time_manager.NewPlayout(board.MovesLeft())) {
+
+        level = 1;
+        node = root.GetPointer();
+        brd.Load(board);
+        while (!node->IsLeaf()) {
+            node = node->SelectChild();
+            ASSERT(brd.CurrentPlayer() == node->GetPlayer());
+            Move move = node->GetMove();
+            brd.PlayLegal(move);
+            nodes[level] = node;
+            if (Switches::Rave() || Switches::PathRave())
+                history[level] = move.GetLocation().GetPos();
+            ++level;
+        }
+
+        if (level < max_depth && node->GetPlayed() >= visits_to_expand
+                              && brd.MovesLeft() > 0) {
+            node->Expand(brd);
+            node = node->SelectChild();
+            ASSERT(brd.CurrentPlayer() == node->GetPlayer());
+            Move move = node->GetMove();
+            brd.PlayLegal(move);
+            nodes[level] = node;
+            if (Switches::Rave() || Switches::PathRave())
+                history[level] = move.GetLocation().GetPos();
+            ++level;
+        }
+
+        Player winner = RandomFinish(brd, history, level);
+
+        bool won = (winner == nodes[level - 1]->GetPlayer());
+        for (int i = level - 1; i >= 0; --i) {
+            ASSERT((winner == nodes[i]->GetPlayer()) == won);
+            nodes[i]->Update(won, history + i + 1, history + board.MovesLeft() + 1);
+            won = !won;
+        }
+    }
+    time_manager.EndMove();
+
+    Move best = root->SelectBestChild()->GetMove();
+    ASSERT(board.IsValidMove(best));
+    return best;
 }
 
-inline void MCTSTree::Reset() {
-	ClearTree();
-}
+Player MCTSTree::RandomFinish(Board& board, uint* history, uint level) {
 
-Move MCTSTree::BestMove(Player player, Board& board) {
+    while (!board.IsFull()) {
+        Player pl = board.CurrentPlayer();
+        Move move = board.GenerateMoveUsingKnowledge(pl);
+        board.PlayLegal(move);
+        if (Switches::Rave() || Switches::PathRave()) {
+            history[level] = move.GetLocation().GetPos();
+            ++level;
+        }
+    }
 
-	ClearTree();
-
-	ASSERT (!board.IsFull());
-	ASSERT (root != NULL);
-
-	MCTSNode* current_node;
-	uint current_level;
-	typedef MCTSNode* mcts_node_ptr;
-	mcts_node_ptr path[ultimate_depth + 1];
-	uint full_path[ultimate_depth + 1];
-	path[0] = root.GetPointer();
-	Board brd;
-
-	if (root->children == NULL) {
-		root->Expand(board);
-		root_children_number = board.MovesLeft();
-	}
-
-	for (uint i = 0; i < playouts_per_move; ++i) {
-
-// 		fprintf(stderr,"%s\n", ToAsciiArt(100000).c_str());
-// 		sleep(1);
-
-		current_level = 0;
-		current_node = root.GetPointer();
-		brd.Load(board);
-		while (current_node->children != NULL) {
-			if (max_depth == 0)
-				current_node = &current_node->children[Rand::next_rand(brd.MovesLeft())];
-			else current_node = current_node->FindChildToSelect(brd.MovesLeft());
-			brd.PlayLegal(Move(brd.CurrentPlayer(), current_node->loc));
-			path[++current_level] = current_node;
-			full_path[current_level] = current_node->loc.GetPos();
-		}
-
-		if (current_level < max_depth && brd.MovesLeft() > 0 &&
-				current_node->uct_stats.played >= visits_to_expand +
-				2 * Params::initialization) {
-			current_node->Expand(brd);
-			current_node = current_node->FindChildToSelect(brd.MovesLeft());
-			brd.PlayLegal(Move(brd.CurrentPlayer(), current_node->loc));
-			path[++current_level] = current_node;
-			full_path[current_level] = current_node->loc.GetPos();
-		}
-
-		Player current = brd.CurrentPlayer();
-		Player winner = RandomFinish(brd, full_path, current_level);
-
-		for (int level = current_level; level >= 0; --level) {
-			if (winner != current)
-				path[level]->uct_stats.won++;
-			path[level]->uct_stats.played++;
-			path[level]->SetInvalidUCB();
-			current = current.Opponent();
-		}
-
-		for (int level = board.MovesLeft(); level > 0; --level) {
-			uint pos = full_path[level];
-			int tree_level = current_level - 1;
-			if (tree_level >= level)
-				tree_level = level - 1;
-			else if (((level + tree_level) & 1) == 0)
-				tree_level--;
-			if ((tree_level & 1) == 0)
-				current = player;
-			else current = player.Opponent();
-			while (tree_level >= 0) {
-				MCTSNode* updated = path[tree_level]->pos_to_children_mapping[pos];
-				if (winner == current)
-					updated->rave_stats.won++;
-				updated->rave_stats.played++;
-				updated->SetInvalidRAVE();
-				tree_level -= 2;
-			}
-		}
-	}
-
-// 		fprintf(stderr,"%s\n", ToAsciiArt(6).c_str());
-// 		sleep(10);
-
-	MCTSNode* best = root->FindBestChild(board.MovesLeft());
-	current_player = current_player.Opponent();
-
-	return Move(player, best->loc);
-}
-
-Player MCTSTree::RandomFinish(Board& board, uint* path,
-		uint current_level) {
-
-	while (!board.IsFull()) {
-	  Player pl = board.CurrentPlayer();
-	  Move move = board.DefendBridgeMove(pl);  /*!*/ // from theolol
-	  path[++current_level] = move.GetLocation().GetPos();
-	  board.PlayLegal(move);
-	}
-
-	return board.Winner();
+    return board.Winner();
 }
 
 void MCTSTree::SetMaxDepth(uint depth) {
-	if (depth > ultimate_depth)
-		max_depth = ultimate_depth;
-	else max_depth = depth;
-}
-
-void MCTSTree::SetPlayoutsPerMove(uint playouts) {
-	playouts_per_move = playouts;
+    if (depth > ultimate_depth)
+        max_depth = ultimate_depth;
+    else max_depth = depth;
 }
 
 std::string MCTSTree::ToAsciiArt(uint children) {
-	std::stringstream stream;
-	root->RecursivePrint(stream, children, 0, root_children_number, current_player);
-	return stream.str();
+    std::stringstream stream;
+    root->ToAsciiArt(stream, children, -1, root->GetPlayer());
+    return stream.str();
+}
+
+TimeManager & MCTSTree::GetTimeManager() {
+    return time_manager;
 }
 
 } // namespace Hex

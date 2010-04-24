@@ -1,8 +1,14 @@
 #define INSERT_ASSERTIONS
 
+#include "switches.cpp"
 #include "board.cpp"
+#include "board_dim.cpp"
+#include "board_player.cpp"
+#include "board_location.cpp"
+#include "board_move.cpp"
 #include "playout.cpp"
 #include "gtp.cpp"
+#include "mcts_stats.cpp"
 #include "mcts_node.cpp"
 #include "mcts_tree.cpp"
 #include "game.cpp"
@@ -14,6 +20,9 @@
 #include "hash_board.cpp"
 #include "sampler.cpp"
 #include "pattern_data.cpp"
+#include "random.cpp"
+#include "params.cpp"
+#include "time_manager.cpp"
 
 #include <iostream>
 #include <cstdlib>
@@ -21,25 +30,25 @@
 
 int main(int argc, char* argv[]) {
 
-	if ((argc & 1) == 0) {
-		std::cerr << "Usage: ./hex -param val -param val ..." << std::endl;
-		return 1;
-	}
+    if ((argc & 1) == 0) {
+        std::cerr << "Usage: ./hex -param val -param val ..." << std::endl;
+        return 1;
+    }
 
-	std::map<std::string, std::string> params;
-	for (int i = 1; i < argc; i += 2)
-		params[argv[i]] = argv[i + 1];
+    std::map<std::string, std::string> params;
+    for (int i = 1; i < argc; i += 2)
+        params[argv[i]] = argv[i + 1];
 
-	std::map<std::string, std::string>::const_iterator it;
-	if ((it = params.find("-alpha")) != params.end())
-		Hex::Params::alpha = boost::lexical_cast<float>(it->second);
-	if ((it = params.find("-beta")) != params.end())
-		Hex::Params::beta = boost::lexical_cast<float>(it->second);
-	if ((it = params.find("-initialization")) != params.end())
-		Hex::Params::initialization = boost::lexical_cast<unsigned>(it->second);
+    std::map<std::string, std::string>::const_iterator it;
+    if ((it = params.find("-alpha")) != params.end())
+        Hex::Params::alpha = boost::lexical_cast<float>(it->second);
+    if ((it = params.find("-beta")) != params.end())
+        Hex::Params::beta = boost::lexical_cast<float>(it->second);
+    if ((it = params.find("-initialization")) != params.end())
+        Hex::Params::initialization = boost::lexical_cast<unsigned>(it->second);
 
-	Hex::Protocol protocol;
-	protocol.Run(std::cin, std::cout);
+    Hex::Protocol protocol;
+    protocol.Run(std::cin, std::cout);
 
-	return 0;
+    return 0;
 }

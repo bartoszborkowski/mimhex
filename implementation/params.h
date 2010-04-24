@@ -5,14 +5,13 @@ namespace Hex {
 
 class Params {
 public:
-	static float alpha;
-	static float beta;
-	static unsigned initialization;
+    static float alpha;
+    static float beta;
+    static float gamma;
+    static unsigned initialization;
+    static unsigned bridgeWeight;
+    static double resources_part;
 };
-
-float Params::alpha = 1.0;
-float Params::beta = 20.0;
-unsigned Params::initialization = 1;
 
 } // namespace Hex
 

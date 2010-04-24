@@ -1,0 +1,1 @@
+./judge-static -v -P 0 -T 150m -i scheme -llog_single ./tratatata ./hex
