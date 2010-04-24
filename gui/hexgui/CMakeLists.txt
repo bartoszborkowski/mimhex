@@ -7,6 +7,7 @@ set ( BOOST_ROOT /usr/local/include/boost-1_39 )
 set ( BOARD_MAIN ../../main )
 set ( BOARD_IMPL ../../implementation )
 set ( BOARD_LIB ../../lib )
+set ( PATTERNS ../../patterns )
 add_definitions ( -Wall )
 
 find_package(Qt4 REQUIRED)
@@ -22,6 +23,7 @@ include_directories (
   ${BOARD_MAIN}
   ${BOARD_IMPL}
   ${BOARD_LIB}
+  ${PATTERNS}
 )  
 
 link_directories ( ${gogui_BINARY_DIR}/libgogui )

@@ -186,4 +186,8 @@ namespace HexPatterns
 
         return ret.str();
     }
+
+    Template Template::templates[TEMPLATES_AMOUNT];
+    uint Template::__template_dummy = Template::InitialiseTemplates();
+
 } //namespace HexPatterns

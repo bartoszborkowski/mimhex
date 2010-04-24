@@ -19,4 +19,10 @@
 #include "switches.cpp"
 #include "time_manager.cpp"
 
+#include "sampler.cpp"
+#include "pattern.cpp"
+#include "template.cpp"
+#include "pattern_data.cpp"
+#include "hash_board.cpp"
+
 #endif /* GUI_BOARD_INC_H */

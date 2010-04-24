@@ -47,7 +47,7 @@ int main()
     random_generator = boost::uniform_01<boost::rand48>(base_generator);
 
     rep(ii, TEMPLATES_AMOUNT) {
-        aux = HexPatterns::templates[ii].GetAllHashes();
+        aux = HexPatterns::Template::templates[ii].GetAllHashes();
         xors.insert(xors.begin(), aux.begin(), aux.end());
     }
 

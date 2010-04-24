@@ -22,7 +22,7 @@ inline void HashBoard_13::Play(uint position, uint player)
 {
     rep(ii, pattern_count[position])
         position_hash[patterns_at[position][ii]] ^=
-        patterns[patterns_at[position][ii]].HashChange(position, player);
+        Pattern::patterns[patterns_at[position][ii]].HashChange(position, player);
 
     return;
 }

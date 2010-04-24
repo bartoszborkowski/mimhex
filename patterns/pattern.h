@@ -31,14 +31,15 @@ namespace HexPatterns
 
             std::string ToAsciiArt() const;
 
+        public:
+            static Pattern patterns[PATTERNS_AMOUNT];
+
         private:
             uint id;
             uint template_id;
             int row, column;
+            static uint __pattern_dummy;
     };
-
-    Pattern patterns[PATTERNS_AMOUNT];
-    uint __pattern_dummy = Pattern::InitialisePatterns();
 
     #include "pattern-inl.h"
 }

@@ -55,4 +55,8 @@ namespace HexPatterns
 
         return ret.str();
     }
+
+    Pattern Pattern::patterns[PATTERNS_AMOUNT];
+    uint Pattern::__pattern_dummy = Pattern::InitialisePatterns();
+
 } // namespace HexPatterns

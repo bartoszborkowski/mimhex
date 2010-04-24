@@ -52,16 +52,17 @@ namespace HexPatterns
             std::vector<Hash> GetAllHashes() const;
             std::string ToAsciiArt() const;
 
+        public:
+            static Template templates[TEMPLATES_AMOUNT];
+
         private:
             uint id;
             Hash base_hash;
             uint size;
             Hash field_hashes[2 * Hex::Dim::actual_size - 1]
                 [2 * Hex::Dim::actual_size - 1][FIELD_STATES];
+            static uint __template_dummy;
     };
-
-    Template templates[TEMPLATES_AMOUNT];
-    uint __template_dummy = Template::InitialiseTemplates();
 
     #include "template-inl.h"
 } // namespace HexPatterns

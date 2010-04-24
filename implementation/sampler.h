@@ -17,6 +17,7 @@
 #include "board.h"
 #include "hash_board.h"
 #include "pattern_data.h"
+#include "macro_definitions.h"
 
 typedef unsigned char uchar;
 

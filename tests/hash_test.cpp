@@ -33,7 +33,7 @@ int main()
     std::vector<Hash> aux, xors;
 
     rep(ii, TEMPLATES_AMOUNT) {
-        aux = templates[ii].GetAllHashes();
+        aux = Template::templates[ii].GetAllHashes();
         xors.insert(xors.begin(), aux.begin(), aux.end());
     }
 

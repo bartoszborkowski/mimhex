@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
         }
 
     rep(ii, TEMPLATES_AMOUNT) {
-        aux = HexPatterns::templates[ii].GetAllHashes();
+        aux = HexPatterns::Template::templates[ii].GetAllHashes();
         xors.insert(xors.begin(), aux.begin(), aux.end());
     }
 

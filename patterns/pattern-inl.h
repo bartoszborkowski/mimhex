@@ -25,7 +25,7 @@ inline int Pattern::GetColumn() const
 
 inline Hash Pattern::HashChange(int position, uint player) const
 {
-    return templates[template_id].
+    return Template::templates[template_id].
         GetHash((position >> 4) - row, (position & 15) - column, player);
 }
 
