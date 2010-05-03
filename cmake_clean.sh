@@ -15,3 +15,5 @@ cd utils
 rm -Rvf CMakeFiles/ CTestTestfile.cmake Makefile cmake_install.cmake
 cd ../gathering
 rm -Rvf CMakeFiles/ CTestTestfile.cmake Makefile cmake_install.cmake
+cd ../minorization_maximization
+rm -Rvf CMakeFiles/ CTestTestfile.cmake Makefile cmake_install.cmake
