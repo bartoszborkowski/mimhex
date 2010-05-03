@@ -14,14 +14,11 @@
 
 namespace Hex
 {
-    std::map<HexPatterns::Hash, double> PatternData::strengths =
-        PatternData::InitialisePatternData();
+    double PatternData::strengths[];
 
-    std::map<HexPatterns::Hash, double>
-        PatternData::InitialisePatternData(const char *pattern_file)
+    uint PatternData::InitialisePatternData(const char *pattern_file)
     {
         std::ifstream ifs(pattern_file, std::ifstream::in);
-        std::map<HexPatterns::Hash, double> ret;
         HexPatterns::Hash hash;
         double strength;
 
@@ -31,32 +28,29 @@ namespace Hex
             exit(1);
         }
 
+        memset(strengths, 0, PATT_MASK * sizeof(double));
+
         while(ifs.good()) {
             ifs >> hash >> strength;
-            ret.insert(pair<HexPatterns::Hash, double>(hash, strength));
+            strengths[hash & PATT_MASK] = strength;
         }
 
         ifs.close();
 
-        return ret;
+        return 1;
     }
 
     double PatternData::GetStrength(HexPatterns::Hash hash)
     {
-        std::map<HexPatterns::Hash, double>::iterator it = strengths.find(hash);
-
-        ASSERT(it != PatternData::strengths.end());
-
-        return it->second;
+        return PatternData::strengths[hash & PATT_MASK];
     }
 
     std::string PatternData::ToAsciiArt()
     {
         std::stringstream ret;
 
-        for(std::map<HexPatterns::Hash, double>::const_iterator i =
-            strengths.begin(); i != strengths.end(); ++i)
-            ret << i->first << " " << i->second << std::endl;
+        rep(ii, PATT_MASK)
+            ret << ii << " " << PatternData::strengths[ii] << std::endl;
 
         return ret.str();
     }

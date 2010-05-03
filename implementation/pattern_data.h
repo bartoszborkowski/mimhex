@@ -13,12 +13,14 @@
 
 #include "macro_definitions.h"
 
+#define PATT_MASK 0xFFFFF
+
 namespace Hex
 {
     class PatternData
     {
         public:
-            static std::map<HexPatterns::Hash, double> InitialisePatternData
+            static uint InitialisePatternData
                 (const char *pattern_file = PATTERN_DATA_FILE);
 
             static double GetStrength(HexPatterns::Hash hash);
@@ -30,8 +32,10 @@ namespace Hex
             PatternData(const PatternData &data);
             PatternData & operator =(const PatternData &data);
 
-            static std::map<HexPatterns::Hash, double> strengths;
+            static double strengths[PATT_MASK];
     };
 } // namespace Hex
+
+uint __dummy_pattern_data = Hex::PatternData::InitialisePatternData();
 
 #endif
