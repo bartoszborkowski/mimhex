@@ -39,7 +39,7 @@ inline const uint * HashBoard_13::GetChangedPositions(uint position) const
 
 inline uint HashBoard_13::GetBoardSize() const
 {
-    return 169;
+    return Hex::Dim::actual_size * Hex::Dim::actual_size;
 }
 
 #endif

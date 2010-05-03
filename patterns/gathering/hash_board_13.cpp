@@ -10,9 +10,6 @@
 
 #include "hash_board_13.h"
 
-#define GATHER_SIZE 13
-#define GUARDS_SIZE 1 // used only in GetLocation - FIXME to use in all HashBoard
-
 namespace HexPatterns
 {
     const HashBoard_13 HashBoard_13::EmptyHashBoard()

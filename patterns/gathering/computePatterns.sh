@@ -1,17 +1,14 @@
 #!/bin/bash
 
-filenames=`mktemp filenames.XXXXXX`
-result=`mktemp result.XXXXXX`
+#result=`mktemp result.XXXXXX`
 
 for filename in `ls games | grep sgf`
 do
-    echo games/$filename
-done > $filenames
+    ./hsgf2gtp.sh games/$filename | ./gather_patterns
+    #./hsgf2gtp.sh games/$filename | ./gather_patterns | grep -v "=" #| grep : | sed 's= /==' | sed 's=:==' > $result
+done
 
-./hsgf2gtp.sh `cat $filenames` | ./gather_patterns | grep : | sed 's= /==' | sed 's=:==' > $result
+#echo `cat $result | wc -l`
+#cat $result
 
-echo `cat $result | wc -l`
-cat $result
-
-#rm $filenames
 #rm $result
