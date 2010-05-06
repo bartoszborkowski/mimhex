@@ -25,6 +25,8 @@ namespace Hex
 
             static double GetStrength(HexPatterns::Hash hash);
 
+            static double GetThreshold();
+
             static std::string ToAsciiArt();
 
         private:
@@ -33,6 +35,7 @@ namespace Hex
             PatternData & operator =(const PatternData &data);
 
             static double strengths[PATT_MASK];
+            static double threshold;
     };
 } // namespace Hex
 

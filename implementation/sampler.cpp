@@ -90,6 +90,10 @@ namespace Hex
         used_fields[position] = 0;
         gammas[position] = 0.0;
         /* Removing chosen field from the sampler.                              */
+        /* Amending double's lack of precision.                             */
+        if (row_sums[position >> 4] < PatternData::GetThreshold())
+            row_sums[position >> 4] = 0.0;
+        /* Amending double's lack of precision.                             */
 
         for (uint i = 0; i < changed_positions_amount; ++i) {
             row_sums[changed_positions[i] >> 4] -= gammas[changed_positions[i]];
@@ -104,9 +108,8 @@ namespace Hex
             all_sum += gammas[changed_positions[i]];
 
             /* Amending double's lack of precision.                             */
-            /* TODO: implement min_gamma; mayhaps a minimapl present gamma decreased tenfold */
-            //if (row_sums[changed_positions[i] >> 4] < min_gamma)
-                //row_sums[changed_positions[i] >> 4] = 0.0;
+            if (row_sums[changed_positions[i] >> 4] < PatternData::GetThreshold())
+                row_sums[changed_positions[i] >> 4] = 0.0;
             /* Amending double's lack of precision.                             */
         }
 

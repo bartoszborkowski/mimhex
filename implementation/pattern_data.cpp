@@ -15,6 +15,7 @@
 namespace Hex
 {
     double PatternData::strengths[];
+    double PatternData::threshold = 10000.0;
 
     uint PatternData::InitialisePatternData(const char *pattern_file)
     {
@@ -33,16 +34,25 @@ namespace Hex
         while(ifs.good()) {
             ifs >> hash >> strength;
             strengths[hash & PATT_MASK] = strength;
+            if (strength < threshold)
+                threshold = strength;
         }
+
+        threshold /= 10.0;
 
         ifs.close();
 
         return 1;
     }
 
-    double PatternData::GetStrength(HexPatterns::Hash hash)
+    inline double PatternData::GetStrength(HexPatterns::Hash hash)
     {
         return PatternData::strengths[hash & PATT_MASK];
+    }
+
+    inline double PatternData::GetThreshold()
+    {
+        return threshold;
     }
 
     std::string PatternData::ToAsciiArt()
