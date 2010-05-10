@@ -155,7 +155,7 @@ namespace HexPatterns
 
         rep(ii, size)
             delete [] hashes[ii];
-        delete hashes;
+        delete [] hashes;
 
         return ret;
     }

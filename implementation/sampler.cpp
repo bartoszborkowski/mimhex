@@ -85,18 +85,18 @@ namespace Hex
         ASSERT(used_fields[position]);
 
         /* Removing chosen field from the sampler.                              */
-        row_sums[position >> 4] -= gammas[position];
+        row_sums[GET_Y(position)] -= gammas[position];
         all_sum -= gammas[position];
         used_fields[position] = 0;
         gammas[position] = 0.0;
         /* Removing chosen field from the sampler.                              */
         /* Amending double's lack of precision.                             */
-        if (row_sums[position >> 4] < PatternData::GetThreshold())
-            row_sums[position >> 4] = 0.0;
+        if (row_sums[GET_Y(position)] < PatternData::GetThreshold())
+            row_sums[GET_Y(position)] = 0.0;
         /* Amending double's lack of precision.                             */
 
         for (uint i = 0; i < changed_positions_amount; ++i) {
-            row_sums[changed_positions[i] >> 4] -= gammas[changed_positions[i]];
+            row_sums[GET_Y(changed_positions[i])] -= gammas[changed_positions[i]];
             all_sum -= gammas[changed_positions[i]];
 
             /* NOTE: Out of bounds gammas are zeroed by used_fields values.     */
@@ -104,12 +104,12 @@ namespace Hex
                 PatternData::GetStrength(hash_board.GetHash(changed_positions[i])) *
                 used_fields[changed_positions[i]];
 
-            row_sums[changed_positions[i] >> 4] += gammas[changed_positions[i]];
+            row_sums[GET_Y(changed_positions[i])] += gammas[changed_positions[i]];
             all_sum += gammas[changed_positions[i]];
 
             /* Amending double's lack of precision.                             */
-            if (row_sums[changed_positions[i] >> 4] < PatternData::GetThreshold())
-                row_sums[changed_positions[i] >> 4] = 0.0;
+            if (row_sums[GET_Y(changed_positions[i])] < PatternData::GetThreshold())
+                row_sums[GET_Y(changed_positions[i])] = 0.0;
             /* Amending double's lack of precision.                             */
         }
 

@@ -27,6 +27,9 @@ inline uint Sampler::RandomMove() const
         else
             r -= gammas[i + j];
 
+    //std::cerr << "sampler: " << j - 1 << " x " << (i / Dim::actual_size) - 1 << std::endl;
+    //std::cerr << "used: " << static_cast<uint>(used_fields[i + j]) << std::endl;
+
     return i + j;
 }
 

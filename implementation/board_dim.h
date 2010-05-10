@@ -18,7 +18,7 @@ class Dim {
         /**
          * The size of the board
          */
-        static const uint board_size = 11;
+        static const uint board_size = 13;
 
         /**
          * The size of the board increased by the guarding margins on both sides.
@@ -28,7 +28,7 @@ class Dim {
         /**
          * The size of the board as it is kept in memory.
          */
-        static const uint actual_size = 16;
+        static const uint actual_size = 32;
 
         /**
          * A special value added to variables in loops in order to iterate over

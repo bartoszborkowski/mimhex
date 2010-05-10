@@ -23,6 +23,15 @@ namespace HexPatterns
     #define NORMALISED_POSITION(row, column)                                        \
         ((row + 2) * Hex::Dim::actual_size + (column + 2))
 
+    #define ROW_SHIFT               5
+    #define COLUMN_AND              31
+
+    #define GET_X(position)                                                         \
+        (position & COLUMN_AND)
+
+    #define GET_Y(position)                                                         \
+        (position >> ROW_SHIFT)
+
     #define TEMPLATES_AMOUNT        1
 
     #define PATTERNS_AMOUNT         (Hex::Dim::actual_field_count)
@@ -38,6 +47,8 @@ namespace HexPatterns
     #define PLAYER_1_STATE          1
     #define GUARDIAN_STATE          2
     #define EMPTY_STATE             3
+
+
 
     typedef uint Hash;
     typedef unsigned long ulong;

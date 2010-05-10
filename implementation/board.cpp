@@ -558,6 +558,12 @@ uint Board::RemoveFree(uint pos) {
 void Board::PlayLegal(const Move& move) {
 
     ASSERT(IsValidMove(move));
+    //std::cerr << "board:   " << move.GetLocation().GetX() << " x " << move.GetLocation().GetY() << std::endl;
+    //if (!IsValidMove(move)) {
+        //std::cerr << move.GetLocation().GetX() << " x " << move.GetLocation().GetY() << std::endl;
+        //std::cerr << ToAsciiArt(Location(0)) << std::endl;
+        //exit(1);
+    //}
 
     if (Switches::PatternsUsed())
     	sampler.Play(move);
