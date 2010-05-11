@@ -8,11 +8,11 @@ const int Dim::other_bridge_ends[6] = { up2, left_up2, left_down2, down2, right_
 const int Dim::clockwise[Dim::down * 2 + 1] = {
     upper_right, // upper_left -> upper_right
     right, // upper_right -> right
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 13 times
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 29 times
     upper_left, // left -> upper_left
     0,
     lower_right, // right -> lower_right
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 13 times
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 29 times
     left, // lower_left -> left
     lower_left // lower_right -> lower_left
 };
@@ -20,11 +20,11 @@ const int Dim::clockwise[Dim::down * 2 + 1] = {
 const int Dim::cclockwise[Dim::down * 2 + 1] = {
     left, // upper_left -> left
     upper_left, // upper_right -> upper_left
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 13 times
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 29 times
     lower_left, // left -> lower_left
     0,
     upper_right, // right -> lower_right
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 13 times
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 29 times
     lower_right, // lower_left -> lower_right
     right // lower_right -> right
 };
