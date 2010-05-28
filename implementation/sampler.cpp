@@ -19,7 +19,7 @@ namespace Hex
     boost::uniform_01<boost::rand48>
         SamplerRandom::random_generator(base_generator);
 
-    Sampler::Sampler() : hash_board(HexPatterns::HashBoard::EmptyHashBoard())
+    Sampler::Sampler(uint player) : hash_board(HexPatterns::HashBoard::EmptyHashBoard(player))
     {
         uint kk;
 

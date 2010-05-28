@@ -22,7 +22,7 @@ class Player {
         bool operator== (const Player&) const;
         bool operator!= (const Player&) const;
 
-        uint GetVal();
+        uint GetVal() const;
 
         string ToString() const;
 

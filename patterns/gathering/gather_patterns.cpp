@@ -55,7 +55,7 @@ struct SimpleStatsComputer{
     }
 
     void reportPatternUse(const uint *used_patterns, size_t n_used_patterns, const uint *existing_patterns, 
-                size_t n_existing_patterns, const bool *played_positions){
+                size_t n_existing_patterns, const bool *played_positions, uint player){
       
 
         const uint *used_patterns_end = used_patterns + n_used_patterns;
@@ -64,8 +64,7 @@ struct SimpleStatsComputer{
                 ++used_patterns;
             uses[pattern]++;
 // the important part: outputting the chosen pattern hash
-                std::cerr << pattern;
-
+                std::cerr << (pattern ^ (player ? 1919222808 : 977813344));
         }
 
         const uint *existing_patterns_end = existing_patterns + n_existing_patterns;
@@ -74,7 +73,7 @@ struct SimpleStatsComputer{
             	uint pattern = *existing_patterns;
                 occurences[pattern]++;
                 //the important part: outputting all patterns present
-				std::cerr << " " << pattern;
+				std::cerr << " " << (pattern ^ (player ? 1919222808 : 977813344));
 
             }
             ++existing_patterns;
@@ -166,7 +165,7 @@ private:
         size_t allBoardHashesSize = board->GetBoardSize();
         uint playHash = board->GetHash(location);
     
-        statsComp.reportPatternUse(&playHash, 1, allBoardHashes, allBoardHashesSize, played);
+        statsComp.reportPatternUse(&playHash, 1, allBoardHashes, allBoardHashesSize, played, player.GetVal() >> 1);
     
         board->Play(location, player.GetVal());
         played[location] = true;

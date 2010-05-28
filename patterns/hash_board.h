@@ -19,7 +19,7 @@ namespace HexPatterns
     class HashBoard
     {
         public:
-            static const HashBoard EmptyHashBoard();
+            static const HashBoard EmptyHashBoard(uint player);
 
             HashBoard();
             HashBoard(const HashBoard &board);
@@ -41,6 +41,7 @@ namespace HexPatterns
             uint pattern_count[Hex::Dim::actual_field_count];
             uint patterns_at[Hex::Dim::actual_field_count][MAX_PATTERNS];
             Hash position_hash[Hex::Dim::actual_field_count];
+            Hash player[2];
     };
 
     #include "hash_board-inl.h"

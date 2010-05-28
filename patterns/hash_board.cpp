@@ -12,7 +12,7 @@
 
 namespace HexPatterns
 {
-    const HashBoard HashBoard::EmptyHashBoard()
+    const HashBoard HashBoard::EmptyHashBoard(uint p)
     {
         HashBoard board;
 
@@ -55,6 +55,13 @@ namespace HexPatterns
         }
         /* Adding guardians to two leftmost and rightmost columns */
 
+        /* Making all hashes player specific */
+        rep(ii, Hex::Dim::board_size)
+            rep(jj, Hex::Dim::board_size)
+                board.position_hash[(ii + Hex::Dim::guard_count) * Hex::Dim::actual_size +
+                    (jj + Hex::Dim::guard_count)] ^= board.player[p];
+        /* Making all hashes player specific */
+
         return board;
     }
 
@@ -64,6 +71,9 @@ namespace HexPatterns
             pattern_count[ii] = 0;
 
         memset(position_hash, 0, Hex::Dim::actual_field_count * sizeof(Hash));
+
+        player[0] = 977813344;
+        player[1] = 1919222808;
     }
 
     HashBoard::HashBoard(const HashBoard &board)

@@ -298,7 +298,7 @@ class Board {
         /**
          * Sampler generating move making use of patterns
          */
-        Sampler sampler;
+        Sampler sampler[2];
 };
 
 } // namespace Hex

@@ -37,7 +37,8 @@ namespace Hex
     class Sampler
     {
         public:
-            Sampler();
+            Sampler() {}
+            Sampler(uint player);
             Sampler(const Sampler &sampler);
             Sampler & operator =(const Sampler &sampler);
 

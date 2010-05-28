@@ -109,10 +109,15 @@ int main(int, char **){
         uint hash1 = CalculateHash(field_base_hash, f0, f1, f2, f3, f4, f5); // normal hash
         uint hash2 = CalculateHash(field_base_hash, f3, f4, f5, f0, f1, f2); // symmetry
 
-        uint min_hash = min(hash1, hash2);
+        pattern_conv[hash1 ^ 977813344] = pattern_conv[hash2 ^ 977813344] =
+            min(hash1 ^ 977813344, hash2 ^ 977813344);
+        pattern_conv[hash1 ^ 11919222808] = pattern_conv[hash2 ^ 11919222808] =
+            min(hash1 ^ 11919222808, hash2 ^ 11919222808);
 
-        pattern_conv[hash1] = pattern_conv[hash2] = min_hash;
-        out0 << min_hash << " " << hash1 << " " << hash2 << std::endl;
+        out0 << min(hash1 ^ 977813344, hash2 ^ 977813344) << " "
+                << (hash1 ^ 977813344) << " " << (hash2 ^ 977813344) << std::endl;
+        out0 << min(hash1 ^ 11919222808, hash2 ^ 11919222808) << " "
+                << (hash1 ^ 11919222808) << " " << (hash2 ^ 11919222808) << std::endl;
     }
 
 

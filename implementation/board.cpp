@@ -559,8 +559,10 @@ void Board::PlayLegal(const Move& move) {
 
     ASSERT(IsValidMove(move));
 
-    if (Switches::PatternsUsed())
-    	sampler.Play(move);
+    if (Switches::PatternsUsed()) {
+        sampler[0].Play(move);
+        sampler[1].Play(move);
+    }
 
     current = current.Opponent();
     uint pos = move.GetLocation().GetPos();
@@ -597,7 +599,7 @@ void Board::UpdateBridgeData (uint pos, uint replace_pos) {
 }
 
 Move Board::RandomLegalUsePatterns (const Player& player) const {
-    return Move(player, sampler.RandomMove());
+    return Move(player, sampler[player.GetVal() >> 1].RandomMove());
 }
 
 void Board::MakeUnion(uint pos) {
@@ -665,6 +667,8 @@ Board::Board():
         bridge_range(Dim::field_count - 1),
         current(Player::First()) {
     Rand::init(time(NULL));
+    sampler[0] = Sampler(0);
+    sampler[1] = Sampler(1);
 }
 
 uint Board::MovesLeft() const {
