@@ -107,15 +107,12 @@ int main(int, char **){
     rep(f5, FIELD_STATES) // for every possible state of field 5
     {
         uint hash1 = CalculateHash(field_base_hash, f0, f1, f2, f3, f4, f5); // normal hash
-        uint hash2 = CalculateHash(field_base_hash, f4, f3, f2, f1, f0, f5); // x axis mirror
-        uint hash3 = CalculateHash(field_base_hash, f1, f0, f5, f4, f3, f2); // y axis mirror
-        uint hash4 = CalculateHash(field_base_hash, f3, f4, f5, f0, f1, f2); // x & y axis mirror
+        uint hash2 = CalculateHash(field_base_hash, f3, f4, f5, f0, f1, f2); // symmetry
 
-        uint min_hash = min(min(hash1, hash2), min(hash3, hash4));
+        uint min_hash = min(hash1, hash2);
 
-        pattern_conv[hash1] = pattern_conv[hash2] =
-            pattern_conv[hash3] = pattern_conv[hash4] = min_hash;
-        out0 << min_hash << " " << hash1 << " " << hash2 << " " << hash3 << " " << hash4 << std::endl;
+        pattern_conv[hash1] = pattern_conv[hash2] = min_hash;
+        out0 << min_hash << " " << hash1 << " " << hash2 << std::endl;
     }
 
 
