@@ -72,7 +72,7 @@ namespace Hex
     void Sampler::Play(const Move &move)
     {
         uint position = move.GetLocation().GetPos();
-        uint player = move.GetPlayer().GetVal();
+        uint player = move.GetPlayer().GetVal() >> 1;
 
         uint changed_positions_amount;
         const uint *changed_positions;
