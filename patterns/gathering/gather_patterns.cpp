@@ -168,7 +168,7 @@ private:
     
         statsComp.reportPatternUse(&playHash, 1, allBoardHashes, allBoardHashesSize, played);
     
-        board->Play(location, player.GetVal());
+        board->Play(location, player.GetVal() >> 1);
         played[location] = true;
     
         return;
