@@ -111,13 +111,13 @@ int main(int, char **){
 
         pattern_conv[hash1 ^ 977813344] = pattern_conv[hash2 ^ 977813344] =
             min(hash1 ^ 977813344, hash2 ^ 977813344);
-        pattern_conv[hash1 ^ 11919222808] = pattern_conv[hash2 ^ 11919222808] =
-            min(hash1 ^ 11919222808, hash2 ^ 11919222808);
+        pattern_conv[hash1 ^ 1919222808] = pattern_conv[hash2 ^ 1919222808] =
+            min(hash1 ^ 1919222808, hash2 ^ 1919222808);
 
         out0 << min(hash1 ^ 977813344, hash2 ^ 977813344) << " "
                 << (hash1 ^ 977813344) << " " << (hash2 ^ 977813344) << std::endl;
-        out0 << min(hash1 ^ 11919222808, hash2 ^ 11919222808) << " "
-                << (hash1 ^ 11919222808) << " " << (hash2 ^ 11919222808) << std::endl;
+        out0 << min(hash1 ^ 1919222808, hash2 ^ 1919222808) << " "
+                << (hash1 ^ 1919222808) << " " << (hash2 ^ 1919222808) << std::endl;
     }
 
 
